@@ -1,0 +1,54 @@
+.navbar-light .navbar-brand{
+  color: black;
+  font-size: 55px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.navbar-nav .nav-link {
+  font-size: 15px;
+  color: black;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-right: 20px;
+}
+p {
+  font-size: 28px; /* Kích thước chữ */
+}
+.card-body .text-success{
+  font-size: 25px;
+  text-transform: uppercase;
+  font-weight: 500;  
+}
+.items-infor
+{
+  color: black;
+  font-size: 25px;
+  background-color: aliceblue;
+
+}
+.modal-content {
+  width: 600px; /* Điều chỉnh chiều rộng của modal */
+  max-width: 90%; /* Giới hạn chiều rộng tối đa */
+}
+
+/* Định dạng cho phần form đăng nhập */
+#loginForm {
+  width: 400px; /* Điều chỉnh chiều rộng của form */
+  margin: 0 auto; /* Canh giữa form */
+}
+
+/* Định dạng cho nhãn và input */
+#loginForm label,
+#loginForm input[type="text"],
+#loginForm input[type="password"],
+#loginForm button[type="submit"] {
+  display: block; /* Hiển thị từng phần tử trên một dòng riêng biệt */
+  width: 100%; /* Chiếm toàn bộ chiều rộng của form */
+  margin-bottom: 10px; /* Khoảng cách giữa các phần tử */
+}
+
+/* Định dạng cho button */
+#loginForm button[type="submit"] {
+  width: auto; /* Đặt lại chiều rộng mặc định của button */
+}

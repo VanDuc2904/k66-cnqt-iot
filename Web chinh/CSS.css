@@ -13,42 +13,105 @@
   margin-right: 20px;
 }
 p {
-  font-size: 28px; /* Kích thước chữ */
+  font-size: 28px;
 }
 .card-body .text-success{
   font-size: 25px;
   text-transform: uppercase;
   font-weight: 500;  
 }
-.items-infor
-{
+.items-infor {
   color: black;
   font-size: 25px;
   background-color: aliceblue;
-
 }
 .modal-content {
-  width: 600px; /* Điều chỉnh chiều rộng của modal */
-  max-width: 90%; /* Giới hạn chiều rộng tối đa */
+  width: 600px;
+  max-width: 90%;
 }
-
-/* Định dạng cho phần form đăng nhập */
 #loginForm {
-  width: 400px; /* Điều chỉnh chiều rộng của form */
-  margin: 0 auto; /* Canh giữa form */
+  width: 400px;
+  margin: 0 auto;
 }
-
-/* Định dạng cho nhãn và input */
 #loginForm label,
 #loginForm input[type="text"],
 #loginForm input[type="password"],
 #loginForm button[type="submit"] {
-  display: block; /* Hiển thị từng phần tử trên một dòng riêng biệt */
-  width: 100%; /* Chiếm toàn bộ chiều rộng của form */
-  margin-bottom: 10px; /* Khoảng cách giữa các phần tử */
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
 }
-
-/* Định dạng cho button */
 #loginForm button[type="submit"] {
-  width: auto; /* Đặt lại chiều rộng mặc định của button */
+  width: auto;
+}
+#data-container .card {
+  margin-bottom: 20px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+#data-container {
+  display: flex;
+  justify-content: center;
+}
+#chart-container {
+  width: 80%;
+  max-width: 600px;
+  margin: 20px auto;
+}
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+}
+.table th, .table td {
+  text-align: center;
+  vertical-align: middle;
+  padding: 15px;
+  border: 1px solid #dee2e6;
+}
+.table th, .table td {
+  width: 15%;
+}
+.modal-content {
+  max-width: 800px;
+  width: 91200%;
+  margin: 0 auto;
+}
+.table {
+  width: 80%;
+  margin-bottom: 0;
+}
+#chart-container {
+  width: 1000%;
+  max-width: 800px;
+  margin: 20px auto;
+}
+canvas {
+  max-width: 1000%;
+  height: 500px;
+}
+.infowindow-content {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.infowindow-content h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.infowindow-content p {
+  margin: 4px 0;
+}
+.infowindow-content .data-label {
+  font-weight: bold;
+  color: #333;
+}
+.infowindow-content .data-value {
+  color: #555;
 }

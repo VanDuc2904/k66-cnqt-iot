@@ -334,13 +334,15 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         
         function getMarkerIcon(pm25) {
             if (pm25 <= 12) {
-                return "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
-            } else if (pm25 <= 35.4) {
-                return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+                return "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; // Tốt
+            } else if (pm25 <= 35) {
+                return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; // Vừa phải
+            } else if (pm25 <= 55) {
+                return "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"; // Kém
             } else {
-                return "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
+                return "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Rất kém
             }
-        }        
+        }       
         function updateChart(recentData) {
             const labels = recentData.map(row => row[1]);
             const temperatureData = recentData.map(row => parseFloat(row[2] || 0));
@@ -387,10 +389,11 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: false, 
                         plugins: {
                             title: {
                                 display: true,
-                                text: 'Biểu đồ chất lượng không khí'
+                                text: 'Biểu đồ chất lượng không khí',
                             }
                         },
                         scales: {
@@ -634,7 +637,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
                             <img src="img/khoadiachat.jpg" alt="" class="img-fluid">
                         </div>
                         <h3 class="card-title">Tài liệu mã code</h3>
-                        <a class="text-white " href=""> Tài liệu hướng dẫn sử dụng</a>
+                        <a class="text-white " href="">Xem chi tiết tại đây</a>
                     </div>
                 </div>
             </div>
@@ -644,8 +647,8 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
                         <div class="img-area mb-4">
                             <img src="img/khoadiachat.jpg" alt="" class="img-fluid">
                         </div>
-                        <h3 class="card-title">Đang upload</h3>
-                        <a class="text-white " href="results.htm" target="_blank"> Xem kết quả đo</a>
+                        <h3 class="card-title">Dữ liệu thống kê</h3>
+                        <a class="text-white " href="results.htm" target="_blank">Xem chi tiết tại đây</a>
                     </div>
                 </div>
             </div>                
@@ -694,7 +697,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         </div>
     </div>
 </section>
-
 <footer>
     <div class="items-infor d-flex">
         <div class="infor-wrap">

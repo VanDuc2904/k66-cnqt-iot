@@ -1,271 +1,413 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K66 Công nghệ quan trắc</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Thống kê dữ liệu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
-        #data-container .card {
+        /* Các style tùy chỉnh */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+            max-width: 100%;
+            padding: 15px;
+        }
+
+        h1 {
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .table-wrapper {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .table thead {
+            background-color: #343a40;
+            color: #fff;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table tbody tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+        }
+
+        .chart-container canvas {
+            max-width: 100%;
+            height: 250px; /* Thay đổi chiều cao cho biểu đồ */
+        }
+
+        .stat-container {
+            margin-bottom: 30px;
+            background-color: #d4edda; /* Màu xanh lá nhạt */
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-container h2 {
+            font-size: 1.5rem;
             margin-bottom: 20px;
         }
-        #chart-container {
-            margin-top: 50px;
+
+        .list-group-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        canvas {
-            max-width: 100%;
+
+        .list-group-item span {
+            font-weight: bold;
         }
     </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="#"><span class="text-success">K66</span>CNQT</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Trang chủ</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Thông số thời gian thực</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Trích suất kết quả đo</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Góp ý & nhận xét</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
 
-    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="alertModalLabel">Dữ liệu mới nhất</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<body>
+    <div class="container">
+        <h1>Thống Kê Dữ Liệu</h1>
+        <div class="text-center mb-4">
+            <button id="exportPDF" class="btn btn-primary">Xuất PDF</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Thời gian</th>
+                        <th>Nhiệt độ (°C)</th>
+                        <th>Độ ẩm (%)</th>
+                        <th>CO (ppm)</th>
+                        <th>PM2.5 (µg/m³)</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table">
+                    <!-- Dữ liệu sẽ được chèn vào đây -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 stat-container">
+                <h2>Nhiệt Độ</h2>
+                <ul class="list-group">
+                    <li class="list-group-item">Trung bình: <span id="tempAvg">0</span> °C</li>
+                    <li class="list-group-item">Lớn nhất: <span id="tempMax">0</span> °C</li>
+                    <li class="list-group-item">Nhỏ nhất: <span id="tempMin">0</span> °C</li>
+                    <li class="list-group-item">Độ lệch chuẩn: <span id="tempStdDev">0</span> °C</li>
+                </ul>
+            </div>
+            <div class="col-md-6 stat-container">
+                <h2>Độ Ẩm</h2>
+                <ul class="list-group">
+                    <li class="list-group-item">Trung bình: <span id="humidityAvg">0</span> %</li>
+                    <li class="list-group-item">Lớn nhất: <span id="humidityMax">0</span> %</li>
+                    <li class="list-group-item">Nhỏ nhất: <span id="humidityMin">0</span> %</li>
+                    <li class="list-group-item">Độ lệch chuẩn: <span id="humidityStdDev">0</span> %</li>
+                </ul>
+            </div>
+            <div class="col-md-6 stat-container">
+                <h2>Hàm lượng khí CO</h2>
+                <ul class="list-group">
+                    <li class="list-group-item">Trung bình: <span id="coAvg">0</span> ppm</li>
+                    <li class="list-group-item">Lớn nhất: <span id="coMax">0</span> ppm</li>
+                    <li class="list-group-item">Nhỏ nhất: <span id="coMin">0</span> ppm</li>
+                    <li class="list-group-item">Độ lệch chuẩn: <span id="coStdDev">0</span> ppm</li>
+                </ul>
+            </div>
+            <div class="col-md-6 stat-container">
+                <h2>Hàm lượng bụi mịn PM2.5</h2>
+                <ul class="list-group">
+                    <li class="list-group-item">Trung bình: <span id="pm25Avg">0</span> µg/m³</li>
+                    <li class="list-group-item">Lớn nhất: <span id="pm25Max">0</span> µg/m³</li>
+                    <li class="list-group-item">Nhỏ nhất: <span id="pm25Min">0</span> µg/m³</li>
+                    <li class="list-group-item">Độ lệch chuẩn: <span id="pm25StdDev">0</span> µg/m³</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2>Biểu Đồ</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <canvas id="temperatureChart"></canvas>
                 </div>
-                <div class="modal-body">
-                    <p id="latestData">Đang tải dữ liệu...</p>
+                <div class="col-md-6">
+                    <canvas id="humidityChart"></canvas>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <div class="col-md-6">
+                    <canvas id="coChart"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="pm25Chart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <section id="data-section" class="data-section-padding">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="section-header text-center pb-5">
-                        <h1>Dữ liệu từ Google Sheets</h1>
-                        <p>Thông tin được cập nhật từ bảng tính Google Sheets</p>
-                    </div>
-                </div>
-            </div>
-            <div id="data-container" class="row">
-
-            </div>
-        </div>
-    </section>
-
-    <section id="chart-section" class="chart-section-padding">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="section-header text-center pb-5">
-                        <h1>Biểu đồ giám sát chất lượng không khí</h1>
-                    </div>
-                </div>
-                <div id="chart-container" class="col-md-12">
-                    <canvas id="environmentChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <div class="items-infor d-flex">
-            <div class="infor-wrap">
-                <h3>Thông tin hỗ trợ</h3>
-                <div class="color_infor-wrap"> 
-                    <ul>
-                        <li>
-                            Số điện thoại: 
-                                <span>
-                                    (+84) 935548502
-                                    <br>
-                                    Thái Văn Đức
-                                </span>
-                        </li>
-                        <li>
-                            Email: <span>thaivanduc_t66@hus.edu.vn</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-  
         const sheetId = '1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4';
+        const apiKey = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
 
-
-        const apiKey = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw'; // Thay YOUR_API_KEY bằng API Key của bạn
-
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/sheet_id?key=${apiKey}`;
-
-        let environmentChart;
         async function fetchData() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/sheet_id?key=${apiKey}`;
+
             try {
                 const response = await fetch(url);
                 const data = await response.json();
 
                 if (data && data.values) {
-                    // Hiển thị dữ liệu trên trang web
-                    const container = document.getElementById('data-container');
-                    container.innerHTML = '';  
-
-                    const lastRow = data.values[data.values.length - 1];  
-                    const rowData = document.createElement('div');
-                    rowData.classList.add('col-md-4');
-                    rowData.innerHTML = `
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Thông tin chất lượng môi trường không khí ở trường tui</h5>
-                                <p class="card-text">Ngày: ${lastRow[0]}</p>
-                                <p class="card-text">Giờ: ${lastRow[1]}</p>
-                                <p class="card-text">Nhiệt độ: ${lastRow[2]}</p>
-                                <p class="card-text">Độ ẩm: ${lastRow[3]}</p>
-                                <p class="card-text">CO: ${lastRow[4]}</p>
-                                <p class="card-text">PM2.5: ${lastRow[5]}</p>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(rowData);
-
-                    const recentData = data.values.slice(-20);
-
-                    updateChart(recentData);
-
-                    updateModal(lastRow);
+                    displayData(data.values.slice(-12));
+                    displayStatistics(data.values.slice(-12));
+                    renderCharts(data.values.slice(-12));
                 }
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Lỗi khi tải dữ liệu:', error);
+                document.getElementById('data-table').innerHTML = `<tr><td colspan="7" class="text-center text-danger">Không thể tải dữ liệu.</td></tr>`;
             }
         }
 
-        function updateChart(recentData) {
-            const labels = recentData.map(row => row[1]);  
-            const temperatureData = recentData.map(row => parseFloat(row[2] || 0));  // Nhiệt độ
-            const humidityData = recentData.map(row => parseFloat(row[3] || 0));  // Độ ẩm
-            const coData = recentData.map(row => parseFloat(row[4] || 0));  // CO
-            const pm25Data = recentData.map(row => parseFloat(row[5] || 0));  // PM2.5
+        function displayData(data) {
+            const tableBody = document.getElementById('data-table');
+            tableBody.innerHTML = '';
 
-            if (!environmentChart) {
-                const ctx = document.getElementById('environmentChart').getContext('2d');
-                environmentChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Nhiệt độ (°C)',
-                                data: temperatureData,
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                fill: true,
-                            },
-                            {
-                                label: 'Độ ẩm (%)',
-                                data: humidityData,
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                fill: true,
-                            },
-                            {
-                                label: 'CO (ppm)',
-                                data: coData,
-                                borderColor: 'rgba(255, 206, 86, 1)',
-                                backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                                fill: true,
-                            },
-                            {
-                                label: 'PM2.5 (µg/m³)',
-                                data: pm25Data,
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                fill: true,
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
+            data.forEach((row, index) => {
+                const rowHTML = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${row[0]}</td>
+                        <td>${row[1]}</td>
+                        <td>${row[2]}</td>
+                        <td>${row[3]}</td>
+                        <td>${row[4]}</td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', rowHTML);
+            });
+        }
+
+        function displayStatistics(data) {
+            const temperatures = data.map(row => parseFloat(row[2]));
+            const humidities = data.map(row => parseFloat(row[3]));
+            const coLevels = data.map(row => parseFloat(row[4]));
+            const pm25Levels = data.map(row => parseFloat(row[5]));
+
+            document.getElementById('tempAvg').textContent = calculateAverage(temperatures).toFixed(2);
+            document.getElementById('tempMax').textContent = Math.max(...temperatures).toFixed(2);
+            document.getElementById('tempMin').textContent = Math.min(...temperatures).toFixed(2);
+            document.getElementById('tempStdDev').textContent = calculateStandardDeviation(temperatures).toFixed(2);
+
+            document.getElementById('humidityAvg').textContent = calculateAverage(humidities).toFixed(2);
+            document.getElementById('humidityMax').textContent = Math.max(...humidities).toFixed(2);
+            document.getElementById('humidityMin').textContent = Math.min(...humidities).toFixed(2);
+            document.getElementById('humidityStdDev').textContent = calculateStandardDeviation(humidities).toFixed(2);
+
+            document.getElementById('coAvg').textContent = calculateAverage(coLevels).toFixed(2);
+            document.getElementById('coMax').textContent = Math.max(...coLevels).toFixed(2);
+            document.getElementById('coMin').textContent = Math.min(...coLevels).toFixed(2);
+            document.getElementById('coStdDev').textContent = calculateStandardDeviation(coLevels).toFixed(2);
+
+            document.getElementById('pm25Avg').textContent = calculateAverage(pm25Levels).toFixed(2);
+            document.getElementById('pm25Max').textContent = Math.max(...pm25Levels).toFixed(2);
+            document.getElementById('pm25Min').textContent = Math.min(...pm25Levels).toFixed(2);
+            document.getElementById('pm25StdDev').textContent = calculateStandardDeviation(pm25Levels).toFixed(2);
+        }
+
+        function calculateAverage(array) {
+            const total = array.reduce((sum, value) => sum + value, 0);
+            return total / array.length;
+        }
+
+        function calculateStandardDeviation(array) {
+            const mean = calculateAverage(array);
+            const squareDiffs = array.map(value => Math.pow(value - mean, 2));
+            const avgSquareDiff = calculateAverage(squareDiffs);
+            return Math.sqrt(avgSquareDiff);
+        }
+
+        function renderCharts(data) {
+            const labels = data.map(row => row[1]); // Lấy giờ từ dữ liệu
+            const temperatures = data.map(row => parseFloat(row[2]));
+            const humidities = data.map(row => parseFloat(row[3]));
+            const coLevels = data.map(row => parseFloat(row[4]));
+            const pm25Levels = data.map(row => parseFloat(row[5]));
+
+            // Biểu đồ nhiệt độ
+            new Chart(document.getElementById('temperatureChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Nhiệt độ (°C)',
+                        data: temperatures,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
                             title: {
                                 display: true,
-                                text: 'Biểu đồ chất lượng không khí nơi các bạn'
+                                text: 'Thời gian'
                             }
                         },
-                        scales: {
-                            x: {
-                                beginAtZero: false,
-                                title: {
-                                    display: true,
-                                    text: 'Giờ'
-                                }
-                            },
-                            y: {
-                                beginAtZero: false,
-                                title: {
-                                    display: true,
-                                    text: 'Giá trị'
-                                }
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nhiệt độ (°C)'
                             }
                         }
                     }
+                }
+            });
+
+            // Biểu đồ độ ẩm
+            new Chart(document.getElementById('humidityChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Độ ẩm (%)',
+                        data: humidities,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Thời gian'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Độ ẩm (%)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Biểu đồ CO
+            new Chart(document.getElementById('coChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'CO (ppm)',
+                        data: coLevels,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Thời gian'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'CO (ppm)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Biểu đồ PM2.5
+            new Chart(document.getElementById('pm25Chart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'PM2.5 (µg/m³)',
+                        data: pm25Levels,
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Thời gian'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'PM2.5 (µg/m³)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData(); // Gọi hàm fetchData khi tải trang
+            setInterval(fetchData, 3600000); // Gọi lại mỗi giờ
+        });
+
+        document.getElementById('exportPDF').addEventListener('click', () => {
+            const element = document.querySelector('.container');
+            const exportButton = document.getElementById('exportPDF');
+        
+            if (element) {
+                // Ẩn nút xuất PDF
+                exportButton.style.display = 'none';
+        
+                html2pdf().from(element).toPdf().get('pdf').then(function(pdf) {
+                    pdf.save('thong_ke_du_lieu.pdf');
+        
+                    // Hiện lại nút xuất PDF sau khi xuất xong
+                    exportButton.style.display = 'block';
                 });
             } else {
-                environmentChart.data.labels = labels;
-                environmentChart.data.datasets[0].data = temperatureData;
-                environmentChart.data.datasets[1].data = humidityData;
-                environmentChart.data.datasets[2].data = coData;
-                environmentChart.data.datasets[3].data = pm25Data;
-                environmentChart.update();  // Cập nhật biểu đồ
+                console.error('Phần tử không tồn tại');
             }
-        }
-
-        function updateModal(latestData) {
-            const modalContent = `
-                <p><strong>Ngày:</strong> ${latestData[0]}</p>
-                <p><strong>Giờ:</strong> ${latestData[1]}</p>
-                <p><strong>Nhiệt độ:</strong> ${latestData[2]}°C</p>
-                <p><strong>Độ ẩm:</strong> ${latestData[3]}%</p>
-                <p><strong>CO:</strong> ${latestData[4]} ppm</p>
-                <p><strong>PM2.5:</strong> ${latestData[5]} µg/m³</p>
-            `;
-            document.getElementById('latestData').innerHTML = modalContent;
-
-            const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
-            alertModal.show();
-        }
-
-        fetchData();
-        setInterval(fetchData, 60000); 
+        });
+        
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
+
 </html>

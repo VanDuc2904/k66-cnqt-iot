@@ -39,7 +39,7 @@
                     <a class="nav-link" href="https://script.google.com/macros/s/AKfycbxypKpWoIb8oYujhzz9yjtdHaxOdScEKFOadjERMfmb0qqOBdFaAPKgzEnnAkgSL9c1/exec">Thông số thời gian thực</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="showLoginModal()">Trích suất kết quả đo</a>
+                    <a class="nav-link" href="#" onclick="showLoginModal()">Dữ liệu & thống kê</a>
                 </li>
                 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
                   <div class="modal-dialog">
@@ -72,7 +72,7 @@
 
 function showLoginModal() {
     if (isLoggedIn) {
-        window.location.href = "https://docs.google.com/spreadsheets/d/1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4/edit#gid=0";
+        window.location.href = "results.htm";
     } else {
         const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
         loginModal.show();
@@ -87,7 +87,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     if (id === "K66CNQT" && pass === "Khoadiachat") {
         isLoggedIn = true;
         document.getElementById('loginModal').addEventListener('hidden.bs.modal', function () {
-            window.location.href = "https://docs.google.com/spreadsheets/d/1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4/edit#gid=0";
+            window.location.href = "results.htm";
         });
         const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
         loginModal.hide();
@@ -188,7 +188,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             </ul>
         </div>
     </nav>
-
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -208,6 +207,66 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
                             <input type="password" class="form-control" id="password">
                         </div>
                         <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal đăng nhập Admin -->
+    <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-labelledby="adminLoginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adminLoginModalLabel">Đăng nhập Admin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="adminLoginForm">
+                        <div class="mb-3">
+                            <label for="adminID" class="form-label">ID Admin</label>
+                            <input type="text" class="form-control" id="adminID" placeholder="Nhập ID">
+                        </div>
+                        <div class="mb-3">
+                            <label for="adminPassword" class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="adminPassword" placeholder="Nhập mật khẩu">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal thêm vị trí mới -->
+    <div class="modal fade" id="adminAddLocationModal" tabindex="-1" aria-labelledby="adminAddLocationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adminAddLocationModalLabel">Thêm Vị Trí Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addLocationForm">
+                        <div class="mb-3">
+                            <label for="locationName" class="form-label">Tên Vị Trí</label>
+                            <input type="text" class="form-control" id="locationName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="latitude" class="form-label">Latitude</label>
+                            <input type="text" class="form-control" id="latitude" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="longitude" class="form-label">Longitude</label>
+                            <input type="text" class="form-control" id="longitude" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="sheetId" class="form-label">Google Sheet ID</label>
+                            <input type="text" class="form-control" id="sheetId" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Thêm Vị Trí</button>
                     </form>
                 </div>
             </div>
@@ -647,8 +706,8 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
                         <div class="img-area mb-4">
                             <img src="img/khoadiachat.jpg" alt="" class="img-fluid">
                         </div>
-                        <h3 class="card-title">Dữ liệu thống kê</h3>
-                        <a class="text-white " href="results.htm" target="_blank">Xem chi tiết tại đây</a>
+                        <h3 class="card-title">Nghiên cứu</h3>
+                        <a class="text-white " href="" target="_blank">Xem chi tiết tại đây</a>
                     </div>
                 </div>
             </div>                

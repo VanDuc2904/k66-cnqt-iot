@@ -9,7 +9,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
-        /* Các style tùy chỉnh */
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
@@ -82,6 +81,19 @@
         .list-group-item span {
             font-weight: bold;
         }
+        .btn-export {
+            background-color: #d4edda; /* Màu xanh lá nhạt */
+            color: #343a40;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-export:hover {
+            background-color: #c3e6cb; /* Màu xanh lá đậm hơn khi hover */
+        }
     </style>
 </head>
 
@@ -89,8 +101,17 @@
     <div class="container">
         <h1>Thống Kê Dữ Liệu</h1>
         <div class="text-center mb-4">
-            <button id="exportPDF" class="btn btn-primary">Xuất PDF</button>
+            <button id="exportPDF" class="btn btn-export">Xuất PDF</button>
         </div>
+        <div class="text-center mb-4">
+            <button onclick="window.location.href='data.htm';">
+                Thống kê dữ liệu định hướng
+            </button>
+        </div>        
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
         <div class="table-wrapper">
             <table class="table table-striped table-bordered">
                 <thead>
@@ -173,87 +194,99 @@
 
         async function fetchData() {
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/sheet_id?key=${apiKey}`;
-
+        
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-
+        
                 if (data && data.values) {
-                    displayData(data.values.slice(-12));
-                    displayStatistics(data.values.slice(-12));
-                    renderCharts(data.values.slice(-12));
+                    // Loại bỏ tiêu đề nếu có
+                    const rows = data.values.slice(1); // Bỏ qua dòng đầu tiên nếu đó là tiêu đề
+                    const last12Rows = rows.slice(-12); // Lấy 12 hàng cuối cùng
+                    
+                    displayData(last12Rows);
+                    displayStatistics(last12Rows);
+                    renderCharts(last12Rows);
                 }
             } catch (error) {
                 console.error('Lỗi khi tải dữ liệu:', error);
                 document.getElementById('data-table').innerHTML = `<tr><td colspan="7" class="text-center text-danger">Không thể tải dữ liệu.</td></tr>`;
             }
         }
-
+        
         function displayData(data) {
             const tableBody = document.getElementById('data-table');
             tableBody.innerHTML = '';
-
+        
             data.forEach((row, index) => {
+                // Kiểm tra và thay thế giá trị không hợp lệ bằng 'N/A'
+                const temperature = isNaN(row[2]) ? 'N/A' : row[2];
+                const humidity = isNaN(row[3]) ? 'N/A' : row[3];
+                const coLevel = isNaN(row[4]) ? 'N/A' : row[4];
+                const pm25Level = isNaN(row[5]) ? 'N/A' : row[5];
+        
                 const rowHTML = `
                     <tr>
                         <td>${index + 1}</td>
                         <td>${row[0]}</td>
-                        <td>${row[1]}</td>
-                        <td>${row[2]}</td>
-                        <td>${row[3]}</td>
-                        <td>${row[4]}</td>
+                        <td>${temperature}</td>
+                        <td>${humidity}</td>
+                        <td>${coLevel}</td>
+                        <td>${pm25Level}</td>
                     </tr>
                 `;
                 tableBody.insertAdjacentHTML('beforeend', rowHTML);
             });
         }
-
+        
         function displayStatistics(data) {
-            const temperatures = data.map(row => parseFloat(row[2]));
-            const humidities = data.map(row => parseFloat(row[3]));
-            const coLevels = data.map(row => parseFloat(row[4]));
-            const pm25Levels = data.map(row => parseFloat(row[5]));
-
+            const temperatures = data.map(row => parseFloat(row[1])).filter(value => !isNaN(value));
+            const humidities = data.map(row => parseFloat(row[2])).filter(value => !isNaN(value));
+            const coLevels = data.map(row => parseFloat(row[3])).filter(value => !isNaN(value));
+            const pm25Levels = data.map(row => parseFloat(row[4])).filter(value => !isNaN(value));
+        
             document.getElementById('tempAvg').textContent = calculateAverage(temperatures).toFixed(2);
             document.getElementById('tempMax').textContent = Math.max(...temperatures).toFixed(2);
             document.getElementById('tempMin').textContent = Math.min(...temperatures).toFixed(2);
             document.getElementById('tempStdDev').textContent = calculateStandardDeviation(temperatures).toFixed(2);
-
+        
             document.getElementById('humidityAvg').textContent = calculateAverage(humidities).toFixed(2);
             document.getElementById('humidityMax').textContent = Math.max(...humidities).toFixed(2);
             document.getElementById('humidityMin').textContent = Math.min(...humidities).toFixed(2);
             document.getElementById('humidityStdDev').textContent = calculateStandardDeviation(humidities).toFixed(2);
-
+        
             document.getElementById('coAvg').textContent = calculateAverage(coLevels).toFixed(2);
             document.getElementById('coMax').textContent = Math.max(...coLevels).toFixed(2);
             document.getElementById('coMin').textContent = Math.min(...coLevels).toFixed(2);
             document.getElementById('coStdDev').textContent = calculateStandardDeviation(coLevels).toFixed(2);
-
+        
             document.getElementById('pm25Avg').textContent = calculateAverage(pm25Levels).toFixed(2);
             document.getElementById('pm25Max').textContent = Math.max(...pm25Levels).toFixed(2);
             document.getElementById('pm25Min').textContent = Math.min(...pm25Levels).toFixed(2);
             document.getElementById('pm25StdDev').textContent = calculateStandardDeviation(pm25Levels).toFixed(2);
         }
-
+        
         function calculateAverage(array) {
+            if (array.length === 0) return 0;
             const total = array.reduce((sum, value) => sum + value, 0);
             return total / array.length;
         }
-
+        
         function calculateStandardDeviation(array) {
+            if (array.length === 0) return 0;
             const mean = calculateAverage(array);
             const squareDiffs = array.map(value => Math.pow(value - mean, 2));
             const avgSquareDiff = calculateAverage(squareDiffs);
             return Math.sqrt(avgSquareDiff);
         }
-
+        
         function renderCharts(data) {
-            const labels = data.map(row => row[1]); // Lấy giờ từ dữ liệu
-            const temperatures = data.map(row => parseFloat(row[2]));
-            const humidities = data.map(row => parseFloat(row[3]));
-            const coLevels = data.map(row => parseFloat(row[4]));
-            const pm25Levels = data.map(row => parseFloat(row[5]));
-
+            const labels = data.map(row => row[0]); // Lấy thời gian từ dữ liệu
+            const temperatures = data.map(row => parseFloat(row[1])).filter(value => !isNaN(value));
+            const humidities = data.map(row => parseFloat(row[2])).filter(value => !isNaN(value));
+            const coLevels = data.map(row => parseFloat(row[3])).filter(value => !isNaN(value));
+            const pm25Levels = data.map(row => parseFloat(row[4])).filter(value => !isNaN(value));
+        
             // Biểu đồ nhiệt độ
             new Chart(document.getElementById('temperatureChart').getContext('2d'), {
                 type: 'line',
@@ -285,7 +318,7 @@
                     }
                 }
             });
-
+        
             // Biểu đồ độ ẩm
             new Chart(document.getElementById('humidityChart').getContext('2d'), {
                 type: 'line',
@@ -317,7 +350,7 @@
                     }
                 }
             });
-
+        
             // Biểu đồ CO
             new Chart(document.getElementById('coChart').getContext('2d'), {
                 type: 'line',
@@ -349,7 +382,7 @@
                     }
                 }
             });
-
+        
             // Biểu đồ PM2.5
             new Chart(document.getElementById('pm25Chart').getContext('2d'), {
                 type: 'line',
@@ -382,12 +415,12 @@
                 }
             });
         }
-
+        
         document.addEventListener('DOMContentLoaded', () => {
             fetchData(); // Gọi hàm fetchData khi tải trang
             setInterval(fetchData, 3600000); // Gọi lại mỗi giờ
         });
-
+        
         document.getElementById('exportPDF').addEventListener('click', () => {
             const element = document.querySelector('.container');
             const exportButton = document.getElementById('exportPDF');
@@ -406,6 +439,7 @@
                 console.error('Phần tử không tồn tại');
             }
         });
+        
         
     </script>
 </body>

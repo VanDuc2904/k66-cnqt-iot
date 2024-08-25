@@ -138,6 +138,11 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="pagination-controls text-center mt-4">
+                            <button id="prevPage" class="btn btn-secondary">Trang trước</button>
+                            <span id="currentPage" class="mx-3">Trang 1 / 1</span>
+                            <button id="nextPage" class="btn btn-secondary">Trang tiếp theo</button>
+                        </div>
                         <div class="row">
                             <div class="col-md-6 stat-container">
                                 <h2>Nhiệt Độ</h2>
@@ -197,8 +202,9 @@
                     </div>
 
                     <script>
-                        let allData = [];  // Biến toàn cục để lưu trữ toàn bộ dữ liệu
-
+                        let allData = []; 
+                        let currentPage = 1;
+                        const rowsPerPage = 30; // Số dòng mỗi bảng
                         const sheetId = '1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4';
                         const apiKey = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
 
@@ -211,13 +217,58 @@
 
                                 if (data && data.values) {
                                     allData = data.values.slice(1);  // Lưu trữ toàn bộ dữ liệu (bỏ qua hàng tiêu đề)
-                                    displayData(allData);  // Hiển thị dữ liệu ban đầu
+                                    displayData(allData, currentPage);  // Hiển thị dữ liệu của trang đầu tiên
                                     displayStatistics(allData);  // Tính toán thống kê ban đầu
                                     renderCharts(allData);  // Vẽ biểu đồ ban đầu
                                 }
                             } catch (error) {
                                 console.error('Lỗi khi tải dữ liệu:', error);
                                 document.getElementById('data-table').innerHTML = `<tr><td colspan="7" class="text-center text-danger">Không thể tải dữ liệu.</td></tr>`;
+                            }
+                        }
+
+                        function displayData(data, page) {
+                            const start = (page - 1) * rowsPerPage;
+                            const end = start + rowsPerPage;
+                            const paginatedData = data.slice(start, end);
+                            
+                            const tableBody = document.getElementById('data-table');
+                            tableBody.innerHTML = '';
+
+                            paginatedData.forEach((row, index) => {
+                                const temperature = isNaN(row[2]) ? 'N/A' : row[2];
+                                const humidity = isNaN(row[3]) ? 'N/A' : row[3];
+                                const coLevel = isNaN(row[4]) ? 'N/A' : row[4];
+                                const pm25Level = isNaN(row[5]) ? 'N/A' : row[5];
+                                const rowHTML = `
+                                    <tr>
+                                        <td>${start + index + 1}</td>
+                                        <td>${new Date(row[0]).toLocaleDateString()}</td>
+                                        <td>${temperature}</td>
+                                        <td>${humidity}</td>
+                                        <td>${coLevel}</td>
+                                        <td>${pm25Level}</td>
+                                    </tr>
+                                `;
+                                tableBody.insertAdjacentHTML('beforeend', rowHTML);
+                            });
+
+                            updatePaginationControls(data.length, page);
+                        }
+
+                        function updatePaginationControls(totalRows, page) {
+                            const totalPages = Math.ceil(totalRows / rowsPerPage);
+                            document.getElementById('currentPage').textContent = `Trang ${page} / ${totalPages}`;
+                            
+                            document.getElementById('prevPage').disabled = page === 1;
+                            document.getElementById('nextPage').disabled = page === totalPages;
+                        }
+
+                        function changePage(increment) {
+                            const newPage = currentPage + increment;
+                            if (newPage > 0 && newPage <= Math.ceil(allData.length / rowsPerPage)) {
+                                currentPage = newPage;
+                                displayData(allData, currentPage);
                             }
                         }
 
@@ -238,33 +289,11 @@
                             if (filteredData.length === 0) {
                                 alert("Không tìm thấy dữ liệu trong khoảng thời gian đã chọn.");
                             } else {
-                                displayData(filteredData);
+                                currentPage = 1; // Reset trang về 1 khi lọc
+                                displayData(filteredData, currentPage);
                                 displayStatistics(filteredData);
                                 renderCharts(filteredData);
                             }
-                        }
-
-                        function displayData(data) {
-                            const tableBody = document.getElementById('data-table');
-                            tableBody.innerHTML = '';
-
-                            data.forEach((row, index) => {
-                                const temperature = isNaN(row[2]) ? 'N/A' : row[2];
-                                const humidity = isNaN(row[3]) ? 'N/A' : row[3];
-                                const coLevel = isNaN(row[4]) ? 'N/A' : row[4];
-                                const pm25Level = isNaN(row[5]) ? 'N/A' : row[5];
-                                const rowHTML = `
-                                    <tr>
-                                        <td>${index + 1}</td>
-                                        <td>${new Date(row[0]).toLocaleDateString()}</td>
-                                        <td>${temperature}</td>
-                                        <td>${humidity}</td>
-                                        <td>${coLevel}</td>
-                                        <td>${pm25Level}</td>
-                                    </tr>
-                                `;
-                                tableBody.insertAdjacentHTML('beforeend', rowHTML);
-                            });
                         }
 
                         function displayStatistics(data) {
@@ -446,6 +475,8 @@
 
                         document.addEventListener('DOMContentLoaded', () => {
                             fetchData();
+                            document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
+                            document.getElementById('nextPage').addEventListener('click', () => changePage(1));
                         });
 
                         document.getElementById('exportPDF').addEventListener('click', () => {

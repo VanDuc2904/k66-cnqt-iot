@@ -13,15 +13,25 @@
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha384-uUlWqr9qU6wI1e2jGncvBa/pft3o9tPvzL+nTBGOZTLuwO7lUp2VkGH5NZUJc9Ix" crossorigin=""></script>
 </head>
 <body>
-    <div id="notificationBar" class="bg-success text-white text-center p-2" data-translate="notification">
+    <<div id="notificationBar" class="bg-success text-white text-center p-2">
         Phiên bản cập nhật ngày 22/08/2024. Sẽ có những nâng cấp trong thời gian tới.
         <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="dismissNotification()" style="float: right; margin-right: 20px;"></button>
     </div>
+
     <script>
         function dismissNotification() {
             document.getElementById('notificationBar').style.display = 'none';
         }
-        setTimeout(dismissNotification, 10000); 
+
+        function loadNotification() {
+            const savedNotification = localStorage.getItem('notificationContent');
+            if (savedNotification) {
+                // Cập nhật nội dung của notificationBar
+                document.getElementById('notificationBar').childNodes[0].textContent = savedNotification;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadNotification);
     </script>
     <script>
         const translations = {
@@ -355,6 +365,64 @@
                         }, 2000);
                     });
                 </script>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#adminLoginModal">
+                        <i class="bi bi-person-lock"></i> Admin
+                    </a>
+                </li>
+                <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-labelledby="adminLoginModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="adminLoginModalLabel">Đăng nhập Admin</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="adminLoginForm">
+                                    <div class="mb-3">
+                                        <label for="adminID" class="form-label">ID Admin</label>
+                                        <input type="text" class="form-control" id="adminID" placeholder="Nhập ID">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="adminPassword" class="form-label">Mật khẩu</label>
+                                        <input type="password" class="form-control" id="adminPassword" placeholder="Nhập mật khẩu">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    let isAdminLoggedIn = false;
+                
+                    const validAdmins = {
+                        "DucQT": "Ducdeptrai",
+                        "GTQT": "GT66",
+                        "KLQT": "KL66",
+                        "Thaydung": "thaydung"
+                    };
+                
+                    document.getElementById('adminLoginForm').addEventListener('submit', function(event) {
+                        event.preventDefault();
+                
+                        const adminID = document.getElementById('adminID').value;
+                        const adminPassword = document.getElementById('adminPassword').value;
+                        if (validAdmins[adminID] && validAdmins[adminID] === adminPassword) {
+                            isAdminLoggedIn = true;
+                            document.getElementById('adminLoginModal').addEventListener('hidden.bs.modal', function () {
+                                window.location.href = "admin_dashboard.htm"; // Chuyển đến trang admin dashboard
+                            });
+                            const adminLoginModal = bootstrap.Modal.getInstance(document.getElementById('adminLoginModal'));
+                            adminLoginModal.hide();
+                        } else {
+                            alert("ID hoặc mật khẩu không đúng. Vui lòng thử lại.");
+                        }
+                    });
+                </script>                
             </ul>
         </div>
     </nav>
@@ -382,66 +450,8 @@
             </div>
         </div>
     </div>
-    <!-- Modal đăng nhập Admin -->
-    <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-labelledby="adminLoginModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="adminLoginModalLabel" data-translate="login">Đăng nhập Admin</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="adminLoginForm">
-                        <div class="mb-3">
-                            <label for="adminID" class="form-label" data-translate="login">ID Admin</label>
-                            <input type="text" class="form-control" id="adminID" placeholder="Nhập ID">
-                        </div>
-                        <div class="mb-3">
-                            <label for="adminPassword" class="form-label" data-translate="login">Mật khẩu</label>
-                            <input type="password" class="form-control" id="adminPassword" placeholder="Nhập mật khẩu">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Hủy</button>
-                            <button type="submit" class="btn btn-primary" data-translate="login">Đăng nhập</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal thêm vị trí mới -->
-    <div class="modal fade" id="adminAddLocationModal" tabindex="-1" aria-labelledby="adminAddLocationModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="adminAddLocationModalLabel" data-translate="addLocationTitle">Thêm Vị Trí Mới</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addLocationForm">
-                        <div class="mb-3">
-                            <label for="locationName" class="form-label" data-translate="locationName">Tên Vị Trí</label>
-                            <input type="text" class="form-control" id="locationName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="latitude" class="form-label" data-translate="latitude">Latitude</label>
-                            <input type="text" class="form-control" id="latitude" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="longitude" class="form-label" data-translate="longitude">Longitude</label>
-                            <input type="text" class="form-control" id="longitude" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="sheetId" class="form-label" data-translate="sheetId">Google Sheet ID</label>
-                            <input type="text" class="form-control" id="sheetId" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary" data-translate="addLocationTitle">Thêm Vị Trí</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>       
+    
+    
     <section id="map-section" class="map-section-padding">
         <div class="container">
             <div class="row">

@@ -17,6 +17,12 @@
         Phiên bản cập nhật ngày 22/08/2024. Sẽ có những nâng cấp trong thời gian tới.
         <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="dismissNotification()" style="float: right; margin-right: 20px;"></button>
     </div>
+        <script>
+        function dismissNotification() {
+            document.getElementById('notificationBar').style.display = 'none';
+        }
+        setTimeout(dismissNotification, 10000); 
+    </script>
     <script>
         const translations = {
             vi: {

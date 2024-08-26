@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-translate="title">TLD66 - Technology Leading to Discovery</title>
+    <title data-translate="title">K66 Công nghệ quan trắc</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="CSS.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
@@ -17,7 +17,7 @@
         Phiên bản cập nhật ngày 22/08/2024. Sẽ có những nâng cấp trong thời gian tới.
         <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="dismissNotification()" style="float: right; margin-right: 20px;"></button>
     </div>
-        <script>
+    <script>
         function dismissNotification() {
             document.getElementById('notificationBar').style.display = 'none';
         }
@@ -26,7 +26,7 @@
     <script>
         const translations = {
             vi: {
-                title: "TLD66 - Technology Leading to Discovery",
+                title: "TLD66 - Công nghệ dẫn tới khám phá",
                 notification: "Phiên bản cập nhật ngày 22/08/2024. Sẽ có những nâng cấp trong thời gian tới.",
                 home: "Trang chủ",
                 realtimeData: "Thông số thời gian thực",
@@ -82,7 +82,8 @@
                 "usagePurpose": "Mục đích sử dụng",
                 "signup": "Đăng ký",
                 "password": "Mật khẩu",
-                "passwordPlaceholder": "Nhập mật khẩu"
+                "passwordPlaceholder": "Nhập mật khẩu",
+                 note: "Chú ý: Dữ liệu dựa trên sản phẩm thử nghiệm TLD 66 của nhóm sinh viên Khoa Địa Chất, Trường ĐH KHTN - ĐHQG HN KHÔNG THAY THẾ CHO CÁC THÔNG SỐ CHÍNH THỨC CỦA CƠ QUAN NHÀ NƯỚC VỀ ĐÁNH GIÁ CHẤT LƯỢNG KHÔNG KHÍ"
             },
             en: {
                 title: "TLD66 - Technology Leading to Discovery",
@@ -142,6 +143,7 @@
                 "signup": "Sign up for updates via email",
                  "password": "Password",
                  "passwordPlaceholder": "Enter your password",
+                 note: "Note: The data is based on the experimental product TLD 66 by students of the Geology Department, University of Science, VNU HN, and DOES NOT REPLACE OFFICIAL PARAMETERS FROM STATE AGENCIES FOR AIR QUALITY ASSESSMENT."
             }
         };
 
@@ -181,6 +183,26 @@
                         <li><a class="dropdown-item" href="#" onclick="setLanguage('vi')">Tiếng Việt</a></li>
                         <li><a class="dropdown-item" href="#" onclick="setLanguage('en')">English</a></li>
                     </ul>
+                    <script>
+                        document.getElementById('vi').addEventListener('click', function () {
+                            localStorage.setItem('language', 'vi');
+                            window.location.href = 'data.html'; // Redirect to data.html after setting the language
+                        });
+                
+                        document.getElementById('en').addEventListener('click', function () {
+                            localStorage.setItem('language', 'en');
+                            window.location.href = 'data.html'; // Redirect to data.html after setting the language
+                        });
+                
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const language = localStorage.getItem('language') || 'vi';
+                            if (language === 'en') {
+                                document.getElementById('en').classList.add('active');
+                            } else {
+                                document.getElementById('vi').classList.add('active');
+                            }
+                        });
+                    </script>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#" data-translate="home">Trang chủ</a>
@@ -723,10 +745,10 @@
                             </tr>
                         </tbody>
                     </table>
-                    <p class="text-danger mt-3">
+                    <p class="text-danger mt-3" data-translate="note">
                         Chú ý: Dữ liệu dựa trên sản phẩm thử nghiệm TLD 66 của nhóm sinh viên Khoa Địa Chất, Trường ĐH KHTN - ĐHQG HN
                         KHÔNG THAY THẾ CHO CÁC THÔNG SỐ CHÍNH THỨC CỦA CƠ QUAN NHÀ NƯỚC VỀ ĐÁNH GIÁ CHẤT LƯỢNG KHÔNG KHÍ 
-                    </p>
+                    </p>                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="dismissModal()">Đóng</button>

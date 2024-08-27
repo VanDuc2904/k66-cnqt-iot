@@ -1,57 +1,61 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
-const path = require('path');
+const { initializeApp } = require("firebase/app");
+const { getFirestore, doc, setDoc, getDoc } = require("firebase/firestore");
 
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyC3EhCzgXR02e_gjvJqEb32htKMqo3mXug",
+  authDomain: "tld66-3d929.firebaseapp.com",
+  projectId: "tld66-3d929",
+  storageBucket: "tld66-3d929.appspot.com",
+  messagingSenderId: "580068871289",
+  appId: "1:580068871289:web:d46a8e49eee792a6d518a8",
+  measurementId: "G-3R2JXXFMD0"
+};
+
+// Initialize Firebase
 const app = express();
 app.use(bodyParser.json());
-
-// Đường dẫn đến file lưu trữ dữ liệu (JSON file)
-const dataFilePath = path.join(__dirname, 'web-chinh-data.json');
-
-// Hàm đọc dữ liệu từ file
-function readData() {
-    if (fs.existsSync(dataFilePath)) {
-        const rawData = fs.readFileSync(dataFilePath);
-        return JSON.parse(rawData);
-    }
-    return {
-        notification: "",
-        map: {
-            latitude: 0,
-            longitude: 0,
-            title: ""
-        }
-    };
-}
-
-// Hàm ghi dữ liệu vào file
-function writeData(data) {
-    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
-}
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
 
 // API để lấy dữ liệu hiện tại
-app.get('/api/data', (req, res) => {
-    const data = readData();
-    res.json(data);
+app.get('/api/data', async (req, res) => {
+    try {
+        const docRef = doc(db, "settings", "data");
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            res.json(docSnap.data());
+        } else {
+            res.status(404).json({ error: 'Dữ liệu không tìm thấy' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: 'Không thể lấy dữ liệu' });
+    }
 });
 
 // API để cập nhật thông báo
-app.post('/api/notification', (req, res) => {
+app.post('/api/notification', async (req, res) => {
     const { notification } = req.body;
-    const data = readData();
-    data.notification = notification;
-    writeData(data);
-    res.json({ success: true, message: 'Thông báo đã được cập nhật' });
+    try {
+        await setDoc(doc(db, "settings", "data"), { notification }, { merge: true });
+        res.json({ success: true, message: 'Thông báo đã được cập nhật' });
+    } catch (err) {
+        res.status(500).json({ error: 'Không thể cập nhật thông báo' });
+    }
 });
 
 // API để cập nhật vị trí bản đồ
-app.post('/api/map', (req, res) => {
+app.post('/api/map', async (req, res) => {
     const { latitude, longitude, title } = req.body;
-    const data = readData();
-    data.map = { latitude, longitude, title };
-    writeData(data);
-    res.json({ success: true, message: 'Vị trí bản đồ đã được cập nhật' });
+    try {
+        await setDoc(doc(db, "settings", "data"), { map: { latitude, longitude, title } }, { merge: true });
+        res.json({ success: true, message: 'Vị trí bản đồ đã được cập nhật' });
+    } catch (err) {
+        res.status(500).json({ error: 'Không thể cập nhật vị trí bản đồ' });
+    }
 });
 
 // Khởi động server

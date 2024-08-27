@@ -30,6 +30,7 @@ app.use(bodyParser.json());
 const notificationRef = db.collection('settings').doc('notification');
 const mapSettingsRef = db.collection('settings').doc('mapSettings');
 
+// API để cập nhật thông báo
 app.post('/api/notification', async (req, res) => {
     const { notification } = req.body;
     if (notification) {
@@ -45,6 +46,7 @@ app.post('/api/notification', async (req, res) => {
     }
 });
 
+// API để lấy thông báo hiện tại
 app.get('/api/notification', async (req, res) => {
     try {
         const doc = await notificationRef.get();
@@ -59,6 +61,7 @@ app.get('/api/notification', async (req, res) => {
     }
 });
 
+// API để cập nhật cài đặt bản đồ
 app.post('/api/map', async (req, res) => {
     const { latitude, longitude, title } = req.body;
     if (latitude && longitude && title) {
@@ -78,6 +81,7 @@ app.post('/api/map', async (req, res) => {
     }
 });
 
+// API để lấy cài đặt bản đồ hiện tại
 app.get('/api/map', async (req, res) => {
     try {
         const doc = await mapSettingsRef.get();

@@ -35,51 +35,69 @@
 
         <button class="btn btn-danger mt-3" onclick="logout()">Đăng xuất</button>
     </div>
+
+    <!-- Thêm Firebase SDK từ CDN (Firebase v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <script>
-        async function updateNotification() {
+        // Cấu hình Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC3EhCzgXR02e_gjvJqEb32htKMqo3mXug",
+            authDomain: "tld66-3d929.firebaseapp.com",
+            databaseURL: "https://tld66-3d929-default-rtdb.firebaseio.com/",  // Thêm dòng này
+            projectId: "tld66-3d929",
+            storageBucket: "tld66-3d929.appspot.com",
+            messagingSenderId: "580068871289",
+            appId: "1:580068871289:web:d46a8e49eee792a6d518a8",
+            measurementId: "G-3R2JXXFMD0"
+        };
+
+        // Khởi tạo Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Cập nhật thông báo lên Firebase
+        function updateNotification() {
             const newNotification = document.getElementById('newNotification').value;
-
-            try {
-                const response = await fetch('/api/notification', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ notification: newNotification })
-                });
-
-                if (response.ok) {
-                    alert('Thông báo đã được cập nhật.');
-                } else {
-                    alert('Đã xảy ra lỗi khi cập nhật thông báo.');
-                }
-            } catch (error) {
-                console.error('Error updating notification:', error);
+            if (newNotification) {
+                firebase.database().ref('notification/content').set(newNotification)
+                    .then(() => {
+                        alert('Thông báo đã được cập nhật.');
+                    })
+                    .catch((error) => {
+                        console.error('Lỗi cập nhật thông báo:', error);
+                    });
+            } else {
+                alert('Vui lòng nhập thông báo.');
             }
         }
-
-        async function updateMapSettings() {
+        // Cập nhật cài đặt bản đồ lên Firebase
+        function updateMapSettings() {
             const latitude = document.getElementById('latitude').value;
             const longitude = document.getElementById('longitude').value;
             const markerTitle = document.getElementById('markerTitle').value;
-
-            try {
-                const response = await fetch('/api/map', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ latitude, longitude, title: markerTitle })
-                });
-
-                if (response.ok) {
+        
+            if (latitude && longitude && markerTitle) {
+                firebase.database().ref('mapSettings').set({
+                    latitude: parseFloat(latitude),
+                    longitude: parseFloat(longitude),
+                    title: markerTitle
+                })
+                .then(() => {
                     alert('Cài đặt bản đồ đã được cập nhật.');
-                } else {
-                    alert('Đã xảy ra lỗi khi cập nhật cài đặt bản đồ.');
-                }
-            } catch (error) {
-                console.error('Error updating map settings:', error);
+                })
+                .catch((error) => {
+                    console.error('Lỗi cập nhật bản đồ:', error);
+                });
+            } else {
+                alert('Vui lòng nhập đầy đủ thông tin vị trí.');
             }
         }
 
+        // Hàm đăng xuất
         function logout() {
-            window.location.href = "index.html";
+            window.location.href = "index.htm"; // Chuyển hướng đến trang chính sau khi đăng xuất
         }
     </script>
 </body>

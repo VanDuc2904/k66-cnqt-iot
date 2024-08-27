@@ -36,54 +36,42 @@
         <button class="btn btn-danger mt-3" onclick="logout()">Đăng xuất</button>
     </div>
     <script>
-        function updateNotification() {
+        async function updateNotification() {
             const newNotification = document.getElementById('newNotification').value;
 
-            fetch('https://k66-cnqt-iot.vercel.app/api/notification', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ notification: newNotification }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Thông báo đã được cập nhật.');
-                } else {
-                    alert('Có lỗi xảy ra khi cập nhật thông báo.');
-                }
-            })
-            .catch(error => {
+            try {
+                await fetch('/api/notification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ notification: newNotification }),
+                });
+                alert('Thông báo đã được cập nhật.');
+            } catch (error) {
                 console.error('Error:', error);
                 alert('Có lỗi xảy ra khi cập nhật thông báo.');
-            });
+            }
         }
 
-        function updateMapSettings() {
+        async function updateMapSettings() {
             const latitude = document.getElementById('latitude').value;
             const longitude = document.getElementById('longitude').value;
             const markerTitle = document.getElementById('markerTitle').value;
 
-            fetch('https://k66-cnqt-iot.vercel.app/api/map', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ latitude, longitude, title: markerTitle }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Vị trí bản đồ đã được cập nhật.');
-                } else {
-                    alert('Có lỗi xảy ra khi cập nhật vị trí bản đồ.');
-                }
-            })
-            .catch(error => {
+            try {
+                await fetch('/api/map', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ latitude, longitude, title: markerTitle }),
+                });
+                alert('Vị trí bản đồ đã được cập nhật.');
+            } catch (error) {
                 console.error('Error:', error);
                 alert('Có lỗi xảy ra khi cập nhật vị trí bản đồ.');
-            });
+            }
         }
 
         function logout() {

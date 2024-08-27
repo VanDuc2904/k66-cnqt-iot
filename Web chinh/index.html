@@ -472,19 +472,25 @@
 
         // Khởi tạo bản đồ
         function initMap() {
+            const lat = parseFloat(localStorage.getItem('mapLat')) || 20.99567;
+            const lng = parseFloat(localStorage.getItem('mapLng')) || 105.80676;
+            const title = localStorage.getItem('mapTitle') || 'Trường ĐH Khoa học Tự nhiên, ĐHQG HN';
+
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 13,
-                center: {lat: 20.99567, lng: 105.80676}
+                center: {lat: lat, lng: lng}
             });
 
             marker = new google.maps.Marker({
-                position: {lat: 20.995437, lng: 105.808359},
+                position: {lat: lat, lng: lng},
                 map: map,
                 icon: getMarkerIcon(0),  
-                title: 'Trường ĐH Khoa học Tự nhiên, ĐHQG HN'
+                title: title
             });
 
-            infowindow = new google.maps.InfoWindow();
+            infowindow = new google.maps.InfoWindow({
+                content: `<h3>${title}</h3>`
+            });
 
             marker.addListener('click', function() {
                 infowindow.open(map, marker);

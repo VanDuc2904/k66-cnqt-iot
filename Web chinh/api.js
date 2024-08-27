@@ -9,16 +9,16 @@ app.use(bodyParser.json());
 mongoose.connect('YOUR_MONGODB_ATLAS_URL', {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}).then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.log('Failed to connect to MongoDB', err));
+}).then(() => console.log('Đã kết nối đến MongoDB'))
+  .catch(err => console.error('Kết nối đến MongoDB thất bại:', err));
 
 // Định nghĩa schema và model
 const DataSchema = new mongoose.Schema({
-    notification: String,
+    notification: { type: String, default: '' },
     map: {
-        latitude: Number,
-        longitude: Number,
-        title: String
+        latitude: { type: Number, default: 0 },
+        longitude: { type: Number, default: 0 },
+        title: { type: String, default: '' }
     }
 });
 
@@ -28,9 +28,13 @@ const DataModel = mongoose.model('Data', DataSchema);
 app.get('/api/data', async (req, res) => {
     try {
         const data = await DataModel.findOne({});
-        res.json(data);
+        if (data) {
+            res.json(data);
+        } else {
+            res.status(404).json({ error: 'Dữ liệu không tìm thấy' });
+        }
     } catch (err) {
-        res.status(500).json({ error: 'Failed to retrieve data' });
+        res.status(500).json({ error: 'Không thể lấy dữ liệu' });
     }
 });
 
@@ -46,7 +50,7 @@ app.post('/api/notification', async (req, res) => {
         await data.save();
         res.json({ success: true, message: 'Thông báo đã được cập nhật' });
     } catch (err) {
-        res.status(500).json({ error: 'Failed to update notification' });
+        res.status(500).json({ error: 'Không thể cập nhật thông báo' });
     }
 });
 
@@ -62,13 +66,14 @@ app.post('/api/map', async (req, res) => {
         await data.save();
         res.json({ success: true, message: 'Vị trí bản đồ đã được cập nhật' });
     } catch (err) {
-        res.status(500).json({ error: 'Failed to update map settings' });
+        res.status(500).json({ error: 'Không thể cập nhật vị trí bản đồ' });
     }
 });
 
 // Khởi động server
-app.listen(3000, () => {
-    console.log('Server đang chạy trên cổng 3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server đang chạy trên cổng ${PORT}`);
 });
 
 module.exports = app;

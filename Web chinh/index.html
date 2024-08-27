@@ -157,22 +157,39 @@
             }
         };
 
-        function setLanguage(language) {
+                function setLanguage(language) {
             localStorage.setItem('language', language);
             updateContent(language);
         }
-
+        
         function updateContent(language) {
             document.querySelectorAll("[data-translate]").forEach(element => {
                 const key = element.getAttribute("data-translate");
                 element.textContent = translations[language][key] || element.textContent;
             });
         }
-
+        
         document.addEventListener("DOMContentLoaded", () => {
             const language = localStorage.getItem('language') || 'vi';
             updateContent(language);
-        });
+            const statisticsUnlocked = localStorage.getItem('statisticsUnlocked') === 'true';
+        
+            // Lấy phần tử "Dữ liệu & Thống kê"
+            const dataStatisticsLink = document.querySelector('[data-translate="dataStatistics"]');
+        
+            // Xử lý sự kiện click cho phần tử này
+            dataStatisticsLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (statisticsUnlocked) {
+                    window.location.href = "data.htm";
+                } else {
+                    alert('Phần Dữ liệu & Thống kê hiện đang bị khóa. Vui lòng nhấn ok để đăng nhập.');
+                }
+            });
+            if (statisticsUnlocked) {
+                dataStatisticsLink.classList.remove('disabled');
+            }
+        });              
     </script>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">

@@ -13,30 +13,26 @@
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha384-uUlWqr9qU6wI1e2jGncvBa/pft3o9tPvzL+nTBGOZTLuwO7lUp2VkGH5NZUJc9Ix" crossorigin=""></script>
 </head>
 <body>
-     <div id="notificationBar" class="bg-success text-white text-center p-2">
-        Đang tải thông báo...
+      <div id="notificationBar" class="bg-success text-white text-center p-2">
+        Phiên bản được cập nhật mới nhất ngày 27/08/2024, sẽ có những nâng cấp tiếp theo trong thời gian tới
         <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="dismissNotification()" style="float: right; margin-right: 20px;"></button>
     </div>
 
     <script>
-        async function loadNotification() {
-            try {
-                const response = await fetch('/api/notification');
-                const data = await response.json();
-                if (data.notification) {
-                    document.getElementById('notificationBar').innerText = data.notification;
-                }
-            } catch (error) {
-                console.error('Error loading notification:', error);
-            }
-        }
-
         function dismissNotification() {
             document.getElementById('notificationBar').style.display = 'none';
         }
 
+        function loadNotification() {
+            const savedNotification = localStorage.getItem('notificationContent');
+            if (savedNotification) {
+                // Cập nhật nội dung của notificationBar
+                document.getElementById('notificationBar').childNodes[0].textContent = savedNotification;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', loadNotification);
-    </script>>
+    </script>
     <script>
         const translations = {
             vi: {

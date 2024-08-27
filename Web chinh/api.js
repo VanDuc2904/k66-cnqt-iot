@@ -1,69 +1,43 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
-const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
 
-// Đường dẫn đến file lưu trữ dữ liệu JSON
-const dataFilePath = path.join(__dirname, 'web-chinh-data.json');
-
-// Hàm đọc dữ liệu từ file JSON
-function readData() {
-    if (fs.existsSync(dataFilePath)) {
-        const rawData = fs.readFileSync(dataFilePath);
-        return JSON.parse(rawData);
+// Biến lưu trữ dữ liệu trong bộ nhớ
+let dataStore = {
+    notification: "Welcome!",
+    map: {
+        latitude: 20.99567,
+        longitude: 105.80676,
+        title: "Trường ĐH Khoa học Tự nhiên, ĐHQG HN"
     }
-    // Trả về dữ liệu mặc định nếu không tìm thấy file
-    return {
-        notification: "Welcome!",
-        map: {
-            latitude: 0,
-            longitude: 0,
-            title: "Default Location"
-        }
-    };
-}
-
-// Hàm ghi dữ liệu vào file JSON
-function writeData(data) {
-    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
-}
+};
 
 // API để lấy dữ liệu hiện tại
 app.get('/api/data', (req, res) => {
-    try {
-        const data = readData();
-        res.json(data);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to read data' });
-    }
+    res.json(dataStore);
 });
 
 // API để cập nhật thông báo
 app.post('/api/notification', (req, res) => {
-    try {
-        const { notification } = req.body;
-        const data = readData();
-        data.notification = notification;
-        writeData(data);
+    const { notification } = req.body;
+    if (notification) {
+        dataStore.notification = notification;
         res.json({ success: true, message: 'Notification updated successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update notification' });
+    } else {
+        res.status(400).json({ success: false, message: 'Notification content is required' });
     }
 });
 
 // API để cập nhật vị trí bản đồ
 app.post('/api/map', (req, res) => {
-    try {
-        const { latitude, longitude, title } = req.body;
-        const data = readData();
-        data.map = { latitude, longitude, title };
-        writeData(data);
+    const { latitude, longitude, title } = req.body;
+    if (latitude && longitude && title) {
+        dataStore.map = { latitude, longitude, title };
         res.json({ success: true, message: 'Map settings updated successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update map settings' });
+    } else {
+        res.status(400).json({ success: false, message: 'Latitude, Longitude, and Title are required' });
     }
 });
 

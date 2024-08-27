@@ -2,14 +2,15 @@
   "version": 2,
   "builds": [
     {
-      "src": "api.js",
+      "src": "web-chinh/api.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "api.js"
+      "dest": "web-chinh/api.js"
     }
   ]
 }
+

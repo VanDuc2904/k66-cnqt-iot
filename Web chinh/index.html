@@ -502,53 +502,73 @@
         </div>
     </section>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3lpUVLVcLy7gPa0gYQgH9VLoWZED53P0&callback=initMap" async defer></script>
-    <script>
-        let map, marker, infowindow, environmentChart;
-
-        // Khởi tạo bản đồ
+        <script>
+        let map, marker, infowindow;
+    
         function initMap() {
-            const lat = parseFloat(localStorage.getItem('mapLat')) || 20.99567;
-            const lng = parseFloat(localStorage.getItem('mapLng')) || 105.80676;
-            const title = localStorage.getItem('mapTitle') || 'Trường ĐH Khoa học Tự nhiên, ĐHQG HN';
-
-            map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 13,
-                center: {lat: lat, lng: lng}
+            // Lắng nghe dữ liệu từ Firebase theo thời gian thực
+            firebase.database().ref('mapSettings').on('value', (snapshot) => {
+                const mapData = snapshot.val();
+                const lat = mapData.lat;
+                const lng = mapData.lng;
+                const title = mapData.title;
+    
+                // Cập nhật vào localStorage
+                localStorage.setItem('mapLat', lat);
+                localStorage.setItem('mapLng', lng);
+                localStorage.setItem('mapTitle', title);
+    
+                // Khởi tạo hoặc cập nhật bản đồ
+                if (!map) {
+                    map = new google.maps.Map(document.getElementById('map'), {
+                        zoom: 13,
+                        center: { lat: lat, lng: lng }
+                    });
+    
+                    marker = new google.maps.Marker({
+                        position: { lat: lat, lng: lng },
+                        map: map,
+                        icon: getMarkerIcon(0),  
+                        title: title
+                    });
+    
+                    infowindow = new google.maps.InfoWindow({
+                        content: `<h3>${title}</h3>`
+                    });
+    
+                    marker.addListener('click', function() {
+                        infowindow.open(map, marker);
+                    });
+    
+                } else {
+                    // Cập nhật vị trí và tiêu đề của marker
+                    marker.setPosition({ lat: lat, lng: lng });
+                    infowindow.setContent(`<h3>${title}</h3>`);
+                    map.setCenter({ lat: lat, lng: lng });
+                }
             });
-
-            marker = new google.maps.Marker({
-                position: {lat: lat, lng: lng},
-                map: map,
-                icon: getMarkerIcon(0),  
-                title: title
-            });
-
-            infowindow = new google.maps.InfoWindow({
-                content: `<h3>${title}</h3>`
-            });
-
-            marker.addListener('click', function() {
-                infowindow.open(map, marker);
-            });
-
-            setInterval(updateInfoWindow, 30000); 
+    
+            // Cập nhật thông tin của infowindow định kỳ
+            setInterval(updateInfoWindow, 30000);
         }
+    
         function getMarkerIcon(pm25) {
             if (pm25 <= 12) {
-                return "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; // Tốt
+                return "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; 
             } else if (pm25 <= 35) {
-                return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; // Vừa phải
+                return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; 
             } else if (pm25 <= 55) {
-                return "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"; // Có hại cho sức khỏe
+                return "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"; 
             } else {
                 return "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; 
             }
         }
+    
         function updateInfoWindow() {
             const latestData = getLatestDataFromDOM();
-
+    
             const contentString = `
-                <h3>Trường ĐH Khoa học Tự nhiên, ĐHQG HN</h3>
+                <h3>${localStorage.getItem('mapTitle')}</h3>
                 <p data-translate="date">Ngày: ${latestData.date}</p>
                 <p data-translate="time">Giờ: ${latestData.time}</p>
                 <p data-translate="temperature">Nhiệt độ: ${latestData.temperature} °C</p>
@@ -556,11 +576,12 @@
                 <p data-translate="co">CO: ${latestData.co} ppm</p>
                 <p data-translate="pm25">PM2.5: ${latestData.pm25} µg/m³</p>
             `;
-
+    
             infowindow.setContent(contentString);
             marker.setIcon(getMarkerIcon(latestData.pm25));
             infowindow.open(map, marker);
         }
+    
         function getLatestDataFromDOM() {
             const date = document.getElementById('latestDate') ? document.getElementById('latestDate').textContent : 'Không có dữ liệu';
             const time = document.getElementById('latestTime') ? document.getElementById('latestTime').textContent : 'Không có dữ liệu';
@@ -568,167 +589,9 @@
             const humidity = document.getElementById('latestHumidity') ? parseFloat(document.getElementById('latestHumidity').textContent) : 0;
             const co = document.getElementById('latestCO') ? parseFloat(document.getElementById('latestCO').textContent) : 0;
             const pm25 = document.getElementById('latestPM25') ? parseFloat(document.getElementById('latestPM25').textContent) : 0;
-
+    
             return { date, time, temperature, humidity, co, pm25 };
         }
-        function displayData(data) {
-            const container = document.getElementById('data-container');
-            container.innerHTML = `
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title" data-translate="environmentInfoTitle">Thông tin chất lượng môi trường không khí</h5>
-                        <p class="card-text" data-translate="date">Ngày: ${data[0]}</p>
-                        <p class="card-text" data-translate="time">Giờ: ${data[1]}</p>
-                        <p class="card-text" data-translate="temperature">Nhiệt độ: ${data[2] ? data[2] : 'Không có dữ liệu'} °C</p>
-                        <p class="card-text" data-translate="humidity">Độ ẩm: ${data[3] ? data[3] : 'Không có dữ liệu'} %</p>
-                        <p class="card-text" data-translate="co">CO: ${data[4] ? data[4] : 'Không có dữ liệu'} ppm</p>
-                        <p class="card-text" data-translate="pm25">PM2.5: ${data[5] ? data[5] : 'Không có dữ liệu'} µg/m³</p>
-                    </div>
-                </div>
-            `;
-            updateInfoWindow({
-                date: data[0],
-                time: data[1],
-                temperature: parseFloat(data[2]) || 'Không có dữ liệu',
-                humidity: parseFloat(data[3]) || 'Không có dữ liệu',
-                co: parseFloat(data[4]) || 'Không có dữ liệu',
-                pm25: parseFloat(data[5]) || 'Không có dữ liệu',
-            });
-        }
-        
-        function updateInfoWindow(latestData) {
-            const contentString = `
-                <h3>Trường ĐH Khoa học Tự nhiên, ĐHQG HN</h3>
-                <p data-translate="date">Ngày: ${latestData.date}</p>
-                <p data-translate="time">Giờ: ${latestData.time}</p>
-                <p data-translate="temperature">Nhiệt độ: ${latestData.temperature} °C</p>
-                <p data-translate="humidity">Độ ẩm: ${latestData.humidity} %</p>
-                <p data-translate="co">CO: ${latestData.co} ppm</p>
-                <p data-translate="pm25">PM2.5: ${latestData.pm25} µg/m³</p>
-            `;
-        
-            infowindow.setContent(contentString);
-            marker.setIcon(getMarkerIcon(latestData.pm25));
-            infowindow.open(map, marker);
-        }
-        
-        function getMarkerIcon(pm25) {
-            if (pm25 <= 12) {
-                return "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; // Tốt
-            } else if (pm25 <= 35) {
-                return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; // Vừa phải
-            } else if (pm25 <= 55) {
-                return "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"; // Kém
-            } else {
-                return "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Rất kém
-            }
-        }       
-        function updateChart(recentData) {
-            const labels = recentData.map(row => row[1]);
-            const temperatureData = recentData.map(row => parseFloat(row[2] || 0));
-            const humidityData = recentData.map(row => parseFloat(row[3] || 0));
-            const coData = recentData.map(row => parseFloat(row[4] || 0));
-            const pm25Data = recentData.map(row => parseFloat(row[5] || 0));
-
-            if (!environmentChart) {
-                const ctx = document.getElementById('environmentChart').getContext('2d');
-                environmentChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Nhiệt độ (°C)',
-                                data: temperatureData,
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                fill: true,
-                            },
-                            {
-                                label: 'Độ ẩm (%)',
-                                data: humidityData,
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                fill: true,
-                            },
-                            {
-                                label: 'CO (ppm)',
-                                data: coData,
-                                borderColor: 'rgba(255, 206, 86, 1)',
-                                backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                                fill: true,
-                            },
-                            {
-                                label: 'PM2.5 (µg/m³)',
-                                data: pm25Data,
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                fill: true,
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false, 
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: 'Biểu đồ chất lượng không khí',
-                            }
-                        },
-                        scales: {
-                            x: {
-                                beginAtZero: false,
-                                title: {
-                                    display: true,
-                                    text: 'Giờ'
-                                }
-                            },
-                            y: {
-                                beginAtZero: false,
-                                title: {
-                                    display: true,
-                                    text: 'Giá trị'
-                                }
-                            }
-                        }
-                    }
-                });
-            } else {
-                environmentChart.data.labels = labels;
-                environmentChart.data.datasets[0].data = temperatureData;
-                environmentChart.data.datasets[1].data = humidityData;
-                environmentChart.data.datasets[2].data = coData;
-                environmentChart.data.datasets[3].data = pm25Data;
-                environmentChart.update();
-            }
-        }
-        async function fetchData() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/sheet_id?key=${apiKey}`;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data && data.values) {
-                    const lastRow = data.values[data.values.length - 1];
-                    displayData(lastRow);
-                    updateChart(data.values.slice(-20));
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        }
-        const sheetId = '1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4';
-        const apiKey = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
-
-        fetchData(); 
-        setInterval(fetchData, 30000); 
-        window.addEventListener('DOMContentLoaded', (event) => {
-            const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
-            alertModal.show();
-        });
-
     </script>
     <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

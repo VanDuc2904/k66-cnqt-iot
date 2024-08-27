@@ -1,9 +1,12 @@
 const express = require('express');
+const app = express();
+const cors = require('cors');
 const bodyParser = require('body-parser');
-const { initializeApp } = require("firebase/app");
-const { getFirestore, doc, setDoc, getDoc } = require("firebase/firestore");
 
-// Firebase configuration
+// Khởi tạo Firebase
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+
 const firebaseConfig = {
   apiKey: "AIzaSyC3EhCzgXR02e_gjvJqEb32htKMqo3mXug",
   authDomain: "tld66-3d929.firebaseapp.com",
@@ -14,54 +17,85 @@ const firebaseConfig = {
   measurementId: "G-3R2JXXFMD0"
 };
 
-// Initialize Firebase
-const app = express();
+// Initialize Firebase App
+const appFirebase = initializeApp(firebaseConfig);
+const db = getFirestore(appFirebase);
+
+const notificationRef = db.collection('settings').doc('notification');
+const mapSettingsRef = db.collection('settings').doc('mapSettings');
+
+app.use(cors());
 app.use(bodyParser.json());
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
-
-// API để lấy dữ liệu hiện tại
-app.get('/api/data', async (req, res) => {
-    try {
-        const docRef = doc(db, "settings", "data");
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            res.json(docSnap.data());
-        } else {
-            res.status(404).json({ error: 'Dữ liệu không tìm thấy' });
-        }
-    } catch (err) {
-        res.status(500).json({ error: 'Không thể lấy dữ liệu' });
-    }
-});
 
 // API để cập nhật thông báo
 app.post('/api/notification', async (req, res) => {
     const { notification } = req.body;
-    try {
-        await setDoc(doc(db, "settings", "data"), { notification }, { merge: true });
-        res.json({ success: true, message: 'Thông báo đã được cập nhật' });
-    } catch (err) {
-        res.status(500).json({ error: 'Không thể cập nhật thông báo' });
+    if (notification) {
+        try {
+            await notificationRef.set({ content: notification });
+            res.status(200).send({ message: 'Thông báo đã được cập nhật.' });
+        } catch (error) {
+            console.error('Error updating notification:', error);
+            res.status(500).send({ error: 'Không thể cập nhật thông báo.' });
+        }
+    } else {
+        res.status(400).send({ error: 'Thông báo không hợp lệ.' });
     }
 });
 
-// API để cập nhật vị trí bản đồ
+// API để lấy thông báo hiện tại
+app.get('/api/notification', async (req, res) => {
+    try {
+        const doc = await notificationRef.get();
+        if (doc.exists) {
+            res.status(200).send({ notification: doc.data().content });
+        } else {
+            res.status(404).send({ error: 'Không tìm thấy thông báo.' });
+        }
+    } catch (error) {
+        console.error('Error getting notification:', error);
+        res.status(500).send({ error: 'Không thể lấy thông báo.' });
+    }
+});
+
+// API để cập nhật cài đặt bản đồ
 app.post('/api/map', async (req, res) => {
     const { latitude, longitude, title } = req.body;
+    if (latitude && longitude && title) {
+        try {
+            await mapSettingsRef.set({
+                latitude: parseFloat(latitude),
+                longitude: parseFloat(longitude),
+                title: title
+            });
+            res.status(200).send({ message: 'Cài đặt bản đồ đã được cập nhật.' });
+        } catch (error) {
+            console.error('Error updating map settings:', error);
+            res.status(500).send({ error: 'Không thể cập nhật cài đặt bản đồ.' });
+        }
+    } else {
+        res.status(400).send({ error: 'Dữ liệu bản đồ không hợp lệ.' });
+    }
+});
+
+// API để lấy cài đặt bản đồ hiện tại
+app.get('/api/map', async (req, res) => {
     try {
-        await setDoc(doc(db, "settings", "data"), { map: { latitude, longitude, title } }, { merge: true });
-        res.json({ success: true, message: 'Vị trí bản đồ đã được cập nhật' });
-    } catch (err) {
-        res.status(500).json({ error: 'Không thể cập nhật vị trí bản đồ' });
+        const doc = await mapSettingsRef.get();
+        if (doc.exists) {
+            res.status(200).send(doc.data());
+        } else {
+            res.status(404).send({ error: 'Không tìm thấy cài đặt bản đồ.' });
+        }
+    } catch (error) {
+        console.error('Error getting map settings:', error);
+        res.status(500).send({ error: 'Không thể lấy cài đặt bản đồ.' });
     }
 });
 
 // Khởi động server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server đang chạy trên cổng ${PORT}`);
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
 });
 
 module.exports = app;

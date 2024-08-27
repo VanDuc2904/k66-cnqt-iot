@@ -1,79 +1,76 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
 
-// Kết nối tới MongoDB
-mongoose.connect('YOUR_MONGODB_ATLAS_URL', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => console.log('Đã kết nối đến MongoDB'))
-  .catch(err => console.error('Kết nối đến MongoDB thất bại:', err));
+// Đường dẫn đến file lưu trữ dữ liệu JSON
+const dataFilePath = path.join(__dirname, 'web-chinh-data.json');
 
-// Định nghĩa schema và model
-const DataSchema = new mongoose.Schema({
-    notification: { type: String, default: '' },
-    map: {
-        latitude: { type: Number, default: 0 },
-        longitude: { type: Number, default: 0 },
-        title: { type: String, default: '' }
+// Hàm đọc dữ liệu từ file JSON
+function readData() {
+    if (fs.existsSync(dataFilePath)) {
+        const rawData = fs.readFileSync(dataFilePath);
+        return JSON.parse(rawData);
     }
-});
+    // Trả về dữ liệu mặc định nếu không tìm thấy file
+    return {
+        notification: "Welcome!",
+        map: {
+            latitude: 0,
+            longitude: 0,
+            title: "Default Location"
+        }
+    };
+}
 
-const DataModel = mongoose.model('Data', DataSchema);
+// Hàm ghi dữ liệu vào file JSON
+function writeData(data) {
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+}
 
 // API để lấy dữ liệu hiện tại
-app.get('/api/data', async (req, res) => {
+app.get('/api/data', (req, res) => {
     try {
-        const data = await DataModel.findOne({});
-        if (data) {
-            res.json(data);
-        } else {
-            res.status(404).json({ error: 'Dữ liệu không tìm thấy' });
-        }
-    } catch (err) {
-        res.status(500).json({ error: 'Không thể lấy dữ liệu' });
+        const data = readData();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to read data' });
     }
 });
 
 // API để cập nhật thông báo
-app.post('/api/notification', async (req, res) => {
-    const { notification } = req.body;
+app.post('/api/notification', (req, res) => {
     try {
-        let data = await DataModel.findOne({});
-        if (!data) {
-            data = new DataModel();
-        }
+        const { notification } = req.body;
+        const data = readData();
         data.notification = notification;
-        await data.save();
-        res.json({ success: true, message: 'Thông báo đã được cập nhật' });
-    } catch (err) {
-        res.status(500).json({ error: 'Không thể cập nhật thông báo' });
+        writeData(data);
+        res.json({ success: true, message: 'Notification updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update notification' });
     }
 });
 
 // API để cập nhật vị trí bản đồ
-app.post('/api/map', async (req, res) => {
-    const { latitude, longitude, title } = req.body;
+app.post('/api/map', (req, res) => {
     try {
-        let data = await DataModel.findOne({});
-        if (!data) {
-            data = new DataModel();
-        }
+        const { latitude, longitude, title } = req.body;
+        const data = readData();
         data.map = { latitude, longitude, title };
-        await data.save();
-        res.json({ success: true, message: 'Vị trí bản đồ đã được cập nhật' });
-    } catch (err) {
-        res.status(500).json({ error: 'Không thể cập nhật vị trí bản đồ' });
+        writeData(data);
+        res.json({ success: true, message: 'Map settings updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update map settings' });
     }
 });
 
 // Khởi động server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server đang chạy trên cổng ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
 
 module.exports = app;

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,8 +38,26 @@
     <script>
         function updateNotification() {
             const newNotification = document.getElementById('newNotification').value;
-            localStorage.setItem('notificationContent', newNotification);
-            alert('Thông báo đã được cập nhật. Vui lòng kiểm tra trang index.');
+
+            fetch('https://k66-cnqt-iot.vercel.app/api/notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ notification: newNotification }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Thông báo đã được cập nhật.');
+                } else {
+                    alert('Có lỗi xảy ra khi cập nhật thông báo.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi cập nhật thông báo.');
+            });
         }
 
         function updateMapSettings() {
@@ -48,18 +65,29 @@
             const longitude = document.getElementById('longitude').value;
             const markerTitle = document.getElementById('markerTitle').value;
 
-            if (latitude && longitude && markerTitle) {
-                localStorage.setItem('mapLat', latitude);
-                localStorage.setItem('mapLng', longitude);
-                localStorage.setItem('mapTitle', markerTitle);
-                alert('Cài đặt bản đồ đã được cập nhật. Vui lòng kiểm tra trang chính.');
-            } else {
-                alert('Vui lòng nhập đầy đủ các thông tin.');
-            }
+            fetch('https://k66-cnqt-iot.vercel.app/api/map', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ latitude, longitude, title: markerTitle }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Vị trí bản đồ đã được cập nhật.');
+                } else {
+                    alert('Có lỗi xảy ra khi cập nhật vị trí bản đồ.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi cập nhật vị trí bản đồ.');
+            });
         }
 
         function logout() {
-            window.location.href = "index.html"; // Chuyển hướng đến trang chính sau khi đăng xuất
+            window.location.href = "index.html"; 
         }
     </script>
 </body>

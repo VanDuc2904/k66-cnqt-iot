@@ -204,14 +204,24 @@
                             window.location.href = 'data.html'; // Redirect to data.html after setting the language
                         });
                 
-                        document.addEventListener('DOMContentLoaded', () => {
-                            const language = localStorage.getItem('language') || 'vi';
-                            if (language === 'en') {
-                                document.getElementById('en').classList.add('active');
-                            } else {
-                                document.getElementById('vi').classList.add('active');
+                        document.addEventListener('DOMContentLoaded', async function() {
+                            const notificationBar = document.getElementById('notificationBar');
+                                try {
+                                    const response = await fetch('/api/notification');
+                                    const data = await response.json();
+                                    notificationBar.innerHTML = `
+                                        ${data.notification}
+                                        <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="dismissNotification()" style="float: right; margin-right: 20px;"></button>
+                                    `;
+                                } catch (error) {
+                                    console.error('Error fetching notification:', error);
+                                }
+                            });
+
+                            function dismissNotification() {
+                                document.getElementById('notificationBar').style.display = 'none';
                             }
-                        });
+                          });
                     </script>
                 </li>
                 <li class="nav-item">

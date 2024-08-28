@@ -504,35 +504,83 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3lpUVLVcLy7gPa0gYQgH9VLoWZED53P0&callback=initMap" async defer></script>
         <script>
         let map, marker, infowindow, environmentChart;
-
+        document.addEventListener('DOMContentLoaded', function () {
+            // Lắng nghe thay đổi từ Firebase
+            firebase.database().ref('mapSettings').on('value', function(snapshot) {
+                const mapSettings = snapshot.val();
+                if (mapSettings) {
+                    // Cập nhật dữ liệu vào localStorage
+                    localStorage.setItem('mapLat', mapSettings.lat);
+                    localStorage.setItem('mapLng', mapSettings.lng);
+                    localStorage.setItem('mapTitle', mapSettings.title);
+        
+                    // Cập nhật vị trí và tiêu đề của marker trên bản đồ
+                    updateMarkerPosition(mapSettings.lat, mapSettings.lng, mapSettings.title);
+                }
+            });
+        
+            // Hàm khởi tạo bản đồ và marker
+            initMap();
+        });
         // Khởi tạo bản đồ
         function initMap() {
-            
             const lat = parseFloat(localStorage.getItem('mapLat')) || 20.99567;
             const lng = parseFloat(localStorage.getItem('mapLng')) || 105.80676;
             const title = localStorage.getItem('mapTitle') || 'Trường ĐH Khoa học Tự nhiên, ĐHQG HN';
-
+        
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 13,
                 center: {lat: lat, lng: lng}
             });
-
+        
             marker = new google.maps.Marker({
                 position: {lat: lat, lng: lng},
                 map: map,
-                icon: getMarkerIcon(0),  
                 title: title
             });
-
+        
             infowindow = new google.maps.InfoWindow({
                 content: `<h3>${title}</h3>`
             });
-
+        
             marker.addListener('click', function() {
                 infowindow.open(map, marker);
             });
 
-            setInterval(updateInfoWindow, 30000); 
+            setInterval(updateInfoWindow, 3000); 
+        }
+        function updateMarkerPosition(lat, lng, title) {
+            const position = {lat: parseFloat(lat), lng: parseFloat(lng)};
+            marker.setPosition(position);
+            map.setCenter(position);
+            marker.setTitle(title);
+        
+            // Cập nhật nội dung InfoWindow
+            infowindow.setContent(`<h3>${title}</h3>`);
+        
+            // Đảm bảo InfoWindow được mở nếu marker được click
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
+            });
+        }
+        let isClickListenerAdded = false;
+
+        function updateMarkerPosition(lat, lng, title) {
+            const position = {lat: parseFloat(lat), lng: parseFloat(lng)};
+            marker.setPosition(position);
+            map.setCenter(position);
+            marker.setTitle(title);
+
+            // Cập nhật nội dung InfoWindow
+            infowindow.setContent(`<h3>${title}</h3>`);
+
+            // Gán sự kiện click nếu chưa được gán
+            if (!isClickListenerAdded) {
+                marker.addListener('click', function() {
+                    infowindow.open(map, marker);
+                });
+                isClickListenerAdded = true;
+            }
         }
         function getMarkerIcon(pm25) {
             if (pm25 <= 12) {

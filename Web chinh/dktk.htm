@@ -136,7 +136,11 @@
     </div>
 
     <!-- Firebase and Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
+    
     <script>
+        // Khởi tạo Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyC3EhCzgXR02e_gjvJqEb32htKMqo3mXug",
             authDomain: "tld66-3d929.firebaseapp.com",
@@ -147,7 +151,11 @@
             appId: "1:580068871289:web:d46a8e49eee792a6d518a8",
             measurementId: "G-3R2JXXFMD0"
         };
+    
+        // Khởi tạo Firebase app
         firebase.initializeApp(firebaseConfig);
+    
+        // Khởi tạo auth
         const auth = firebase.auth();
     </script>
     <script>

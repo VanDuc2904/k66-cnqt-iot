@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TLD66 Đăng ký tài khoản</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TLD66 Đăng kí tài khoản</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
@@ -19,6 +19,8 @@
         </div>
         <div id="loginResponseMessage" class="mt-3"></div>
     </div>
+
+    <!-- Email Sign-Up Modal -->
     <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -58,6 +60,8 @@
             </div>
         </div>
     </div>
+
+    <!-- Register Modal -->
     <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -81,6 +85,8 @@
             </div>
         </div>
     </div>
+
+    <!-- Login Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -107,6 +113,8 @@
             </div>
         </div>
     </div>
+
+    <!-- Forgot Password Modal -->
     <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -127,115 +135,141 @@
             </div>
         </div>
     </div>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC3EhCzgXR02e_gjvJqEb32htKMqo3mXug",
-            authDomain: "tld66-3d929.firebaseapp.com",
-            databaseURL: "https://tld66-3d929-default-rtdb.firebaseio.com",
-            projectId: "tld66-3d929",
-            storageBucket: "tld66-3d929.appspot.com",
-            messagingSenderId: "580068871289",
-            appId: "1:580068871289:web:d46a8e49eee792a6d518a8",
-            measurementId: "G-3R2JXXFMD0"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-    </script>
-    <script>
-        document.getElementById('showFormButton').addEventListener('click', function(e) {
-            e.preventDefault(); 
-            var emailModal = new bootstrap.Modal(document.getElementById('emailModal'));
-            emailModal.show();
-        });
-        document.getElementById('emailForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const fullName = document.getElementById('fullName').value;
-            const phone = document.getElementById('phone').value;
-            const purpose = document.getElementById('purpose').value;
-            const useData = document.getElementById('useData').value;
-            const responseMessage = document.getElementById('responseMessage');
 
-            fetch('https://script.google.com/macros/s/AKfycbzO59uzW_SRDZ9WvQfczABsSGr2fIVZwqL-cXOPmg-b4isqZsrd8zTPCzcKfvbxxe52/exec', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `email=${encodeURIComponent(email)}&fullName=${encodeURIComponent(fullName)}&phone=${encodeURIComponent(phone)}&purpose=${encodeURIComponent(purpose)}&useData=${encodeURIComponent(useData)}`
+    <!-- Firebase and Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Khởi tạo Firebase
+            const firebaseConfig = {
+                apiKey: "AIzaSyC3EhCzgXR02e_gjvJqEb32htKMqo3mXug",
+                authDomain: "tld66-3d929.firebaseapp.com",
+                databaseURL: "https://tld66-3d929-default-rtdb.firebaseio.com",
+                projectId: "tld66-3d929",
+                storageBucket: "tld66-3d929.appspot.com",
+                messagingSenderId: "580068871289",
+                appId: "1:580068871289:web:d46a8e49eee792a6d518a8",
+                measurementId: "G-3R2JXXFMD0"
+            };
+            
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            const auth = firebase.auth();
+
+            // Show Email Sign-Up Modal
+            document.getElementById('showFormButton').addEventListener('click', function(e) {
+                e.preventDefault(); 
+                var emailModal = new bootstrap.Modal(document.getElementById('emailModal'));
+                emailModal.show();
             });
 
-            responseMessage.textContent = "Đã ghi nhận đăng ký của bạn!";
-            responseMessage.classList.add('text-success');
+            // Handle Email Form Submission
+            document.getElementById('emailForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const fullName = document.getElementById('fullName').value;
+                const phone = document.getElementById('phone').value;
+                const purpose = document.getElementById('purpose').value;
+                const useData = document.getElementById('useData').value;
+                const responseMessage = document.getElementById('responseMessage');
 
-            document.getElementById('emailForm').reset();
-            setTimeout(() => {
-                var emailModal = bootstrap.Modal.getInstance(document.getElementById('emailModal'));
-                emailModal.hide();
-                responseMessage.textContent = "";
-            }, 2000);
-        });
-        document.getElementById('registerForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
+                fetch('https://script.google.com/macros/s/AKfycbzO59uzW_SRDZ9WvQfczABsSGr2fIVZwqL-cXOPmg-b4isqZsrd8zTPCzcKfvbxxe52/exec', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(email)}&fullName=${encodeURIComponent(fullName)}&phone=${encodeURIComponent(phone)}&purpose=${encodeURIComponent(purpose)}&useData=${encodeURIComponent(useData)}`
+                }).then(response => {
+                    responseMessage.textContent = "Đã ghi nhận đăng ký của bạn!";
+                    responseMessage.classList.add('text-success');
+                    document.getElementById('emailForm').reset();
+                    setTimeout(() => {
+                        var emailModal = bootstrap.Modal.getInstance(document.getElementById('emailModal'));
+                        emailModal.hide();
+                        responseMessage.textContent = "";
+                    }, 2000);
+                }).catch(error => {
+                    responseMessage.textContent = "Đã xảy ra lỗi khi đăng ký: " + error.message;
+                    responseMessage.classList.add('text-danger');
+                });
+            });
 
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    auth.currentUser.sendEmailVerification()
-                        .then(() => {
-                            alert('Đã gửi email xác thực. Vui lòng kiểm tra email của bạn.');
-                            document.getElementById('registerForm').reset();
-                            const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
-                            registerModal.hide();
+            // Handle Registration Form Submission
+            document.getElementById('registerForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+
+                if (auth) {
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .then((userCredential) => {
+                            if (userCredential.user) {
+                                auth.currentUser.sendEmailVerification()
+                                    .then(() => {
+                                        alert('Đã gửi email xác thực. Vui lòng kiểm tra email của bạn.');
+                                        document.getElementById('registerForm').reset();
+                                        const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                                        registerModal.hide();
+                                    });
+                            }
+                        })
+                        .catch((error) => {
+                            alert("Đăng ký thất bại: " + error.message);
                         });
-                })
-                .catch((error) => {
-                    alert(error.message);
-                });
-        });
-        document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const loginResponseMessage = document.getElementById('loginResponseMessage');
+                } else {
+                    alert("Firebase chưa khởi tạo thành công.");
+                }
+            });
 
-            if (auth) {
-                auth.signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        if (userCredential.user) {
-                            loginResponseMessage.textContent = "Đăng nhập thành công!";
-                            loginResponseMessage.classList.add('text-success');
-                            setTimeout(() => {
-                                window.location.href = "results.htm";
-                            }, 1000);
-                        }
-                    })
-                    .catch((error) => {
-                        const errorMessage = error.message;
-                        alert("Đăng nhập thất bại: " + errorMessage);
-                        loginResponseMessage.textContent = "Đăng nhập thất bại: " + errorMessage;
-                        loginResponseMessage.classList.add('text-danger');
-                    });
-            } else {
-                alert("Firebase chưa khởi tạo thành công.");
-            }
-        });
-        document.getElementById('forgotPasswordForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const forgotEmail = document.getElementById('forgotEmail').value;
-            const forgotResponseMessage = document.getElementById('forgotResponseMessage');
+            // Handle Login Form Submission
+            document.getElementById('loginForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                const loginResponseMessage = document.getElementById('loginResponseMessage');
 
-            auth.sendPasswordResetEmail(forgotEmail)
-                .then(() => {
-                    forgotResponseMessage.textContent = "Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email của bạn.";
-                    forgotResponseMessage.classList.add('text-success');
-                })
-                .catch((error) => {
-                    forgotResponseMessage.textContent = "Đặt lại mật khẩu thất bại: " + error.message;
-                    forgotResponseMessage.classList.add('text-danger');
-                });
+                if (auth) {
+                    auth.signInWithEmailAndPassword(email, password)
+                        .then((userCredential) => {
+                            if (userCredential.user) {
+                                loginResponseMessage.textContent = "Đăng nhập thành công!";
+                                loginResponseMessage.classList.add('text-success');
+                                setTimeout(() => {
+                                    window.location.href = "results.htm";
+                                }, 1000);
+                            }
+                        })
+                        .catch((error) => {
+                            const errorMessage = error.message;
+                            alert("Đăng nhập thất bại: " + errorMessage);
+                            loginResponseMessage.textContent = "Đăng nhập thất bại: " + errorMessage;
+                            loginResponseMessage.classList.add('text-danger');
+                        });
+                } else {
+                    alert("Firebase chưa khởi tạo thành công.");
+                }
+            });
+
+            // Handle Forgot Password Form Submission
+            document.getElementById('forgotPasswordForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const forgotEmail = document.getElementById('forgotEmail').value;
+                const forgotResponseMessage = document.getElementById('forgotResponseMessage');
+
+                if (auth) {
+                    auth.sendPasswordResetEmail(forgotEmail)
+                        .then(() => {
+                            forgotResponseMessage.textContent = "Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email của bạn.";
+                            forgotResponseMessage.classList.add('text-success');
+                        })
+                        .catch((error) => {
+                            forgotResponseMessage.textContent = "Đặt lại mật khẩu thất bại: " + error.message;
+                            forgotResponseMessage.classList.add('text-danger');
+                        });
+                } else {
+                    alert("Firebase chưa khởi tạo thành công.");
+                }
+            });
         });
     </script>
 </body>

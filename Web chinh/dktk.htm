@@ -19,7 +19,7 @@
         <div id="loginResponseMessage" class="mt-3"></div>
     </div>
 
-    <!-- Email Modal -->
+    <!-- Email Subscription Modal -->
     <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -78,7 +78,6 @@
                             <label for="registerPassword" class="form-label">Mật khẩu</label>
                             <input type="password" class="form-control" id="registerPassword" placeholder="Nhập mật khẩu" required>
                         </div>
-                        <div id="registerErrorMessage" class="text-danger mt-2"></div>
                         <button type="submit" class="btn btn-primary">Đăng ký</button>
                     </form>
                 </div>
@@ -104,7 +103,6 @@
                             <label for="loginPassword" class="form-label">Mật khẩu</label>
                             <input type="password" class="form-control" id="loginPassword" placeholder="Nhập mật khẩu" required>
                         </div>
-                        <div id="loginErrorMessage" class="text-danger mt-2"></div>
                         <button type="submit" class="btn btn-primary">Đăng nhập</button>
                     </form>
                     <div class="text-center mt-2">
@@ -129,18 +127,16 @@
                             <label for="forgotEmail" class="form-label">Email</label>
                             <input type="email" class="form-control" id="forgotEmail" placeholder="Nhập email để đặt lại mật khẩu" required>
                         </div>
-                        <div id="forgotResponseMessage" class="text-danger mt-2"></div>
                         <button type="submit" class="btn btn-primary">Gửi yêu cầu</button>
                     </form>
+                    <div id="forgotResponseMessage" class="mt-3"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase Config and Initialization -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
     <script>
+        // Khởi tạo Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyC3EhCzgXR02e_gjvJqEb32htKMqo3mXug",
             authDomain: "tld66-3d929.firebaseapp.com",
@@ -153,17 +149,15 @@
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-    </script>
 
-    <!-- Form Handling Scripts -->
-    <script>
+        // Show Email Modal
         document.getElementById('showFormButton').addEventListener('click', function(e) {
             e.preventDefault(); 
             var emailModal = new bootstrap.Modal(document.getElementById('emailModal'));
             emailModal.show();
         });
 
-        // Email Form Submission
+        // Handle Email Subscription
         document.getElementById('emailForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = document.getElementById('email').value;
@@ -173,20 +167,25 @@
             const useData = document.getElementById('useData').value;
             const responseMessage = document.getElementById('responseMessage');
 
+            // Kiểm tra trước khi gửi
+            if (!email || !fullName || !phone || !purpose || !useData) {
+                responseMessage.textContent = "Vui lòng điền đầy đủ thông tin.";
+                responseMessage.classList.add('text-danger');
+                return;
+            }
+
             fetch('https://script.google.com/macros/s/AKfycbzO59uzW_SRDZ9WvQfczABsSGr2fIVZwqL-cXOPmg-b4isqZsrd8zTPCzcKfvbxxe52/exec', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: `email=${encodeURIComponent(email)}&fullName=${encodeURIComponent(fullName)}&phone=${encodeURIComponent(phone)}&purpose=${encodeURIComponent(purpose)}&useData=${encodeURIComponent(useData)}`
-            })
-            .then(response => response.json())
-            .then(data => {
+            }).then(response => {
                 responseMessage.textContent = "Đã ghi nhận đăng ký của bạn!";
                 responseMessage.classList.add('text-success');
-            })
-            .catch(error => {
-                responseMessage.textContent = "Đã xảy ra lỗi: " + error.message;
+            }).catch(error => {
+                console.error("Error:", error);
+                responseMessage.textContent = "Có lỗi xảy ra, vui lòng thử lại.";
                 responseMessage.classList.add('text-danger');
             });
 
@@ -198,12 +197,13 @@
             }, 2000);
         });
 
-        // Register Form Submission
-        document.getElementById('registerForm').addEventListener('submit', function(event) {
+        // Handle Registration
+        document.getElementById('registerForm').addEventListener('submit', function (event) {
             event.preventDefault();
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
-            const registerErrorMessage = document.getElementById('registerErrorMessage');
+
+            console.log('Registering with:', { email, password }); // Log để kiểm tra
 
             auth.createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
@@ -216,46 +216,59 @@
                         });
                 })
                 .catch((error) => {
-                    registerErrorMessage.textContent = "Lỗi đăng ký: " + error.message;
+                    console.error("Registration error:", error);
+                    alert(error.message);
                 });
         });
 
-        // Login Form Submission
+        // Handle Login
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-            const loginErrorMessage = document.getElementById('loginErrorMessage');
+            const loginResponseMessage = document.getElementById('loginResponseMessage');
+
+            console.log('Logging in with:', { email, password }); // Log để kiểm tra
 
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    loginErrorMessage.textContent = "Đăng nhập thành công!";
-                    loginErrorMessage.classList.remove('text-danger');
-                    loginErrorMessage.classList.add('text-success');
+                    loginResponseMessage.textContent = "Đăng nhập thành công!";
+                    loginResponseMessage.classList.add('text-success');
 
                     setTimeout(() => {
                         window.location.href = "results.htm";
                     }, 1000);
                 })
                 .catch((error) => {
-                    loginErrorMessage.textContent = "Đăng nhập thất bại: " + error.message;
-                    loginErrorMessage.classList.add('text-danger');
+                    console.error("Login error:", error);
+                    const errorMessage = error.message;
+                    alert("Đăng nhập thất bại: " + errorMessage);
+                    loginResponseMessage.textContent = "Đăng nhập thất bại: " + errorMessage;
+                    loginResponseMessage.classList.add('text-danger');
                 });
         });
 
-        // Forgot Password Form Submission
+        // Handle Forgot Password
         document.getElementById('forgotPasswordForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const forgotEmail = document.getElementById('forgotEmail').value;
             const forgotResponseMessage = document.getElementById('forgotResponseMessage');
 
+            if (!forgotEmail) {
+                forgotResponseMessage.textContent = "Vui lòng nhập email.";
+                forgotResponseMessage.classList.add('text-danger');
+                return;
+            }
+
+            console.log('Sending password reset to:', forgotEmail); // Log để kiểm tra
+
             auth.sendPasswordResetEmail(forgotEmail)
                 .then(() => {
                     forgotResponseMessage.textContent = "Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email của bạn.";
-                    forgotResponseMessage.classList.remove('text-danger');
                     forgotResponseMessage.classList.add('text-success');
                 })
                 .catch((error) => {
+                    console.error("Password reset error:", error);
                     forgotResponseMessage.textContent = "Đặt lại mật khẩu thất bại: " + error.message;
                     forgotResponseMessage.classList.add('text-danger');
                 });

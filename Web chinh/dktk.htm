@@ -164,34 +164,33 @@
         });
 
         // Handle Email Form Submission
-        document.getElementById('emailForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const fullName = document.getElementById('fullName').value;
-            const phone = document.getElementById('phone').value;
-            const purpose = document.getElementById('purpose').value;
-            const useData = document.getElementById('useData').value;
-            const responseMessage = document.getElementById('responseMessage');
-
-            fetch('https://script.google.com/macros/s/AKfycbzO59uzW_SRDZ9WvQfczABsSGr2fIVZwqL-cXOPmg-b4isqZsrd8zTPCzcKfvbxxe52/exec', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `email=${encodeURIComponent(email)}&fullName=${encodeURIComponent(fullName)}&phone=${encodeURIComponent(phone)}&purpose=${encodeURIComponent(purpose)}&useData=${encodeURIComponent(useData)}`
-            });
-
-            responseMessage.textContent = "Đã ghi nhận đăng ký của bạn!";
-            responseMessage.classList.add('text-success');
-
-            document.getElementById('emailForm').reset();
-            setTimeout(() => {
-                var emailModal = bootstrap.Modal.getInstance(document.getElementById('emailModal'));
-                emailModal.hide();
-                responseMessage.textContent = "";
-            }, 2000);
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginResponseMessage = document.getElementById('loginResponseMessage');
+        
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Thay đổi: Kiểm tra userCredential trước khi destructuring
+                    if (userCredential && userCredential.user) {
+                        loginResponseMessage.textContent = "Đăng nhập thành công!";
+                        loginResponseMessage.classList.add('text-success');
+        
+                        setTimeout(() => {
+                            window.location.href = "results.htm";
+                        }, 1000);
+                    } else {
+                        throw new Error("User credential is undefined");
+                    }
+                })
+                .catch((error) => {
+                    const errorMessage = error.message;
+                    alert("Đăng nhập thất bại: " + errorMessage);
+                    loginResponseMessage.textContent = "Đăng nhập thất bại: " + errorMessage;
+                    loginResponseMessage.classList.add('text-danger');
+                });
         });
-
         // Handle Registration Form Submission
         document.getElementById('registerForm').addEventListener('submit', function (event) {
             event.preventDefault();

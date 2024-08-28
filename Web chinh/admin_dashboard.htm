@@ -10,11 +10,15 @@
     <div class="container mt-5">
         <h1>Quản trị web</h1>
         <p>Chào mừng bạn đến với trang quản trị.</p>
+
+        <!-- Chức năng thay đổi thông báo -->
         <div class="mb-3">
             <label for="newNotification" class="form-label">Cập nhật thông báo mới:</label>
             <input type="text" class="form-control" id="newNotification" placeholder="Nhập thông báo mới">
             <button class="btn btn-primary mt-2" onclick="updateNotification()">Cập nhật thông báo</button>
         </div>
+
+        <!-- Chức năng thay đổi lat, long, title -->
         <div class="mb-3">
             <label for="latitude" class="form-label">Latitude:</label>
             <input type="number" step="0.00001" class="form-control" id="latitude" placeholder="Nhập latitude">
@@ -31,10 +35,13 @@
 
         <button class="btn btn-danger mt-3" onclick="logout()">Đăng xuất</button>
     </div>
+
+    <!-- Thêm Firebase SDK từ CDN (Firebase v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
+        // Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyC3EhCzgXR02e_gjvJqEb32htKMqo3mXug",
             authDomain: "tld66-3d929.firebaseapp.com",
@@ -45,67 +52,91 @@
             appId: "1:580068871289:web:d46a8e49eee792a6d518a8",
             measurementId: "G-3R2JXXFMD0"
         };
+
+        // Khởi tạo Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        document.addEventListener('DOMContentLoaded', function () {
-            firebase.database().ref('mapSettings').once('value').then(function(snapshot) {
-                const mapSettings = snapshot.val();
-                if (mapSettings) {
-                    document.getElementById('latitude').value = mapSettings.lat;
-                    document.getElementById('longitude').value = mapSettings.lng;
-                    document.getElementById('markerTitle').value = mapSettings.title;
-                }
-            }).catch(function(error) {
-                console.error('Lỗi tải dữ liệu bản đồ:', error);
-            });
+
+        // Tải dữ liệu hiện tại từ Firebase khi trang quản trị được tải
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMapSettings();
         });
+
+        function loadMapSettings() {
+            firebase.database().ref('mapSettings').once('value')
+                .then(snapshot => {
+                    const mapSettings = snapshot.val();
+                    if (mapSettings) {
+                        document.getElementById('latitude').value = mapSettings.lat;
+                        document.getElementById('longitude').value = mapSettings.lng;
+                        document.getElementById('markerTitle').value = mapSettings.title;
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi tải dữ liệu bản đồ:', error);
+                    alert('Có lỗi xảy ra khi tải dữ liệu bản đồ.');
+                });
+        }
+
+        // Cập nhật thông báo lên Firebase
         function updateNotification() {
-            const newNotification = document.getElementById('newNotification').value;
+            const newNotification = document.getElementById('newNotification').value.trim();
             if (newNotification) {
                 firebase.database().ref('notification/content').set(newNotification)
                     .then(() => {
                         alert('Thông báo đã được cập nhật.');
+                        document.getElementById('newNotification').value = ''; // Clear input after update
                     })
-                    .catch((error) => {
+                    .catch(error => {
                         console.error('Lỗi cập nhật thông báo:', error);
+                        alert('Có lỗi xảy ra khi cập nhật thông báo.');
                     });
             } else {
                 alert('Vui lòng nhập thông báo.');
             }
         }
+
+        // Cập nhật cài đặt bản đồ lên Firebase và lưu vào localStorage
         function updateMapSettings() {
-            const latitude = document.getElementById('latitude').value;
-            const longitude = document.getElementById('longitude').value;
-            const markerTitle = document.getElementById('markerTitle').value;
+            const latitude = document.getElementById('latitude').value.trim();
+            const longitude = document.getElementById('longitude').value.trim();
+            const markerTitle = document.getElementById('markerTitle').value.trim();
 
             if (latitude && longitude && markerTitle) {
+                const lat = parseFloat(latitude);
+                const lng = parseFloat(longitude);
+
                 // Cập nhật dữ liệu lên Firebase
                 firebase.database().ref('mapSettings').set({
-                    lat: parseFloat(latitude),
-                    lng: parseFloat(longitude),
+                    lat: lat,
+                    lng: lng,
                     title: markerTitle
                 })
                 .then(() => {
-                    localStorage.setItem('mapLat', latitude);
-                    localStorage.setItem('mapLng', longitude);
+                    // Lưu vào localStorage để cập nhật trên trang index.html
+                    localStorage.setItem('mapLat', lat);
+                    localStorage.setItem('mapLng', lng);
                     localStorage.setItem('mapTitle', markerTitle);
 
-                    // Cập nhật ngay lập tức marker trên trang chính
-                    if (window.opener && !window.opener.closed) {
-                        window.opener.updateMarkerPosition(latitude, longitude, markerTitle);
+                    // Cập nhật ngay lập tức marker trên trang chính nếu trang chính đang mở
+                    if (window.opener && !window.opener.closed && typeof window.opener.updateMarkerPosition === 'function') {
+                        window.opener.updateMarkerPosition(lat, lng, markerTitle);
                     }
 
                     alert('Cài đặt bản đồ đã được cập nhật.');
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.error('Lỗi cập nhật bản đồ:', error);
+                    alert('Có lỗi xảy ra khi cập nhật bản đồ.');
                 });
             } else {
                 alert('Vui lòng nhập đầy đủ thông tin vị trí.');
             }
         }
+
+        // Hàm đăng xuất
         function logout() {
-            window.location.href = "index.html"; 
+            window.location.href = "index.html"; // Chuyển hướng đến trang chính sau khi đăng xuất
         }
     </script>
 </body>

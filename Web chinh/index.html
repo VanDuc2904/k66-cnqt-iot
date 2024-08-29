@@ -118,6 +118,7 @@
                 "yes": "Có",
                 "no": "Không",
                 "usagePurpose": "Mục đích sử dụng",
+                "signup1": "Đăng nhập & Đăng kí",
                 "signup": "Đăng ký",
                 "password": "Mật khẩu",
                 "passwordPlaceholder": "Nhập mật khẩu",
@@ -178,6 +179,7 @@
                 "yes": "Yes",
                 "no": "No",
                 "usagePurpose": "Usage Purpose",
+                "signup1": "Login & sign",
                 "signup": "Sign up for updates via email",
                  "password": "Password",
                  "passwordPlaceholder": "Enter your password",
@@ -321,96 +323,11 @@
                     <a class="nav-link" href="https://docs.google.com/forms/d/e/1FAIpQLSe0Zrll8kyemYWhAIPpTdnKahBHg-eKu1UOXxXvGQqIxun0aQ/viewform" target="_blank" data-translate="feedback">Góp ý & nhận xét</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-translate="login">Đăng nhập</a>
-                </li>
-                <li class="nav-item">
-                    <a id="showFormButton" class="nav-link" href="dktk.htm" data-translate="signup">Đăng ký tài khoản</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#adminLoginModal">
-                        <i class="bi bi-person-lock"></i> Admin
-                    </a>
-                </li>
-                </ul>
-                <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-labelledby="adminLoginModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="adminLoginModalLabel">Đăng nhập Admin</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="adminLoginForm">
-                                    <div class="mb-3">
-                                        <label for="adminID" class="form-label">ID Admin</label>
-                                        <input type="text" class="form-control" id="adminID" placeholder="Nhập ID">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="adminPassword" class="form-label">Mật khẩu</label>
-                                        <input type="password" class="form-control" id="adminPassword" placeholder="Nhập mật khẩu">
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                        <button type="submit" class="btn btn-primary">Đăng nhập</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <script>
-                    let isAdminLoggedIn = false;
-                
-                    const validAdmins = {
-                        "DucQT": "Ducdeptrai",
-                    };
-                
-                    document.getElementById('adminLoginForm').addEventListener('submit', function(event) {
-                        event.preventDefault();
-                
-                        const adminID = document.getElementById('adminID').value;
-                        const adminPassword = document.getElementById('adminPassword').value;
-                        if (validAdmins[adminID] && validAdmins[adminID] === adminPassword) {
-                            isAdminLoggedIn = true;
-                            document.getElementById('adminLoginModal').addEventListener('hidden.bs.modal', function () {
-                                window.location.href = "admin_dashboard.htm"; // Chuyển đến trang admin dashboard
-                            });
-                            const adminLoginModal = bootstrap.Modal.getInstance(document.getElementById('adminLoginModal'));
-                            adminLoginModal.hide();
-                        } else {
-                            alert("ID hoặc mật khẩu không đúng. Vui lòng thử lại.");
-                        }
-                    });
-                </script>                
+                    <a id="showFormButton" class="nav-link" href="dktk.htm" data-translate="signup1">Đăng nhập & đăng kí</a>
+                </li>               
             </ul>
         </div>
     </nav>
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="loginModalLabel" data-translate="login">Đăng nhập</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label for="username" class="form-label" data-translate="login">Tên đăng nhập</label>
-                            <input type="text" class="form-control" id="username" aria-describedby="usernameHelp">
-                            <div id="usernameHelp" class="form-text">Nhập tên đăng nhập của bạn</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label" data-translate="login">Mật khẩu</label>
-                            <input type="password" class="form-control" id="password">
-                        </div>
-                        <button type="submit" class="btn btn-primary" data-translate="login">Đăng nhập</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    
     <section id="map-section" class="map-section-padding">
         <div class="container">
             <div class="row">

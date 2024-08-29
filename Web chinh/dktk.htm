@@ -16,15 +16,15 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: url('img/Truong.jpg') center/cover no-repeat; /* Replace with your actual background image */
+            background: url('img/Truong.jpg') center/cover no-repeat; 
             font-family: Arial, sans-serif;
             
         }
         .logo {
             position: absolute;
-            top: 0px; /* Adjust as needed */
-            left: 20px; /* Adjust as needed */
-            width: 300px; /* Adjust size as needed */
+            top: 0px; 
+            left: 20px; 
+            width: 300px; 
             height: auto;
         }
         .main-container {
@@ -33,7 +33,7 @@
             width: 80%;
             max-width: 1200px;
             padding: 20px;
-            background: rgba(0, 0, 0, 0.7); /* Dark semi-transparent overlay for better contrast */
+            background: rgba(0, 0, 0, 0.7); 
             border-radius: 10px;
             color: white;
         }
@@ -41,7 +41,7 @@
             flex: 1;
             padding: 20px;
             margin: 10px;
-            background: rgba(255, 255, 255, 0.1); /* Light overlay for sections */
+            background: rgba(255, 255, 255, 0.1); 
             border-radius: 10px;
         }
         .section h2 {
@@ -76,7 +76,7 @@
             border-color: #aaa;
         }
         .modal-content {
-            background: rgba(0, 0, 0, 0.8); /* Matching modal background */
+            background: rgba(0, 0, 0, 0.8); 
             border: none;
             border-radius: 10px;
             color: white;
@@ -119,16 +119,12 @@
                 </div>
             </form>
         </div>
-
-        <!-- Other Functions Section -->
         <div class="section">
             <h2>Chức năng khác</h2>
             <button class="btn-custom" data-bs-toggle="modal" data-bs-target="#emailModal">Sign up for updates via email</button>
             <button class="btn-custom" data-bs-toggle="modal" data-bs-target="#adminLoginModal">Đăng nhập quản trị viên</button>
         </div>
     </div>
-
-    <!-- Email Sign-Up Modal -->
     <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -154,8 +150,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Register Modal -->
     <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -173,8 +167,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Admin Login Modal -->
     <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-labelledby="adminLoginModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -193,8 +185,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Forgot Password Modal -->
     <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -235,8 +225,6 @@
                 firebase.initializeApp(firebaseConfig);
             }
             const auth = firebase.auth();
-
-            // Handle Email Form Submission
             document.getElementById('emailForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const email = document.getElementById('email').value;
@@ -266,8 +254,6 @@
                     responseMessage.classList.add('text-danger');
                 });
             });
-
-            // Handle Registration Form Submission
             document.getElementById('registerForm').addEventListener('submit', function (event) {
                 event.preventDefault();
                 const email = document.getElementById('registerEmail').value;
@@ -293,8 +279,6 @@
                     alert("Firebase chưa khởi tạo thành công.");
                 }
             });
-
-            // Handle Login Form Submission
             document.getElementById('loginForm').addEventListener('submit', function(event) {
                 event.preventDefault();
                 const email = document.getElementById('loginEmail').value;
@@ -313,8 +297,6 @@
                     alert("Firebase chưa khởi tạo thành công.");
                 }
             });
-
-            // Handle Forgot Password Form Submission
             document.getElementById('forgotPasswordForm').addEventListener('submit', function(event) {
                 event.preventDefault();
                 const forgotEmail = document.getElementById('forgotEmail').value;
@@ -331,8 +313,6 @@
                     alert("Firebase chưa khởi tạo thành công.");
                 }
             });
-
-            // Handle Admin Login Form Submission
             document.getElementById('adminLoginForm').addEventListener('submit', function (event) {
                 event.preventDefault();
                 const email = document.getElementById('adminEmail').value;
@@ -349,7 +329,7 @@
 
                 if (adminUser) {
                     alert('Redirecting to admin dashboard...');
-                    window.location.href = 'admin_dashboard.htm'; // Redirect to admin dashboard
+                    window.location.href = 'admin_dashboard.htm'; 
                 } else {
                     adminLoginMessage.textContent = 'Thông tin đăng nhập không đúng. Vui lòng kiểm tra lại.';
                     adminLoginMessage.classList.add('text-danger');

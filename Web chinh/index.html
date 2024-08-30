@@ -261,62 +261,13 @@
                     <a class="nav-link" href="https://script.google.com/macros/s/AKfycbxypKpWoIb8oYujhzz9yjtdHaxOdScEKFOadjERMfmb0qqOBdFaAPKgzEnnAkgSL9c1/exec" data-translate="realtimeData">Thông số thời gian thực</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="showLoginModal()" data-translate="dataStatistics">Dữ liệu & thống kê</a>
+                    <a class="nav-link" href="#" onclick="handleDataStatisticsClick()" data-translate="dataStatistics">Dữ liệu & thống kê</a>
                 </li>
-                <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="loginModalLabel" data-translate="login">Đăng nhập</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <div class="modal-body">
-                        <form id="loginForm">
-                          <div class="mb-3">
-                            <label for="loginID" class="form-label">ID</label>
-                            <input type="text" class="form-control" id="loginID" placeholder="Nhập ID">
-                          </div>
-                          <div class="mb-3">
-                            <label for="loginPassword" class="form-label" data-translate="password">Mật khẩu</label>
-                            <input type="password" class="form-control" id="loginPassword" placeholder="Nhập mật khẩu" data-translate="passwordPlaceholder">
-                        </div>                        
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="cancel">Hủy</button>
-                            <button type="submit" class="btn btn-primary" data-translate="login">Đăng nhập</button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 <script>
-                    let isLoggedIn = false;
-
-                    function showLoginModal() {
-                        if (isLoggedIn) {
-                            window.location.href = "results.htm";
-                        } else {
-                            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                            loginModal.show();
-                        }
+                    function handleDataStatisticsClick() {
+                        alert("Vui lòng đăng nhập");
+                        window.location.href = 'dktk.htm';
                     }
-
-                    document.getElementById('loginForm').addEventListener('submit', function(event) {
-                        event.preventDefault();
-                        const id = document.getElementById('loginID').value;
-                        const pass = document.getElementById('loginPassword').value;
-
-                        if (id === "K66CNQT" && pass === "Khoadiachat") {
-                            isLoggedIn = true;
-                            document.getElementById('loginModal').addEventListener('hidden.bs.modal', function () {
-                                window.location.href = "results.htm";
-                            });
-                            const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                            loginModal.hide();
-                        } else {
-                            alert("ID hoặc mật khẩu không đúng. Vui lòng thử lại.");
-                        }
-                    });
                 </script>
                 </li>                
                 <li class="nav-item">

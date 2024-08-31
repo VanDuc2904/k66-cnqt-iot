@@ -23,7 +23,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-analytics.js"></script>
 
     <script>
-        // Cấu hình Firebase của bạn
         var firebaseConfig = {
             apiKey: "AIzaSyC3EhCzgXR02e_gjvJqEb32htKMqo3mXug",
             authDomain: "tld66-3d929.firebaseapp.com",
@@ -34,11 +33,9 @@
             appId: "1:580068871289:web:d46a8e49eee792a6d518a8",
             measurementId: "G-3R2JXXFMD0"
         };
-        // Khởi tạo Firebase
         firebase.initializeApp(firebaseConfig);
         firebase.analytics();
 
-        // Hàm tải thông báo
         var notificationText = document.getElementById('notificationText');
         var dbRef = firebase.database().ref().child('notification/content');
         dbRef.on('value', snap => {
@@ -47,16 +44,12 @@
             } else {
                 notificationText.innerText = "Không có thông báo nào được tìm thấy.";
             }
-            // Gọi hàm ẩn thông báo sau 45 giây
             setTimeout(dismissNotification, 45000);
         }, error => {
             console.error('Lỗi tải thông báo:', error);
             notificationText.innerText = "Lỗi tải thông báo.";
-            // Gọi hàm ẩn thông báo sau 45 giây trong trường hợp lỗi
             setTimeout(dismissNotification, 45000);
         });
-
-        // Hàm ẩn thanh thông báo
         function dismissNotification() {
             notificationText.style.display = 'none';
         }
@@ -226,12 +219,12 @@
                     <script>
                         document.getElementById('vi').addEventListener('click', function () {
                             localStorage.setItem('language', 'vi');
-                            window.location.href = 'data.html'; // Redirect to data.html after setting the language
+                            window.location.href = 'data.html'; 
                         });
                 
                         document.getElementById('en').addEventListener('click', function () {
                             localStorage.setItem('language', 'en');
-                            window.location.href = 'data.html'; // Redirect to data.html after setting the language
+                            window.location.href = 'data.html'; 
                         });
                 
                         document.addEventListener('DOMContentLoaded', async function() {
@@ -280,41 +273,33 @@
         </div>
     </nav>
     <section id="map-section" class="map-section-padding">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="section-header text-center pb-5">
-                        <h1 data-translate="mapTitle">Bản đồ giám sát chất lượng không khí</h1>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <div id="map" style="height: 500px; width: 100%;"></div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div id="data-container" class="mb-4">
                 </div>
             </div>
+        <div class="col-lg-6">
+            <div id="map" style="height: 320px;"></div>
         </div>
+    </div>
     </section>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3lpUVLVcLy7gPa0gYQgH9VLoWZED53P0&callback=initMap" async defer></script>
         <script>
         let map, marker, infowindow, environmentChart;
         document.addEventListener('DOMContentLoaded', function () {
-            // Lắng nghe thay đổi từ Firebase
             firebase.database().ref('mapSettings').on('value', function(snapshot) {
                 const mapSettings = snapshot.val();
                 if (mapSettings) {
-                    // Cập nhật dữ liệu vào localStorage
                     localStorage.setItem('mapLat', mapSettings.lat);
                     localStorage.setItem('mapLng', mapSettings.lng);
                     localStorage.setItem('mapTitle', mapSettings.title);
         
-                    // Cập nhật vị trí và tiêu đề của marker trên bản đồ
                     updateMarkerPosition(mapSettings.lat, mapSettings.lng, mapSettings.title);
                 }
             });
-        
-            // Hàm khởi tạo bản đồ và marker
             initMap();
         });
-        // Khởi tạo bản đồ
+
         function initMap() {
             const lat = parseFloat(localStorage.getItem('mapLat')) || 20.99567;
             const lng = parseFloat(localStorage.getItem('mapLng')) || 105.80676;
@@ -347,10 +332,8 @@
             map.setCenter(position);
             marker.setTitle(title);
         
-            // Cập nhật nội dung InfoWindow
             infowindow.setContent(`<h3>${title}</h3>`);
         
-            // Đảm bảo InfoWindow được mở nếu marker được click
             marker.addListener('click', function() {
                 infowindow.open(map, marker);
             });
@@ -362,11 +345,7 @@
             marker.setPosition(position);
             map.setCenter(position);
             marker.setTitle(title);
-
-            // Cập nhật nội dung InfoWindow
             infowindow.setContent(`<h3>${title}</h3>`);
-
-            // Gán sự kiện click nếu chưa được gán
             if (!isClickListenerAdded) {
                 marker.addListener('click', function() {
                     infowindow.open(map, marker);
@@ -648,185 +627,153 @@
             </div>
         </div>
     </div>
-    <section id="data-section" class="data-section-padding">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="section-header text-center pb-5">
-                        <h1 data-translate="dataSectionTitle">Dữ liệu quan trắc chất lượng không khí</h1>
-                        <p data-translate="dataSectionSubtitle">Dữ liệu được cập nhật từ thiết bị TLD66</p>
-                    </div>
-                </div>
-            </div>
-            <div id="data-container" class="row">
-            </div>
-        </div>
-    </section>
     <section id="chart-section" class="chart-section-padding">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="section-header text-center pb-5">
-                        <h1 data-translate="chartSectionTitle">Biểu đồ giám sát chất lượng không khí</h1>
-                    </div>
-                </div>
-                <div id="chart-container" class="col-md-12">
-                    <canvas id="environmentChart"></canvas>
-                </div>
-            </div>
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <h5 class="text-center" data-translate="chartSectionTitle">Biểu đồ giám sát chất lượng không khí</h5>
+                <canvas id="environmentChart"></canvas>
         </div>
-    </section>
-    <section id="about" class="about-section-padding">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-md-12 col-12">
-                    <div class="about-img">
-                        <img src="img/dht22.jpg" alt="" class="img-fluid">
+            <div class="col-lg-4 d-flex justify-content-between cards-container">
+                <div id="card1" class="card1 text-white text-center bg-success">
+                    <div class="card-body">
+                        <div class="img-area mb-4">
+                            <img src="img/khoadiachat.jpg" alt="" class="img-fluid">
+                        </div>
+                        <h3 class="card-title" data-translate="webUsageGuideTitle">Tài liệu sử dụng web</h3>
+                        <a class="text-white" href="tailieu/huongdan1.pdf" target="_blank">Tài liệu hướng dẫn sử dụng</a>
                     </div>
                 </div>
-                <div class="col-lg-8 col-md-12 col-12 ps-lg-5 mt-md-5">
-                    <div class="about-text">
-                        <h2> <span class="text-success" data-translate="aboutHeader">Cảm biến nhiệt độ & độ ẩm </span> <br> DHT22</h2>
+                <div id="card2" class="card1 text-white text-center bg-success">
+                    <div class="card-body">
+                        <div class="img-area mb-4">
+                            <img src="img/khoadiachat.jpg" alt="" class="img-fluid">
+                        </div>
+                        <h3 class="card-title" data-translate="codeDocumentTitle">Tài liệu mã code</h3>
+                        <a class="text-white" href="#" target="_blank">Xem chi tiết tại đây</a>
+                    </div>
+                </div>
+                <div id="card3" class="card1 text-white text-center bg-success">
+                    <div class="card-body">
+                        <div class="img-area mb-4">
+                            <img src="img/khoadiachat.jpg" alt="" class="img-fluid">
+                        </div>
+                        <h3 class="card-title" data-translate="researchTitle">Nghiên cứu</h3>
+                        <a class="text-white" href="#" target="_blank">Xem chi tiết tại đây</a>
+                    </div>
+                </div>
+            </div>    
+        <div class="row mt-4">
+            <!-- Cảm biến nhiệt độ & độ ẩm - DHT22 -->
+            <div class="sensor-item">
+                <div class="d-flex">
+                    <img src="img/dht22.jpg" alt="DHT22 Sensor" class="img-fluid me-3" style="width: 100px; height: auto;">
+                    <div>
+                        <h5 class="text-start" data-translate="aboutHeader">Cảm biến nhiệt độ & độ ẩm - DHT22</h5>
                         <p data-translate="dht22Description">
                             Cảm biến độ ẩm và nhiệt độ DHT22 sử dụng giao tiếp 1 Wire dễ dàng kết nối với Vi điều khiển để thực hiện các ứng dụng đo nhiệt độ, độ ẩm môi trường, cảm biến có chất lượng tốt, kích thước nhỏ gọn, độ bền và độ ổn định cao.
-                            <a href="tailieu/dht_document (1).pdf"target="_blank" data-translate="dht22LinkText">xem chi tiết tại đây</a>
+                            <a href="tailieu/dht_document (1).pdf" target="_blank" data-translate="dht22LinkText">xem chi tiết tại đây</a>
                         </p>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-12 col-12">
-                    <div class="about-img">
-                        <img src="img/MQ-7.jpg" alt="" class="img-fluid">
-                    </div>
-                </div>
-                <div class="col-lg-8 col-md-12 col-12 ps-lg-5 mt-md-5">
-                    <div class="about-text">
-                        <h2> <span class="text-success" data-translate="coSensorHeader">Cảm biến hàm lượng khí CO </span> <br> MQ-7</h2>
+            </div>
+        
+            <!-- Cảm biến hàm lượng khí CO - MQ-7 -->
+            <div class="sensor-item">
+                <div class="d-flex">
+                    <img src="img/MQ-7.jpg" alt="MQ-7 Sensor" class="img-fluid me-3" style="width: 100px; height: auto;">
+                    <div>
+                        <h5 class="text-start" data-translate="coSensorHeader">Cảm biến hàm lượng khí CO - MQ-7</h5>
                         <p data-translate="coSensorDescription">
                             Cảm biến khí CO MQ-7 là cảm biến bán dẫn giá rẻ có khả năng phát hiện khí carbon monoxide từ 10 đến 1000 ppm. Vật liệu tạo ra cảm biến là từ SnO2, có độ dẫn điện thấp trong không khí sạch.
-                            <a href="https://www.instructables.com/Arduino-CO-Monitor-Using-MQ-7-Sensor/"target="_blank" data-translate="coSensorLinkText">xem chi tiết tại đây</a>
+                            <a href="https://www.instructables.com/Arduino-CO-Monitor-Using-MQ-7-Sensor/" target="_blank" data-translate="coSensorLinkText">xem chi tiết tại đây</a>
                         </p>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-12 col-12">
-                    <div class="about-img">
-                        <img src="img/SDS011(1).jpg" alt="" class="img-fluid">
-                    </div>
-                </div>
-                <div class="col-lg-8 col-md-12 col-12 ps-lg-5 mt-md-5">
-                    <div class="about-text">
-                        <h2> <span class="text-success" data-translate="airQualitySensorHeader">Cảm biến đo chất lượng khí</span> <br> Nova PM SDS011</h2>
+            </div>
+        
+            <!-- Cảm biến đo chất lượng khí - Nova PM SDS011 -->
+            <div class="sensor-item">
+                <div class="d-flex">
+                    <img src="img/sds011.jpg" alt="SDS011 Sensor" class="img-fluid me-3" style="width: 100px; height: auto;">
+                    <div>
+                        <h5 class="text-start" data-translate="airQualitySensorHeader">Cảm biến đo chất lượng khí - Nova PM SDS011</h5>
                         <p data-translate="sds011Description">
                             SDS011 là cảm biến đo chất lượng không khí có thể phát hiện các hạt bụi và nồng độ khói trong không khí. Chính xác hơn, nó có thể đo nồng độ các hạt bụi có kích thước từ 0.3 đến 10um.
-                            <a href="SDS011-DATASHEET.pdf"target="_blank" data-translate="sds011LinkText">xem chi tiết tại đây</a>
+                            <a href="SDS011-DATASHEET.pdf" target="_blank" data-translate="sds011LinkText">xem chi tiết tại đây</a>
                         </p>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-12 col-12">
-                    <div class="about-img">
-                        <img src="img/sharp.jpg" alt="" class="img-fluid">
-                    </div>
-                </div>
-                <div class="col-lg-8 col-md-12 col-12 ps-lg-5 mt-md-5">
-                    <div class="about-text">
-                        <h2> <span class="text-success" data-translate="fineDustSensorHeader">Cảm biến đo hàm lượng bụi mịn</span> <br> SHARP GP2Y1010AU0F</h2>
+            </div>
+        
+            <!-- Cảm biến đo hàm lượng bụi mịn - SHARP GP2Y1010AU0F -->
+            <div class="sensor-item">
+                <div class="d-flex">
+                    <img src="img/sharp.jpg" alt="SHARP GP2Y1010AU0F Sensor" class="img-fluid me-3" style="width: 100px; height: auto;">
+                    <div>
+                        <h5 class="text-start" data-translate="fineDustSensorHeader">Cảm biến đo hàm lượng bụi mịn - SHARP GP2Y1010AU0F</h5>
                         <p data-translate="sharpDustSensorDescription">
                             Cảm biến dùng để nhận biết nồng độ bụi trong không khí. Nguyên lý hoạt động dựa trên led phát hồng ngoại trong cảm biến, khi có bụi vào sẽ bị khúc xạ, làm giảm cường độ tia hồng ngoại dẫn đến điện áp thay đổi.
-                            <a href="tailieu/gp2y1010au_e.pdf"target="_blank" data-translate="sharpDustSensorLinkText">xem chi tiết tại đây</a>
+                            <a href="tailieu/gp2y1010au_e.pdf" target="_blank" data-translate="sharpDustSensorLinkText">xem chi tiết tại đây</a>
                         </p>
                     </div>
                 </div>
-                <div>
-                    <p></p>
-                </div>
-                <div class="col-12 col-md-12 col-lg-4 ">
-                    <div class="card1 text-white text-center bg-success pb-5">
-                        <div class="card-boddy">
-                            <div class="img-area mb-4">
-                                <img src="img/khoadiachat.jpg" alt="" class="img-fluid">
-                            </div>
-                            <h3 class="card-title" data-translate="webUsageGuideTitle">Tài liệu sử dụng web</h3>
-                            <a class="text-white " href="tailieu/huongdan1.pdf"target="_blank"> Tài liệu hướng dẫn sử dụng</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-12 col-lg-4 ">
-                    <div class="card1 text-white text-center bg-success pb-5">
-                        <div class="card-boddy">
-                            <div class="img-area mb-4">
-                                <img src="img/khoadiachat.jpg" alt="" class="img-fluid">
-                            </div>
-                            <h3 class="card-title" data-translate="codeDocumentTitle">Tài liệu mã code</h3>
-                            <a class="text-white " href="">Xem chi tiết tại đây</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-12 col-lg-4 ">
-                    <div class="card1 text-white text-center bg-success pb-5">
-                        <div class="card-boddy">
-                            <div class="img-area mb-4">
-                                <img src="img/khoadiachat.jpg" alt="" class="img-fluid">
-                            </div>
-                            <h3 class="card-title" data-translate="researchTitle">Nghiên cứu</h3>
-                            <a class="text-white " href="" target="_blank">Xem chi tiết tại đây</a>
-                        </div>
-                    </div>
-                </div>                
             </div>
-        </div>
-    </section>
-
-    <section id="services" class="services team-section-padding">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="section-header text center pb-5">
-                        <h1 data-translate="teamSectionTitle">Nhóm nghiên cứu gồm:</h1>
-                        <p data-translate="teamMembersSubtitle"> Các thành viên chính</p>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12 col-md-2 col-lg-4">
-                    <div class="card text-center">
-                        <div class="card-body">
-                            <img src="img/VD.jpg" alt="" class="img-fuild rounded-circle">
-                            <h2 class="card-title py-2"><span class="text-success" data-translate="member1Name">Thái Văn Đức</span></h2>
-                            <p class="card-text">Lớp: K66 CNQT & GSTNMT </p>
+        </div>        
+        <!-- Research Team Section -->
+        <section id="services" class="services team-section-padding mt-4">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="section-header text-center pb-5">
+                            <h1 data-translate="teamSectionTitle">Nhóm nghiên cứu gồm:</h1>
+                            <p data-translate="teamMembersSubtitle">Các thành viên chính</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-2 col-lg-4">
-                    <div class="card text-center">
-                        <div class="card-body">
-                            <img src="img/KL.jpg" alt="" class="img-fuild rounded-circle">
-                            <h2 class="card-title py-2"> <span class="text-success" data-translate="member2Name">Nguyễn Khánh Linh</span></h2>
-                            <p class="card-text">Lớp: K66 CNQT & GSTNMT  </p>
+                <div class="row">
+                    <div class="col-12 col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <img src="img/VD.jpg" alt="" class="img-fluid rounded-circle">
+                                <h2 class="card-title py-2"><span class="text-success" data-translate="member1Name">Thái Văn Đức</span></h2>
+                                <p class="card-text">Lớp: K66 CNQT & GSTNMT</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-12 col-md-2 col-lg-4">
-                    <div class="card text-center">
-                         <div class="card-body text-center">
-                            <img src="img/GT1.jpg" alt="" class="img-fluid rounded-circle mb-2" style="width: 245px; height: 245px; object-fit: cover;">
-                            <h2 class="card-title py-2 text-success" data-translate="member3Name">Giang Ngọc Thảo</h2>
-                            <p class="card-text">Lớp: K66 CNQT & GSTNMT</p>
-                        </div> 
+                    <div class="col-12 col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <img src="img/KL.jpg" alt="" class="img-fluid rounded-circle">
+                                <h2 class="card-title py-2"><span class="text-success" data-translate="member2Name">Nguyễn Khánh Linh</span></h2>
+                                <p class="card-text">Lớp: K66 CNQT & GSTNMT</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body text-center">
+                                <img src="img/GT1.jpg" alt="" class="img-fluid rounded-circle mb-2" style="width: 175px; height: 175px; object-fit: cover;">
+                                <h2 class="card-title py-2 text-success" data-translate="member3Name">Giang Ngọc Thảo</h2>
+                                <p class="card-text">Lớp: K66 CNQT & GSTNMT</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-    <footer>
-        <div class="items-infor d-flex">
+        </section>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="mt-4">
+        <div class="items-infor d-flex justify-content-center">
             <div class="infor-wrap">
                 <h3 data-translate="contactInfo">Thông tin hỗ trợ</h3>
-                <div class="color_infor-wrap"> 
+                <div class="color_infor-wrap">
                     <ul>
                         <li>
                             <span data-translate="phone">Số điện thoại: </span>
                             <span>
-                                (+ 84) 935548502
+                                (+84) 935548502
                                 <br>
                                 Thái Văn Đức
                             </span>
@@ -839,7 +786,7 @@
                 </div>
             </div>
         </div>
-    </footer> 
+    </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script> 
 </body>
 </html>

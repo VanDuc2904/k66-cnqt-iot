@@ -14,6 +14,7 @@
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f4f7fa;
+            transition: background-color 0.3s ease;
         }
 
         .container {
@@ -24,35 +25,49 @@
         .header {
             text-align: center;
             margin-bottom: 20px;
+            position: relative;
         }
-        
+
         .logo-container img {
-            max-height: 70px; 
-            margin-right: 0px;
+            max-height: 70px;
+            margin-bottom: 10px;
         }
 
         .header h1 {
             font-size: 2.5rem;
             font-weight: bold;
             color: #333;
+            transition: color 0.3s ease;
         }
 
         .header .btn-export {
             margin-top: 15px;
             font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .header .btn-export:hover {
+            background-color: #1e7e34;
+            transform: scale(1.05);
         }
 
         .stat-card {
             background-color: #fff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
         .stat-card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
             color: #495057;
         }
 
@@ -60,16 +75,28 @@
             margin-top: 30px;
             padding: 20px;
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
         .table-wrapper {
             margin-top: 20px;
             overflow-x: auto;
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .table-wrapper:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
         .table thead {
@@ -78,7 +105,8 @@
         }
 
         .table tbody tr:hover {
-            background-color: #e9ecef;
+            background-color: #f1f3f5;
+            transition: background-color 0.3s ease;
         }
 
         .footer {
@@ -91,13 +119,24 @@
         .filter-section {
             margin-bottom: 20px;
             background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .filter-section:hover {
+            background-color: #dee2e6;
         }
 
         .filter-section .form-control {
-            border-radius: 4px;
+            border-radius: 5px;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-section .form-control:focus {
+            border-color: #28a745;
+            box-shadow: none;
         }
 
         .filter-btn {
@@ -105,13 +144,92 @@
             color: #fff;
             border: none;
             border-radius: 5px;
-            padding: 8px 16px;
+            padding: 10px 20px;
             font-size: 14px;
             cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
         .filter-btn:hover {
             background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .prediction-section {
+            margin-top: 20px;
+            padding: 25px;
+            border-radius: 12px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .prediction-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .prediction-section h5 {
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #007bff;
+            font-size: 1.5rem;
+            animation: fadeInDown 1s ease;
+        }
+
+        .prediction-result {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .prediction-box {
+            background-color: #e2e6ea;
+            padding: 20px 25px;
+            border-radius: 15px;
+            margin: 10px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #495057;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .prediction-box:hover {
+            background-color: #dae0e5;
+            transform: translateY(-3px);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .update-notification {
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
     </style>
 </head>
@@ -127,7 +245,7 @@
             <h1>TLD66 Data Analytics Dashboard</h1>
             <button id="exportPDF" class="btn btn-primary btn-export">Export as PDF</button>
         </div>
-
+        
         <!-- Filter Section -->
         <div class="filter-section">
             <h5>Filter Data</h5>
@@ -182,9 +300,18 @@
                     <p>Standard Deviation: <span id="pm25StdDev">0</span> µg/m³</p>
                 </div>
             </div>
+            <div class="prediction-section">
+                <h5>Kết quả dự báo trong những giờ tới:</h5>
+                <div id="prediction-datetime" class="mb-3"></div> 
+                <div id="prediction-result" class="prediction-result">
+                    <div class="prediction-box">Đang tính toán...</div>
+                </div>
+                <p class="note">
+                    Chú ý: đây là kết quả dự báo dự trên mô hình học máy thử nghiệm của nhóm nghiên cứu TLD66 
+                    không phải là kết quả dự báo thay cho thông tin của cơ quan nhà nước!
+                </p>
+            </div>
         </div>
-
-        <!-- Data Table -->
         <div class="table-wrapper">
             <table class="table table-striped">
                 <thead>
@@ -199,13 +326,10 @@
                     </tr>
                 </thead>
                 <tbody id="data-table">
-                    <!-- Data rows will be inserted here -->
                 </tbody>
             </table>
             <div id="error-message" class="text-center text-danger"></div>
         </div>
-
-        <!-- Charts Section -->
         <div class="chart-container">
             <h2>Data Visualization</h2>
             <div class="row">
@@ -223,8 +347,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Footer -->
         <div class="footer">
             © TLD66 Data Analytics Dashboard 2024.
         </div>
@@ -256,14 +378,12 @@
                 document.getElementById('error-message').textContent = 'Không thể tải dữ liệu.';
             }
         }
-    
-        // Hiển thị dữ liệu trong bảng
         function displayData(data) {
             const tableBody = document.getElementById('data-table');
             tableBody.innerHTML = '';
             data.forEach((row, index) => {
-                const date = row[0]; // Lấy ngày từ cột A
-                const time = row[1]; // Lấy giờ từ cột B
+                const date = row[0]; 
+                const time = row[1]; 
                 const temperature = isNaN(row[2]) ? 'N/A' : row[2];
                 const humidity = isNaN(row[3]) ? 'N/A' : row[3];
                 const coLevel = isNaN(row[4]) ? 'N/A' : row[4];
@@ -282,8 +402,6 @@
                 tableBody.insertAdjacentHTML('beforeend', rowHTML);
             });
         }
-    
-        // Hiển thị thống kê dữ liệu
         function displayStatistics(data) {
             const temperatures = data.map(row => parseFloat(row[2])).filter(value => !isNaN(value));
             const humidities = data.map(row => parseFloat(row[3])).filter(value => !isNaN(value));
@@ -310,15 +428,13 @@
             document.getElementById('pm25Min').textContent = Math.min(...pm25Levels).toFixed(2);
             document.getElementById('pm25StdDev').textContent = calculateStandardDeviation(pm25Levels).toFixed(2);
         }
-    
-        // Tính trung bình
+
         function calculateAverage(array) {
             if (array.length === 0) return 0;
             const total = array.reduce((sum, value) => sum + value, 0);
             return total / array.length;
         }
     
-        // Tính độ lệch chuẩn
         function calculateStandardDeviation(array) {
             if (array.length === 0) return 0;
             const mean = calculateAverage(array);
@@ -326,10 +442,9 @@
             const avgSquareDiff = calculateAverage(squareDiffs);
             return Math.sqrt(avgSquareDiff);
         }
-    
-        // Vẽ biểu đồ bằng Chart.js
+
         function renderCharts(data) {
-            const labels = data.map(row => `${row[0]} ${row[1]}`); // Kết hợp ngày và giờ cho nhãn
+            const labels = data.map(row => `${row[0]} ${row[1]}`); 
             const temperatures = data.map(row => parseFloat(row[2])).filter(value => !isNaN(value));
             const humidities = data.map(row => parseFloat(row[3])).filter(value => !isNaN(value));
             const coLevels = data.map(row => parseFloat(row[4])).filter(value => !isNaN(value));
@@ -458,6 +573,134 @@
             });
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script>
+        let model;
+        function createModel() {
+            model = tf.sequential();
+            model.add(tf.layers.dense({ inputShape: [4], units: 50, activation: 'relu' }));
+            model.add(tf.layers.dense({ units: 50, activation: 'relu' }));
+            model.add(tf.layers.dense({ units: 4 }));
+            model.compile({ optimizer: 'adam', loss: 'meanSquaredError' });
+        }
+    
+        function prepareData(data) {
+            const inputs = [];
+            const outputs = [];
+            for (let i = 0; i < data.length - 1; i++) {
+                const currentRow = data[i];
+                const nextRow = data[i + 1];
+                const inputFeatures = [
+                    parseFloat(currentRow[2]), // Nhiệt độ
+                    parseFloat(currentRow[3]), // Độ ẩm
+                    parseFloat(currentRow[4]), // CO
+                    parseFloat(currentRow[5])  // PM2.5
+                ];
+                const outputFeatures = [
+                    parseFloat(nextRow[2]),
+                    parseFloat(nextRow[3]),
+                    parseFloat(nextRow[4]),
+                    parseFloat(nextRow[5])
+                ];
+                if (inputFeatures.every(value => !isNaN(value)) && outputFeatures.every(value => !isNaN(value))) {
+                    inputs.push(inputFeatures);
+                    outputs.push(outputFeatures);
+                }
+            }
+            const xs = tf.tensor2d(inputs);
+            const ys = tf.tensor2d(outputs);
+            return { xs, ys };
+        }
+        async function trainModel(data) {
+            const { xs, ys } = prepareData(data);
+            await model.fit(xs, ys, {
+                epochs: 200,
+                callbacks: {
+                    onEpochEnd: (epoch, logs) => {
+                        console.log(`Epoch ${epoch}: loss = ${logs.loss}`);
+                    }
+                }
+            });
+            console.log("Huấn luyện mô hình xong!");
+        }
+        function predictNextValues(latestValues) {
+            const input = tf.tensor2d([latestValues], [1, 4]);
+            const prediction = model.predict(input);
+            const predictedValues = prediction.dataSync();
+            return predictedValues.map(value => parseFloat(value.toFixed(2)));
+        }
+    
+        document.addEventListener('DOMContentLoaded', async () => {
+            createModel();
+            await fetchData();
+            await trainModel(originalData);
+    
+            const latestRow = originalData[originalData.length - 1];
+            const latestValues = [
+                parseFloat(latestRow[2]),
+                parseFloat(latestRow[3]),
+                parseFloat(latestRow[4]),
+                parseFloat(latestRow[5])
+            ];
+    
+            const nextPrediction = predictNextValues(latestValues);
+            console.log(`Dự báo những giờ tiếp theo: Nhiệt độ: ${nextPrediction[0]} °C, Độ ẩm: ${nextPrediction[1]} %, CO: ${nextPrediction[2]} ppm, PM2.5: ${nextPrediction[3]} µg/m³`);
+    
+            document.getElementById('prediction-result').innerHTML = `
+            <div class="prediction-box">
+                <img src="${getCOWarning(nextPrediction[2])}" alt="CO Warning"> 
+                Nhiệt độ: ${nextPrediction[0].toFixed(2)} °C
+            </div>
+            <div class="prediction-box">
+                <img src="${getPM25Warning(nextPrediction[3])}" alt="PM2.5 Warning"> 
+                Độ ẩm: ${nextPrediction[1].toFixed(2)} %
+            </div>
+            <div class="prediction-box">
+                <img src="${getCOWarning(nextPrediction[2])}" alt="CO Warning"> 
+                CO: ${nextPrediction[2].toFixed(2)} ppm
+            </div>
+            <div class="prediction-box">
+                <img src="${getPM25Warning(nextPrediction[3])}" alt="PM2.5 Warning"> 
+                PM2.5: ${nextPrediction[3].toFixed(2)} µg/m³
+            </div>
+        `;
+    });
+        function updatePredictionDateTime() {
+            const predictionDateTime = new Date();
+            const formattedDateTime = predictionDateTime.toLocaleString('vi-VN', { 
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
+                hour: 'numeric', minute: 'numeric', second: 'numeric'
+            });
+            document.getElementById('prediction-datetime').textContent = `Ngày giờ dự báo: ${formattedDateTime}`;
+        }
+        
+        updatePredictionDateTime();
+        function getPM25Warning(pm25) {
+            if (pm25 <= 12) {
+                return "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; // Tốt
+            } else if (pm25 <= 35) {
+                return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; // Vừa phải
+            } else if (pm25 <= 55) {
+                return "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"; // Kém
+            } else {
+                return "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Rất kém
+            }
+        }
+        
+        function getCOWarning(co) {
+            if (co <= 9) {
+                return "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; // Tốt
+            } else if (co <= 35) {
+                return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; // Vừa phải
+            } else if (co <= 100) {
+                return "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"; // Kém
+            } else {
+                return "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Rất kém
+            }
+        }
+        
+    </script>
+    
 </body>
 
 </html>

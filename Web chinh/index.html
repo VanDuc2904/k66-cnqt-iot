@@ -662,7 +662,101 @@
                         <a class="text-white" href="#" target="_blank">Xem chi tiết tại đây</a>
                     </div>
                 </div>
-            </div>    
+            </div>  
+                        <div class="row mt-4">
+                <div class="col-lg-12">
+                    <h5 class="text-center">Thông tin dữ liệu thời tiết</h5>
+                    <div class="weather-container p-3 bg-light rounded mx-auto" style="max-width: 800px;">
+                        <input type="text" id="city-input" class="form-control mb-3" placeholder="Enter city name (e.g., Hanoi)">
+                        <button class="btn btn-primary w-100" onclick="getWeatherForCity()">Tìm kiếm</button>
+                        <div id="weather-display" class="mt-3"></div>
+                        <div id="forecast-display" class="mt-3"></div> 
+                        <p id="error-message" class="text-danger"></p>
+                        <p>Nguồn: OpenWeatherMap</p>
+                    </div>
+                </div>
+            </div>
+            <script>
+                const apiKey1 = '12118cdb333f0039947273d009989237';
+            async function getWeather(city = null, lat = 20.99567, lon = 105.80676) {
+                const weatherDisplay = document.getElementById('weather-display');
+                const forecastDisplay = document.getElementById('forecast-display');
+                const errorMessage = document.getElementById('error-message');
+
+                weatherDisplay.innerHTML = '';
+                forecastDisplay.innerHTML = '';
+                errorMessage.textContent = '';
+
+                let weatherApiUrl, forecastApiUrl;
+
+                if (city) {
+                    weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey1}&units=metric`;
+                    forecastApiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey1}&units=metric`;
+                } else {
+                    weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey1}&units=metric`;
+                    forecastApiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey1}&units=metric`;
+                }
+
+                try {
+                    const weatherResponse = await fetch(weatherApiUrl);
+                    const weatherData = await weatherResponse.json();
+
+                    if (weatherData.cod !== 200) {
+                        errorMessage.textContent = `Error: ${weatherData.message}`;
+                        return;
+                    }
+
+                    const weatherHtml = `
+                        <p><strong>Vị trí:</strong> ${weatherData.name}</p>
+                        <p><strong>Nhiệt độ :</strong> ${weatherData.main.temp} °C</p>
+                        <p><strong>Thời tiết:</strong> ${weatherData.weather[0].description}</p>
+                        <p><strong>Độ ẩm:</strong> ${weatherData.main.humidity}%</p>
+                        <p><strong>Tốc độ gió:</strong> ${weatherData.wind.speed} m/s</p>
+                    `;
+
+                    weatherDisplay.innerHTML = weatherHtml;
+                    const forecastResponse = await fetch(forecastApiUrl);
+                    const forecastData = await forecastResponse.json();
+                    displayForecast(forecastData);
+
+                } catch (error) {
+                    console.error('Error fetching weather data:', error);
+                    errorMessage.textContent = 'Failed to fetch weather data. Please try again later.';
+                }
+            }
+            function displayForecast(data) {
+                const forecastDisplay = document.getElementById('forecast-display');
+                let forecastHtml = '<h5>Dự báo thời tiết trong 5 ngày:</h5>';
+                const days = {};
+                data.list.forEach(item => {
+                    const date = new Date(item.dt_txt).toLocaleDateString('vi-VN', { weekday: 'short', day: 'numeric', month: 'numeric' });
+                    const time = new Date(item.dt_txt).getHours();
+
+                    if (time === 12 && !days[date]) {
+                        days[date] = `
+                            <div class="forecast-card">
+                                <h6>${date}</h6>
+                                <img src="http://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png" alt="${item.weather[0].description}" />
+                                <p><strong>${item.main.temp} °C</strong></p>
+                                <p>${item.weather[0].description}</p>
+                                <p>Độ ẩm: ${item.main.humidity}%</p>
+                            </div>
+                        `;
+                    }
+                });
+
+                forecastHtml += Object.values(days).join('');
+                forecastDisplay.innerHTML = forecastHtml;
+            }
+            document.addEventListener('DOMContentLoaded', function() {
+                getWeather();
+            });
+
+            function getWeatherForCity() {
+                const city = document.getElementById('city-input').value;
+                getWeather(city);
+            }
+            </script>
         <div class="row mt-4">
             <!-- Cảm biến nhiệt độ & độ ẩm - DHT22 -->
             <div class="sensor-item">

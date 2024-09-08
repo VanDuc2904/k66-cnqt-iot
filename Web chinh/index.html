@@ -252,8 +252,42 @@
                     <a class="nav-link" href="#" data-translate="home">Trang chủ</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://script.google.com/macros/s/AKfycbxypKpWoIb8oYujhzz9yjtdHaxOdScEKFOadjERMfmb0qqOBdFaAPKgzEnnAkgSL9c1/exec" data-translate="realtimeData">Thông số thời gian thực</a>
+                    <a class="nav-link" id="realtimeDataLink" href="#" onclick="handleLinkClick(event)" data-translate="realtimeData">Thông số thời gian thực</a>
                 </li>
+                
+                <script>
+                    let isCommandUnlocked = false;
+                    function updateCommandStatus(isUnlocked) {
+                        isCommandUnlocked = isUnlocked;
+                        const linkElement = document.getElementById('realtimeDataLink');
+                
+                        if (isUnlocked) {
+                            console.log('Chức năng đã được mở khóa.');
+                            linkElement.href = "https://script.google.com/macros/s/AKfycbxypKpWoIb8oYujhzz9yjtdHaxOdScEKFOadjERMfmb0qqOBdFaAPKgzEnnAkgSL9c1/exec";
+                        } else {
+                            console.log('Chức năng đã bị khóa.');
+                            linkElement.href = "#"; 
+                        }
+                    }
+                    document.addEventListener('DOMContentLoaded', () => {
+                        firebase.database().ref('commandSettings').once('value')
+                            .then(snapshot => {
+                                const commandSettings = snapshot.val();
+                                if (commandSettings && commandSettings.isUnlocked !== undefined) {
+                                    updateCommandStatus(commandSettings.isUnlocked);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Lỗi tải trạng thái:', error);
+                            });
+                    });
+                    function handleLinkClick(event) {
+                        if (!isCommandUnlocked) {
+                            event.preventDefault(); 
+                            alert('Hiện tại admin đã khóa quyền truy cập chức năng này.');
+                        }
+                    }
+                </script>
                 <li class="nav-item">
                     <a class="nav-link" href="#" onclick="handleDataStatisticsClick()" data-translate="dataStatistics">Dữ liệu & thống kê</a>
                 </li>

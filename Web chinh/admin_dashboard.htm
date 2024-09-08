@@ -22,7 +22,11 @@
             <button class="btn btn-success" onclick="unlockCommand()">Mở khóa chức năng</button>
             <button class="btn btn-danger" onclick="lockCommand()">Đóng chức năng</button>
         </div>
-
+        <div class="mb-3">
+            <label for="newNotification" class="form-label">Dữ liệu & thống kê </label>
+            <button class="btn btn-success" onclick="unlockDataStatistics()">Mở khóa truy cập</button>
+            <button class="btn btn-danger" onclick="lockDataStatistics()">Đóng khóa truy cập</button>
+        </div>
         <!-- Chức năng thay đổi lat, long, title -->
         <div class="mb-3">
             <label for="latitude" class="form-label">Latitude:</label>
@@ -174,6 +178,30 @@
             .catch(error => {
                 console.error('Lỗi khi đóng chức năng:', error);
                 alert('Có lỗi xảy ra khi đóng chức năng.');
+            });
+        }
+                function unlockDataStatistics() {
+            firebase.database().ref('accessControl/dataStatistics').set({
+                isUnlocked: true
+            })
+            .then(() => {
+                alert('Đã mở khóa truy cập vào Dữ liệu & Thống kê.');
+            })
+            .catch(error => {
+                console.error('Lỗi khi mở khóa truy cập:', error);
+                alert('Có lỗi xảy ra khi mở khóa truy cập.');
+            });
+        }
+        function lockDataStatistics() {
+            firebase.database().ref('accessControl/dataStatistics').set({
+                isUnlocked: false
+            })
+            .then(() => {
+                alert('Đã đóng khóa truy cập vào Dữ liệu & Thống kê.');
+            })
+            .catch(error => {
+                console.error('Lỗi khi đóng khóa truy cập:', error);
+                alert('Có lỗi xảy ra khi đóng khóa truy cập.');
             });
         }
     </script>

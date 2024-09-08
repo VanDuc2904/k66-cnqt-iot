@@ -292,9 +292,31 @@
                     <a class="nav-link" href="#" onclick="handleDataStatisticsClick()" data-translate="dataStatistics">Dữ liệu & thống kê</a>
                 </li>
                 <script>
+                    let isAccessUnlocked = false;
+                    function updateAccessControl(isUnlocked) {
+                        isAccessUnlocked = isUnlocked;
+                    }
+                    document.addEventListener('DOMContentLoaded', () => {
+                        firebase.database().ref('accessControl/dataStatistics').once('value')
+                            .then(snapshot => {
+                                const accessControl = snapshot.val();
+                                if (accessControl && accessControl.isUnlocked !== undefined) {
+                                    updateAccessControl(accessControl.isUnlocked);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Lỗi tải trạng thái truy cập:', error);
+                            });
+                    });
+
                     function handleDataStatisticsClick() {
-                        alert("Vui lòng đăng nhập");
-                        window.location.href = 'dktk.htm';
+                        if (isAccessUnlocked) {
+                            alert("Hiện tại admin đã mở khóa chức năng này");
+                            window.location.href = 'results.html';
+                        } else {
+                            alert("Vui lòng đăng nhập");
+                            window.location.href = 'dktk.htm';
+                        }
                     }
                 </script>
                 </li>                

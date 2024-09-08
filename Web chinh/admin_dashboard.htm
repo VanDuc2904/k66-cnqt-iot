@@ -17,6 +17,11 @@
             <input type="text" class="form-control" id="newNotification" placeholder="Nhập thông báo mới">
             <button class="btn btn-primary mt-2" onclick="updateNotification()">Cập nhật thông báo</button>
         </div>
+        <div class="mb-3">
+            <label for="newNotification" class="form-label">Thông số thời gian thực </label>
+            <button class="btn btn-success" onclick="unlockCommand()">Mở khóa chức năng</button>
+            <button class="btn btn-danger" onclick="lockCommand()">Đóng chức năng</button>
+        </div>
 
         <!-- Chức năng thay đổi lat, long, title -->
         <div class="mb-3">
@@ -33,7 +38,7 @@
         </div>
         <button class="btn btn-primary mt-2" onclick="updateMapSettings()">Cập nhật bản đồ</button>
 
-        <button class="btn btn-danger mt-3" onclick="logout()">Đăng xuất</button>
+        <button class="btn btn-danger mt-2" onclick="logout()">Đăng xuất</button>
     </div>
 
     <!-- Thêm Firebase SDK từ CDN (Firebase v8) -->
@@ -137,6 +142,39 @@
         // Hàm đăng xuất
         function logout() {
             window.location.href = "index.html"; // Chuyển hướng đến trang chính sau khi đăng xuất
+        }
+                function unlockCommand() {
+            firebase.database().ref('commandSettings').set({
+                isUnlocked: true
+            })
+            .then(() => {
+                alert('Chức năng đã được mở khóa.');
+                
+                if (window.opener && !window.opener.closed && typeof window.opener.updateCommandStatus === 'function') {
+                    window.opener.updateCommandStatus(true);
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi mở khóa:', error);
+                alert('Có lỗi xảy ra khi mở khóa.');
+            });
+        }
+        function lockCommand() {
+            firebase.database().ref('commandSettings').set({
+                isUnlocked: false
+            })
+            .then(() => {
+                alert('Chức năng đã bị đóng.');
+                
+                // Cập nhật trạng thái ngay lập tức cho trang index nếu trang đó đang mở
+                if (window.opener && !window.opener.closed && typeof window.opener.updateCommandStatus === 'function') {
+                    window.opener.updateCommandStatus(false);
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi đóng chức năng:', error);
+                alert('Có lỗi xảy ra khi đóng chức năng.');
+            });
         }
     </script>
 </body>

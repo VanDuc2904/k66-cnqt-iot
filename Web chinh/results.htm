@@ -245,9 +245,34 @@
             <h1>TLD66 Data Analytics Dashboard</h1>
             <p>Dữ liệu được cập nhật và lưu trữ theo thời gian thực, vui lòng đợi trong 30s để upload dữ liệu.....</p>
             <button id="exportPDF" class="btn btn-primary btn-export">Export as PDF</button>
+             <button id="exportFileButton" class="btn btn-primary btn-export" data-bs-toggle="modal" data-bs-target="#fileModal">Query data</button>
         </div>
-        
-        <!-- Filter Section -->
+        <div class="file-list-section">
+            <div id="file-list"></div>
+        </div>
+        <div class="modal fade" id="fileModal" tabindex="-1" aria-labelledby="fileModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="fileModalLabel">File list</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" id="startDate" class="form-control mb-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" id="endDate" class="form-control mb-3">
+                        <button class="btn btn-success mb-3" onclick="filterFilesByDate()">Filter by Date</button>
+                        <div id="file-list-modal">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
         <div class="filter-section">
             <h5>Filter Data</h5>
             <form id="filterForm" class="row g-3">
@@ -573,6 +598,69 @@
             html2pdf().from(element).toPdf().get('pdf').then(pdf => {
                 pdf.save('data_analytics.pdf');
             });
+        });
+        let fileData = []; 
+        const folderId = '1Q2-Ld0PElM0xwMEDdclNhmk7Uhoo8xpe'; 
+       
+        async function fetchDriveFiles() {
+            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id, name, webViewLink)`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.files && data.files.length > 0) {
+                    fileData = data.files; 
+                    displayFilesInModal(fileData);
+                } else {
+                    document.getElementById('file-list-modal').innerHTML = 'Không có tệp nào trong thư mục này.';
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy danh sách tệp:', error);
+                document.getElementById('file-list-modal').innerHTML = 'Không thể tải danh sách tệp.';
+            }
+        }
+
+        function displayFilesInModal(files) {
+            const fileListContainer = document.getElementById('file-list-modal');
+            fileListContainer.innerHTML = ''; 
+
+            files.forEach(file => {
+                const fileElement = document.createElement('div');
+                fileElement.classList.add('file-item');
+                fileElement.innerHTML = `
+                    <p><a href="${file.webViewLink}" target="_blank">${file.name}</a></p>
+                `;
+                fileListContainer.appendChild(fileElement);
+            });
+        }
+
+        function filterFilesByDate() {
+            const startDateInput = document.getElementById('startDate').value;
+            const endDateInput = document.getElementById('endDate').value;
+
+            if (!startDateInput || !endDateInput) {
+                alert('Please select both start and end dates');
+                return;
+            }
+
+            const startDate = new Date(startDateInput);
+            const endDate = new Date(endDateInput);
+
+            const filteredFiles = fileData.filter(file => {
+                const fileName = file.name;
+                const dateMatch = fileName.match(/TLD66_(\d{4})-(\d{2})-(\d{2})/);
+                if (dateMatch) {
+                    const fileDate = new Date(`${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`);
+                    return fileDate >= startDate && fileDate <= endDate;
+                }
+                return false;
+            });
+
+            displayFilesInModal(filteredFiles);
+        }
+
+        document.getElementById('exportFileButton').addEventListener('click', () => {
+            fetchDriveFiles(); 
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>

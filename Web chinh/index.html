@@ -252,7 +252,7 @@
                     <a class="nav-link" href="#" data-translate="home">Trang chủ</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="realtimeDataLink" href="#" onclick="handleLinkClick(event)" data-translate="realtimeData">Thông số thời gian thực</a>
+                    <a class="nav-link" id="realtimeDataLink" href="#" onclick="handleLinkClick(event)" data-translate="realtimeData">Chức năng cho admin</a>
                 </li>
                 
                 <script>
@@ -425,7 +425,7 @@
             const latestData = getLatestDataFromDOM();
 
             const contentString = `
-                <h3>Trường ĐH Khoa học Tự nhiên, ĐHQG HN</h3>
+                <h3>Nhà Khách KTX ĐHQG Hòa Lạc</h3>
                 <p data-translate="date">Ngày: ${latestData.date}</p>
                 <p data-translate="time">Giờ: ${latestData.time}</p>
                 <p data-translate="temperature">Nhiệt độ: ${latestData.temperature} °C</p>
@@ -453,7 +453,8 @@
             container.innerHTML = `
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title" data-translate="environmentInfoTitle">Thông tin chất lượng môi trường không khí</h5>
+                        <h5 class="card-title" data-translate="environmentInfoTitle">Dữ liệu thời gian thực</h5>
+                        <p class="card-text" style="font-size: 6px; font-style: italic;">Dữ liệu được cập nhật mỗi 5 phút 1 lần</p>
                         <p class="card-text" data-translate="date">Ngày: ${data[0]}</p>
                         <p class="card-text" data-translate="time">Giờ: ${data[1]}</p>
                         <p class="card-text" data-translate="temperature">Nhiệt độ: ${data[2] ? data[2] : 'Không có dữ liệu'} °C</p>
@@ -475,7 +476,7 @@
         
         function updateInfoWindow(latestData) {
             const contentString = `
-                <h3>Trường ĐH Khoa học Tự nhiên, ĐHQG HN</h3>
+                <h3>Nhà Khách KTX ĐHQG Hòa Lạc</h3>
                 <p data-translate="date">Ngày: ${latestData.date}</p>
                 <p data-translate="time">Giờ: ${latestData.time}</p>
                 <p data-translate="temperature">Nhiệt độ: ${latestData.temperature} °C</p>

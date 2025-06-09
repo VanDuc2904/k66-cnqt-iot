@@ -19,6 +19,7 @@
             background: url('img/Truong.jpg') center/cover no-repeat;
             font-family: Arial, sans-serif;
         }
+        
         .logo {
             position: absolute;
             top: 10px;
@@ -28,7 +29,7 @@
         }
         .main-container {
             display: flex;
-            flex-direction: column;
+            flex-direction: column; 
             width: 95%;
             max-width: 600px;
             padding: 15px;
@@ -36,6 +37,7 @@
             border-radius: 10px;
             color: white;
         }
+        
         .section {
             margin: 10px 0;
             padding: 15px;
@@ -70,6 +72,8 @@
             font-size: 14px;
             transition: background 0.3s, color 0.3s, border-color 0.3s;
         }
+        
+        /* Button Hover Effect */
         .btn-custom:hover {
             background: rgba(255, 255, 255, 0.2);
             border-color: #aaa;
@@ -93,6 +97,7 @@
             text-decoration: none;
             transition: color 0.3s;
         }
+        
         .links a:hover {
             color: #ddd;
         }
@@ -100,27 +105,34 @@
             .main-container {
                 padding: 10px;
             }
+        
             .section {
                 padding: 10px;
             }
+        
             .section h2 {
                 font-size: 1.2rem;
                 margin-bottom: 10px;
             }
+        
             .form-control {
                 padding: 7px;
                 font-size: 13px;
             }
+        
             .btn-custom {
                 padding: 7px 10px;
                 font-size: 13px;
             }
+        
             .modal-content {
                 padding: 15px;
             }
+        
             .modal-header, .modal-body, .modal-footer {
                 padding: 10px;
             }
+        
             .logo {
                 top: 5px;
                 left: 5px;
@@ -132,8 +144,9 @@
 <body>
     <a href="index.html">
         <img src="img/Logo1.png" alt="Logo" class="logo">
-    </a>
+    </a>    
     <div class="main-container">
+        <!-- Login Section -->
         <div class="section">
             <h2>Đăng nhập</h2>
             <form id="loginForm">
@@ -150,7 +163,7 @@
         </div>
         <div class="section">
             <h2>Chức năng khác</h2>
-            <button class="btn-custom" data-bs-toggle="modal" data-bs-target="#emailModal">Đăng ký nhận thông báo qua email</button>
+            <button class="btn-custom" data-bs-toggle="modal" data-bs-target="#emailModal">Sign up for updates via email</button>
             <button class="btn-custom" data-bs-toggle="modal" data-bs-target="#adminLoginModal">Đăng nhập quản trị viên</button>
         </div>
     </div>
@@ -158,21 +171,21 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="emailModalLabel">Đăng ký nhận thông báo qua email</h5>
+                    <h5 class="modal-title" id="emailModalLabel">Sign up for updates via email</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="emailForm">
-                        <input type="email" class="form-control" id="email" placeholder="Nhập email của bạn" required>
-                        <input type="text" class="form-control" id="fullName" placeholder="Nhập họ và tên" required>
-                        <input type="tel" class="form-control" id="phone" placeholder="Nhập số điện thoại" required>
+                        <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+                        <input type="text" class="form-control" id="fullName" placeholder="Enter your full name" required>
+                        <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number" required>
                         <select class="form-control" id="useData" required>
-                            <option value="">Bạn có muốn sử dụng dữ liệu?</option>
-                            <option value="Có">Có</option>
-                            <option value="Không">Không</option>
+                            <option value="">Would you like to use data?</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
                         </select>
-                        <input type="text" class="form-control" id="purpose" placeholder="Nhập mục đích sử dụng" required>
-                        <button type="submit" class="btn-custom">Đăng ký</button>
+                        <input type="text" class="form-control" id="purpose" placeholder="Enter your usage purpose" required>
+                        <button type="submit" class="btn-custom">Sign up</button>
                     </form>
                     <div id="responseMessage" class="mt-3"></div>
                 </div>
@@ -231,6 +244,11 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-database-compat.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Firebase Initialization
@@ -249,8 +267,6 @@
                 firebase.initializeApp(firebaseConfig);
             }
             const auth = firebase.auth();
-
-            // Email subscription form
             document.getElementById('emailForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const email = document.getElementById('email').value;
@@ -260,34 +276,27 @@
                 const useData = document.getElementById('useData').value;
                 const responseMessage = document.getElementById('responseMessage');
 
-                fetch('https://script.google.com/macros/s/AKfycbzMOcqSxBTe7zOHI70f5CBTq_Ld98qmiN4aPAZxjDr83mlzi7be-900oNkqeRTZJ_eW/exec', {
+                fetch('https://script.google.com/macros/s/AKfycbzO59uzW_SRDZ9WvQfczABsSGr2fIVZwqL-cXOPmg-b4isqZsrd8zTPCzcKfvbxxe52/exec', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
                     body: `email=${encodeURIComponent(email)}&fullName=${encodeURIComponent(fullName)}&phone=${encodeURIComponent(phone)}&purpose=${encodeURIComponent(purpose)}&useData=${encodeURIComponent(useData)}`
-                }).then(response => response.json()).then(data => {
-                    if (data.status === 'success') {
-                        responseMessage.textContent = "Đăng ký thành công! Email chào mừng đã được gửi.";
-                        responseMessage.classList.add('text-success');
-                        document.getElementById('emailForm').reset();
-                        setTimeout(() => {
-                            var emailModal = bootstrap.Modal.getInstance(document.getElementById('emailModal'));
-                            emailModal.hide();
-                            responseMessage.textContent = "";
-                        }, 2000);
-                    } else {
-                        responseMessage.textContent = "Lỗi: " + data.message;
-                        responseMessage.classList.add('text-danger');
-                    }
+                }).then(response => {
+                    responseMessage.textContent = "Đã ghi nhận đăng ký của bạn!";
+                    responseMessage.classList.add('text-success');
+                    document.getElementById('emailForm').reset();
+                    setTimeout(() => {
+                        var emailModal = bootstrap.Modal.getInstance(document.getElementById('emailModal'));
+                        emailModal.hide();
+                        responseMessage.textContent = "";
+                    }, 2000);
                 }).catch(error => {
-                    responseMessage.textContent = "Đã xảy ra lỗi: " + error.message;
+                    responseMessage.textContent = "Đã xảy ra lỗi khi đăng ký: " + error.message;
                     responseMessage.classList.add('text-danger');
                 });
             });
-
-            // Register form
-            document.getElementById('registerForm').addEventListener('submit', function(event) {
+            document.getElementById('registerForm').addEventListener('submit', function (event) {
                 event.preventDefault();
                 const email = document.getElementById('registerEmail').value;
                 const password = document.getElementById('registerPassword').value;
@@ -312,8 +321,6 @@
                     alert("Firebase chưa khởi tạo thành công.");
                 }
             });
-
-            // Login form
             document.getElementById('loginForm').addEventListener('submit', function(event) {
                 event.preventDefault();
                 const email = document.getElementById('loginEmail').value;
@@ -323,7 +330,7 @@
                     auth.signInWithEmailAndPassword(email, password)
                         .then((userCredential) => {
                             alert("Đăng nhập thành công!");
-                            window.location.href = "results.htm";
+                            window.location.href = "results.htm"; // Redirect after successful login
                         })
                         .catch((error) => {
                             alert("Đăng nhập thất bại: " + error.message);
@@ -332,8 +339,6 @@
                     alert("Firebase chưa khởi tạo thành công.");
                 }
             });
-
-            // Forgot password form
             document.getElementById('forgotPasswordForm').addEventListener('submit', function(event) {
                 event.preventDefault();
                 const forgotEmail = document.getElementById('forgotEmail').value;
@@ -350,9 +355,7 @@
                     alert("Firebase chưa khởi tạo thành công.");
                 }
             });
-
-            // Admin login form
-            document.getElementById('adminLoginForm').addEventListener('submit', function(event) {
+            document.getElementById('adminLoginForm').addEventListener('submit', function (event) {
                 event.preventDefault();
                 const email = document.getElementById('adminEmail').value;
                 const password = document.getElementById('adminPassword').value;
@@ -367,8 +370,8 @@
                 const adminUser = adminUsers.find(user => user.email === email && user.password === password);
 
                 if (adminUser) {
-                    alert('Chuyển hướng đến bảng điều khiển quản trị...');
-                    window.location.href = 'admin_dashboard.htm';
+                    alert('Redirecting to admin dashboard...');
+                    window.location.href = 'admin_dashboard.htm'; 
                 } else {
                     adminLoginMessage.textContent = 'Thông tin đăng nhập không đúng. Vui lòng kiểm tra lại.';
                     adminLoginMessage.classList.add('text-danger');

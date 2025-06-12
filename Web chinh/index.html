@@ -381,7 +381,7 @@
                 infowindow.open(map, marker);
             });
 
-            setInterval(updateInfoWindow, 3000); 
+            //setInterval(updateInfoWindow, 3000); 
         }
         function updateMarkerPosition(lat, lng, title) {
             const position = {lat: parseFloat(lat), lng: parseFloat(lng)};
@@ -506,7 +506,26 @@
             marker.setIcon(getMarkerIcon(latestData.pm25));
             infowindow.open(map, marker);
         }
-        
+        /**
+ * Cập nhật nội dung infoWindow và icon
+ * ngay khi có latestData mới
+ */
+        function updateMapInfoWindow(latestData) {
+          const content = `
+            <h3>Nhà Khách KTX ĐHQG Hòa Lạc</h3>
+            <p><strong>Ngày:</strong> ${latestData.date}</p>
+            <p><strong>Giờ:</strong> ${latestData.time}</p>
+            <p><strong>Nhiệt độ:</strong> ${latestData.temperature} °C</p>
+            <p><strong>Độ ẩm:</strong> ${latestData.humidity} %</p>
+            <p><strong>CO:</strong> ${latestData.co} ppm</p>
+            <p><strong>PM2.5:</strong> ${latestData.pm25} µg/m³</p>
+            <p><strong>PM10:</strong> ${latestData.pm10} µg/m³</p>
+            <p><strong>CO₂:</strong> ${latestData.co2} ppm</p>
+          `;
+          infowindow.setContent(content);
+          marker.setIcon(getMarkerIcon(latestData.pm25));
+        }
+
         function getMarkerIcon(pm25) {
             if (pm25 <= 12) {
                 return "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; // Tốt
@@ -608,8 +627,8 @@
                 const json = await res.json();
                 if (json.values && json.values.length) {
                     const lastRow = json.values[json.values.length - 1];
-                    displayData(lastRow);
-                    updateInfoWindow({
+                   displayData(lastRow);
+                    const md = {
                       date:        lastRow[1],
                       time:        lastRow[2],
                       temperature: lastRow[3],
@@ -618,7 +637,12 @@
                       pm25:        lastRow[6],
                       pm10:        lastRow[7],
                       co2:         lastRow[8]
-                    });
+                    };
+                    
+                    // Cập nhật map ngay khi có dữ liệu mới
+                    updateMapInfoWindow(md);
+                    
+                    // Vẽ chart
                     updateChart(json.values.slice(-20));
                 }
             } catch (err) {

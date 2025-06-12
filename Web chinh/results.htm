@@ -317,6 +317,27 @@
                     <p>Standard Deviation: <span id="coStdDev">0</span> ppm</p>
                 </div>
             </div>
+            <!-- PM10 Card -->
+            <div class="col-md-6 mb-4">
+              <div class="stat-card p-3">
+                <h2>PM10 (µg/m³)</h2>
+                <p>Avg: <span id="pm10Avg">0</span></p>
+                <p>Max: <span id="pm10Max">0</span></p>
+                <p>Min: <span id="pm10Min">0</span></p>
+                <p>Std Dev: <span id="pm10StdDev">0</span></p>
+              </div>
+            </div>
+            
+            <!-- CO₂ Card -->
+            <div class="col-md-6 mb-4">
+              <div class="stat-card p-3">
+                <h2>CO₂ (ppm)</h2>
+                <p>Avg: <span id="co2Avg">0</span></p>
+                <p>Max: <span id="co2Max">0</span></p>
+                <p>Min: <span id="co2Min">0</span></p>
+                <p>Std Dev: <span id="co2StdDev">0</span></p>
+              </div>
+            </div>
             <div class="col-md-6">
                 <div class="stat-card">
                     <h2>PM2.5 Levels (µg/m³)</h2>
@@ -350,6 +371,8 @@
                         <th>Humidity (%)</th>
                         <th>CO (ppm)</th>
                         <th>PM2.5 (µg/m³)</th>
+                        <th>PM10 (µg/m³)</th>
+                        <th>CO₂ (ppm)</th>
                     </tr>
                 </thead>
                 <tbody id="data-table">
@@ -372,6 +395,8 @@
                 <div class="col-md-6">
                     <canvas id="pm25Chart"></canvas>
                 </div>
+                <div class="col-md-6"><canvas id="pm10Chart"></canvas></div>
+                <div class="col-md-6"><canvas id="co2Chart"></canvas></div>
             </div>
         </div>
         <div class="footer">
@@ -415,6 +440,9 @@
                 const humidity = isNaN(row[3]) ? 'N/A' : row[3];
                 const coLevel = isNaN(row[4]) ? 'N/A' : row[4];
                 const pm25Level = isNaN(row[5]) ? 'N/A' : row[5];
+                const pm10Level = isNaN(row[6]) ? 'N/A' : row[6];
+                const co2Level  = isNaN(row[7]) ? 'N/A' : row[7];
+
                 const rowHTML = `
                     <tr>
                         <td>${index + 1}</td>
@@ -423,7 +451,9 @@
                         <td>${temperature}</td>
                         <td>${humidity}</td>
                         <td>${coLevel}</td>
-                        <td>${pm25Level}</td>
+                         <td>${pm25Level}</td>
+                      <td>${pm10Level}</td>
+                      <td>${co2Level}</td>
                     </tr>
                 `;
                 tableBody.insertAdjacentHTML('beforeend', rowHTML);
@@ -434,6 +464,8 @@
             const humidities = data.map(row => parseFloat(row[3])).filter(value => !isNaN(value));
             const coLevels = data.map(row => parseFloat(row[4])).filter(value => !isNaN(value));
             const pm25Levels = data.map(row => parseFloat(row[5])).filter(value => !isNaN(value));
+            const pm10Arr = data.map(r => parseFloat(r[6])).filter(v => !isNaN(v));
+            const co2Arr  = data.map(r => parseFloat(r[7])).filter(v => !isNaN(v));
     
             document.getElementById('tempAvg').textContent = calculateAverage(temperatures).toFixed(2);
             document.getElementById('tempMax').textContent = Math.max(...temperatures).toFixed(2);
@@ -454,6 +486,15 @@
             document.getElementById('pm25Max').textContent = Math.max(...pm25Levels).toFixed(2);
             document.getElementById('pm25Min').textContent = Math.min(...pm25Levels).toFixed(2);
             document.getElementById('pm25StdDev').textContent = calculateStandardDeviation(pm25Levels).toFixed(2);
+            document.getElementById('pm10Avg').textContent    = calculateAverage(pm10Arr).toFixed(2);
+            document.getElementById('pm10Max').textContent    = Math.max(...pm10Arr).toFixed(2);
+            document.getElementById('pm10Min').textContent    = Math.min(...pm10Arr).toFixed(2);
+            document.getElementById('pm10StdDev').textContent = calculateStandardDeviation(pm10Arr).toFixed(2);
+            
+            document.getElementById('co2Avg').textContent     = calculateAverage(co2Arr).toFixed(2);
+            document.getElementById('co2Max').textContent     = Math.max(...co2Arr).toFixed(2);
+            document.getElementById('co2Min').textContent     = Math.min(...co2Arr).toFixed(2);
+            document.getElementById('co2StdDev').textContent  = calculateStandardDeviation(co2Arr).toFixed(2);
         }
 
         function calculateAverage(array) {
@@ -476,7 +517,8 @@
             const humidities = data.map(row => parseFloat(row[3])).filter(value => !isNaN(value));
             const coLevels = data.map(row => parseFloat(row[4])).filter(value => !isNaN(value));
             const pm25Levels = data.map(row => parseFloat(row[5])).filter(value => !isNaN(value));
-    
+            const pm10Levels = data.map(r => parseFloat(r[6])).filter(v => !isNaN(v));
+            const co2Levels  = data.map(r => parseFloat(r[7])).filter(v => !isNaN(v));
             new Chart(document.getElementById('temperatureChart'), {
                 type: 'line',
                 data: {
@@ -556,6 +598,23 @@
                     }
                 }
             });
+            new Chart(document.getElementById('pm10Chart'), {
+                  type: 'line',
+                  data: {
+                    labels,
+                    datasets: [{ label:'PM10 (µg/m³)', data: pm10Levels, fill:false }]
+                  },
+                  options: { scales:{ x:{}, y:{} } }
+                });
+                
+                new Chart(document.getElementById('co2Chart'), {
+                  type: 'line',
+                  data: {
+                    labels,
+                    datasets: [{ label:'CO₂ (ppm)', data: co2Levels, fill:false }]
+                  },
+                  options: { scales:{ x:{}, y:{} } }
+                });
         }
     
         function applyFilters() {

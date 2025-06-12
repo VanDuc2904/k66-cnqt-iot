@@ -103,6 +103,35 @@
         </div>
       </div>
     </div>
+<!-- CO (ppm) -->
+    <div class="col-md-4">
+      <div class="stat-card">
+        <h5>CO (ppm)</h5>
+        <div>Avg: <span id="coAvg">0</span></div>
+        <div>Min: <span id="coMin">0</span></div>
+        <div>Max: <span id="coMax">0</span></div>
+      </div>
+    </div>
+    
+    <!-- PM2.5 (µg/m³) -->
+    <div class="col-md-4">
+      <div class="stat-card">
+        <h5>PM2.5 (µg/m³)</h5>
+        <div>Avg: <span id="pm25Avg">0</span></div>
+        <div>Min: <span id="pm25Min">0</span></div>
+        <div>Max: <span id="pm25Max">0</span></div>
+      </div>
+    </div>
+    
+    <!-- PM10 (µg/m³) -->
+    <div class="col-md-4">
+      <div class="stat-card">
+        <h5>PM10 (µg/m³)</h5>
+        <div>Avg: <span id="pm10Avg">0</span></div>
+        <div>Min: <span id="pm10Min">0</span></div>
+        <div>Max: <span id="pm10Max">0</span></div>
+      </div>
+    </div>
 
     <!-- PREDICTION -->
     <div class="stat-card d-flex flex-wrap">
@@ -132,6 +161,8 @@
         <div class="col-md-6"><canvas id="chartHum"></canvas></div>
         <div class="col-md-6"><canvas id="chartCO2"></canvas></div>
         <div class="col-md-6"><canvas id="chartPM25"></canvas></div>
+        <div class="col-md-6"><canvas id="chartPM10"></canvas></div>
+        <div class="col-md-6"><canvas id="chartCO2"></canvas></div>
       </div>
     </div>
   </div>
@@ -183,28 +214,73 @@
     });
   }
 
-  function renderStats(data){
-    const arr = (i)=> data.slice(-12).map(r=>parseFloat(r[i])||0);
-    const set = (id, a)=> {
-      document.getElementById(id+'Avg').innerText = avg(a).toFixed(2);
-      document.getElementById(id+'Min').innerText = Math.min(...a).toFixed(2);
-      document.getElementById(id+'Max').innerText = Math.max(...a).toFixed(2);
-    };
-    set('temp', arr(3));
-    set('hum',  arr(4));
-    set('co2',  arr(8));
+  function renderStats(data) {
+  // chỉ lấy 12 bản ghi cuối
+  const slice12 = data.slice(-12);
+  // helper: lấy mảng giá trị 1 cột, hoặc 0 nếu không phải số
+  const col = i => slice12.map(r => parseFloat(r[i]) || 0);
+
+  // tính rồi gán vào từng span
+  const setStats = (id, arr) => {
+    document.getElementById(id + 'Avg').innerText = avg(arr).toFixed(2);
+    document.getElementById(id + 'Min').innerText = Math.min(...arr).toFixed(2);
+    document.getElementById(id + 'Max').innerText = Math.max(...arr).toFixed(2);
+  };
+
+  setStats('temp',  col(3));  // cột D
+  setStats('hum',   col(4));  // cột E
+  setStats('co',    col(5));  // cột F
+  setStats('pm25',  col(6));  // cột G
+  setStats('pm10',  col(7));  // cột H
+  setStats('co2',   col(8));  // cột I
+}
+
+function avg(a){ return a.reduce((s,v)=>s+v,0)/a.length; }
+
   }
 
-  function renderCharts(data){
-    const slice12 = data.slice(-12);
-    const labels= slice12.map(r=>r[1]+' '+r[2]);
-    const series= (i)=> slice12.map(r=>parseFloat(r[i])||0);
+  function renderCharts(data) {
+  const slice12 = data.slice(-12);
+  const labels = slice12.map(r => r[1] + ' ' + r[2]);
+  const col = i => slice12.map(r => parseFloat(r[i]) || 0);
 
-    new Chart('chartTemp',{type:'line',data:{labels,datasets:[{label:'Temp',data:series(3),fill:false}]}});
-    new Chart('chartHum',{type:'line',data:{labels,datasets:[{label:'Hum',data:series(4),fill:false}]}});
-    new Chart('chartCO2',{type:'line',data:{labels,datasets:[{label:'CO₂',data:series(8),fill:false}]}});
-    new Chart('chartPM25',{type:'line',data:{labels,datasets:[{label:'PM2.5',data:series(6),fill:false}]}});
-  }
+  // Nhiệt độ
+  new Chart('chartTemp', {
+    type: 'line',
+    data: { labels, datasets: [{ label:'Temp (°C)', data: col(3), fill:false }] }
+  });
+
+  // Độ ẩm
+  new Chart('chartHum', {
+    type: 'line',
+    data: { labels, datasets: [{ label:'Hum (%)', data: col(4), fill:false }] }
+  });
+
+  // CO
+  new Chart('chartCO', {
+    type: 'line',
+    data: { labels, datasets: [{ label:'CO (ppm)', data: col(5), fill:false }] }
+  });
+
+  // PM2.5
+  new Chart('chartPM25', {
+    type: 'line',
+    data: { labels, datasets: [{ label:'PM2.5', data: col(6), fill:false }] }
+  });
+
+  // PM10
+  new Chart('chartPM10', {
+    type: 'line',
+    data: { labels, datasets: [{ label:'PM10', data: col(7), fill:false }] }
+  });
+
+  // CO₂
+  new Chart('chartCO2', {
+    type: 'line',
+    data: { labels, datasets: [{ label:'CO₂', data: col(8), fill:false }] }
+  });
+}
+
 
   function avg(a){ return a.reduce((s,v)=>s+v,0)/a.length; }
 

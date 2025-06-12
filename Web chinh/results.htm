@@ -30,10 +30,11 @@
       <h1>TLD66 Data Analytics Dashboard</h1>
       <p>Dữ liệu được cập nhật theo thời gian thực, tự động refresh mỗi 60s.</p>
       <button id="exportPDF" class="btn btn-success">Export as PDF</button>
-    </div>
-    <button id="btnQueryDrive" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#driveModal">
-  Query Drive
+        <button id="btnQueryDrive" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#driveModal">
+          Query Drive
     </button>
+    </div>
+    
 
     <!-- Thống kê nhanh -->
     <div class="row">
@@ -235,5 +236,91 @@
       });
     });
   </script>
+    <!-- DRIVE FILES MODAL -->
+<div class="modal fade" id="driveModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Drive File List</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3 mb-3">
+          <div class="col">
+            <label>Từ ngày</label>
+            <input type="date" id="driveStart" class="form-control"/>
+          </div>
+          <div class="col">
+            <label>Đến ngày</label>
+            <input type="date" id="driveEnd" class="form-control"/>
+          </div>
+          <div class="col-auto align-self-end">
+            <button class="btn btn-success" onclick="filterDriveFiles()">Lọc</button>
+          </div>
+        </div>
+        <div id="driveFileList" style="max-height:400px;overflow:auto">
+          Đang tải danh sách…
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  // Cấu hình
+  const DRIVE_FOLDER_ID = '1Q2-Ld0PElM0xwMEDdclNhmk7Uhoo8xpe';
+  const API_KEY         = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
+  let driveFiles = [];
+
+  // 3.1. Khi modal mở, lấy danh sách file lần đầu
+  document.getElementById('btnQueryDrive')
+    .addEventListener('click', fetchDriveFiles);
+
+  // 3.2. Fetch danh sách file từ Drive
+  async function fetchDriveFiles(){
+    const url = `https://www.googleapis.com/drive/v3/files`
+              + `?q='${DRIVE_FOLDER_ID}'+in+parents`
+              + `&fields=files(id,name,webViewLink,createdTime)`
+              + `&key=${API_KEY}`;
+    try {
+      const resp = await fetch(url);
+      const { files } = await resp.json();
+      driveFiles = files || [];
+      displayDriveFiles(driveFiles);
+    } catch(err){
+      document.getElementById('driveFileList').innerText = 'Lỗi tải file.';
+      console.error(err);
+    }
+  }
+
+  // 3.3. Hiển thị danh sách (có thể gọi lại sau khi lọc)
+  function displayDriveFiles(list){
+    const container = document.getElementById('driveFileList');
+    if (list.length === 0) {
+      container.innerHTML = '<p>Không tìm thấy file.</p>';
+      return;
+    }
+    container.innerHTML = list.map(f => {
+      const date = new Date(f.createdTime).toLocaleDateString();
+      return `<p>
+        <a href="${f.webViewLink}" target="_blank">${f.name}</a>
+        <small class="text-muted ms-2">(${date})</small>
+      </p>`;
+    }).join('');
+  }
+
+  // 3.4. Lọc theo ngày tạo file
+  function filterDriveFiles(){
+    const s = document.getElementById('driveStart').value;
+    const e = document.getElementById('driveEnd').value;
+    const start = s ? new Date(s) : null;
+    const end   = e ? new Date(e) : null;
+    const filtered = driveFiles.filter(f => {
+      const t = new Date(f.createdTime);
+      return (!start || t >= start) && (!end || t <= end);
+    });
+    displayDriveFiles(filtered);
+  }
+</script>
+
 </body>
 </html>

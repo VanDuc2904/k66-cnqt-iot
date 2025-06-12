@@ -385,7 +385,7 @@
         let originalData = []; 
     
         async function fetchData() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/sheet_id?key=${apiKey}`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/sheet1?key=${apiKey}`;
             try {
                 const response = await fetch(url);
                 const data = await response.json();

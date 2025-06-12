@@ -410,7 +410,7 @@
         let originalData = []; 
     
         async function fetchData() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/sheet1?key=${apiKey}`;
+            const url = https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/sheet1?key=${apiKey};
             try {
                 const response = await fetch(url);
                 const data = await response.json();
@@ -431,38 +431,41 @@
             }
         }
         function displayData(data) {
-              const ts          = data[0];           // A
-              const date        = data[1];           // B
-              const time        = data[2];           // C
-              const temperature = data[3];           // D
-              const humidity    = data[4];           // E
-              const co          = data[5];           // F
-              const pm25        = data[6];           // G
-              const pm10        = data[7];           // H
-              const co2         = data[8];           // I
-            
-              document.getElementById('data-table').insertAdjacentHTML('beforeend', `
-                <tr>
-                  <td>…</td>
-                  <td>${date}</td>
-                  <td>${time}</td>
-                  <td>${temperature}</td>
-                  <td>${humidity}</td>
-                  <td>${co}</td>
-                  <td>${pm25}</td>
-                  <td>${pm10}</td>
-                  <td>${co2}</td>
-                </tr>
-              `);
-            }
+            const tableBody = document.getElementById('data-table');
+            tableBody.innerHTML = '';
+            data.forEach((row, index) => {
+                const date = row[0]; 
+                const time = row[1]; 
+                const temperature = isNaN(row[2]) ? 'N/A' : row[2];
+                const humidity = isNaN(row[3]) ? 'N/A' : row[3];
+                const coLevel = isNaN(row[4]) ? 'N/A' : row[4];
+                const pm25Level = isNaN(row[5]) ? 'N/A' : row[5];
+                const pm10Level = isNaN(row[6]) ? 'N/A' : row[6];
+                const co2Level  = isNaN(row[7]) ? 'N/A' : row[7];
 
+                const rowHTML = 
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${date}</td>
+                        <td>${time}</td>
+                        <td>${temperature}</td>
+                        <td>${humidity}</td>
+                        <td>${coLevel}</td>
+                         <td>${pm25Level}</td>
+                      <td>${pm10Level}</td>
+                      <td>${co2Level}</td>
+                    </tr>
+                ;
+                tableBody.insertAdjacentHTML('beforeend', rowHTML);
+            });
+        }
         function displayStatistics(data) {
-            const temps    = rows.map(r => +r[3]);
-            const hums     = rows.map(r => +r[4]);
-            const cos      = rows.map(r => +r[5]);
-            const pm25Arr  = rows.map(r => +r[6]);
-            const pm10Arr  = rows.map(r => +r[7]);
-            const co2Arr   = rows.map(r => +r[8]);
+            const temperatures = data.map(row => parseFloat(row[2])).filter(value => !isNaN(value));
+            const humidities = data.map(row => parseFloat(row[3])).filter(value => !isNaN(value));
+            const coLevels = data.map(row => parseFloat(row[4])).filter(value => !isNaN(value));
+            const pm25Levels = data.map(row => parseFloat(row[5])).filter(value => !isNaN(value));
+            const pm10Arr = data.map(r => parseFloat(r[6])).filter(v => !isNaN(v));
+            const co2Arr  = data.map(r => parseFloat(r[7])).filter(v => !isNaN(v));
     
             document.getElementById('tempAvg').textContent = calculateAverage(temperatures).toFixed(2);
             document.getElementById('tempMax').textContent = Math.max(...temperatures).toFixed(2);
@@ -509,14 +512,13 @@
         }
 
         function renderCharts(data) {
-            const temps    = rows.map(r => +r[3]);
-            const hums     = rows.map(r => +r[4]);
-            const cos      = rows.map(r => +r[5]);
-            const pm25Arr  = rows.map(r => +r[6]);
-            const pm10Arr  = rows.map(r => +r[7]);
-            const co2Arr   = rows.map(r => +r[8]);
-
-
+            const labels = data.map(row => ${row[0]} ${row[1]}); 
+            const temperatures = data.map(row => parseFloat(row[2])).filter(value => !isNaN(value));
+            const humidities = data.map(row => parseFloat(row[3])).filter(value => !isNaN(value));
+            const coLevels = data.map(row => parseFloat(row[4])).filter(value => !isNaN(value));
+            const pm25Levels = data.map(row => parseFloat(row[5])).filter(value => !isNaN(value));
+            const pm10Levels = data.map(r => parseFloat(r[6])).filter(v => !isNaN(v));
+            const co2Levels  = data.map(r => parseFloat(r[7])).filter(v => !isNaN(v));
             new Chart(document.getElementById('temperatureChart'), {
                 type: 'line',
                 data: {
@@ -597,16 +599,22 @@
                 }
             });
             new Chart(document.getElementById('pm10Chart'), {
-              type: 'line',
-              data: { labels, datasets:[{ label:'PM10', data: pm10Arr, fill:false }] },
-              options:{ scales:{ x:{}, y:{} } }
-            });
-            new Chart(document.getElementById('co2Chart'), {
-              type: 'line',
-              data: { labels, datasets:[{ label:'CO₂', data: co2Arr, fill:false }] },
-              options:{ scales:{ x:{}, y:{} } }
-            });
-
+                  type: 'line',
+                  data: {
+                    labels,
+                    datasets: [{ label:'PM10 (µg/m³)', data: pm10Levels, fill:false }]
+                  },
+                  options: { scales:{ x:{}, y:{} } }
+                });
+                
+                new Chart(document.getElementById('co2Chart'), {
+                  type: 'line',
+                  data: {
+                    labels,
+                    datasets: [{ label:'CO₂ (ppm)', data: co2Levels, fill:false }]
+                  },
+                  options: { scales:{ x:{}, y:{} } }
+                });
         }
     
         function applyFilters() {
@@ -654,7 +662,7 @@
         const folderId = '1Q2-Ld0PElM0xwMEDdclNhmk7Uhoo8xpe'; 
        
         async function fetchDriveFiles() {
-            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id, name, webViewLink)`;
+            const url = https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id, name, webViewLink);
 
             try {
                 const response = await fetch(url);
@@ -678,9 +686,9 @@
             files.forEach(file => {
                 const fileElement = document.createElement('div');
                 fileElement.classList.add('file-item');
-                fileElement.innerHTML = `
+                fileElement.innerHTML = 
                     <p><a href="${file.webViewLink}" target="_blank">${file.name}</a></p>
-                `;
+                ;
                 fileListContainer.appendChild(fileElement);
             });
         }
@@ -701,7 +709,7 @@
                 const fileName = file.name;
                 const dateMatch = fileName.match(/TLD66_(\d{4})-(\d{2})-(\d{2})/);
                 if (dateMatch) {
-                    const fileDate = new Date(`${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`);
+                    const fileDate = new Date(${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]});
                     return fileDate >= startDate && fileDate <= endDate;
                 }
                 return false;
@@ -758,7 +766,7 @@
                 epochs: 200,
                 callbacks: {
                     onEpochEnd: (epoch, logs) => {
-                        console.log(`Epoch ${epoch}: loss = ${logs.loss}`);
+                        console.log(Epoch ${epoch}: loss = ${logs.loss});
                     }
                 }
             });
@@ -785,9 +793,9 @@
             ];
     
             const nextPrediction = predictNextValues(latestValues);
-            console.log(`Dự báo những giờ tiếp theo: Nhiệt độ: ${nextPrediction[0]} °C, Độ ẩm: ${nextPrediction[1]} %, CO: ${nextPrediction[2]} ppm, PM2.5: ${nextPrediction[3]} µg/m³`);
+            console.log(Dự báo những giờ tiếp theo: Nhiệt độ: ${nextPrediction[0]} °C, Độ ẩm: ${nextPrediction[1]} %, CO: ${nextPrediction[2]} ppm, PM2.5: ${nextPrediction[3]} µg/m³);
     
-            document.getElementById('prediction-result').innerHTML = `
+            document.getElementById('prediction-result').innerHTML = 
             <div class="prediction-box">
                 <img src="${getCOWarning(nextPrediction[2])}" alt="CO Warning"> 
                 Nhiệt độ: ${nextPrediction[0].toFixed(2)} °C
@@ -804,7 +812,7 @@
                 <img src="${getPM25Warning(nextPrediction[3])}" alt="PM2.5 Warning"> 
                 PM2.5: ${nextPrediction[3].toFixed(2)} µg/m³
             </div>
-        `;
+        ;
     });
         function updatePredictionDateTime() {
             const predictionDateTime = new Date();
@@ -812,7 +820,7 @@
                 weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
                 hour: 'numeric', minute: 'numeric', second: 'numeric'
             });
-            document.getElementById('prediction-datetime').textContent = `Ngày giờ dự báo: ${formattedDateTime}`;
+            document.getElementById('prediction-datetime').textContent = Ngày giờ dự báo: ${formattedDateTime};
         }
         
         updatePredictionDateTime();

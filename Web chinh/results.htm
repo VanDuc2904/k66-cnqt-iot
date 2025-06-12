@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,788 +8,229 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f7fa;
-            transition: background-color 0.3s ease;
-        }
-
-        .container {
-            margin-top: 30px;
-            max-width: 1200px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .logo-container img {
-            max-height: 70px;
-            margin-bottom: 10px;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #333;
-            transition: color 0.3s ease;
-        }
-
-        .header .btn-export {
-            margin-top: 15px;
-            font-size: 14px;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .header .btn-export:hover {
-            background-color: #1e7e34;
-            transform: scale(1.05);
-        }
-
-        .stat-card {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .stat-card h2 {
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-            color: #495057;
-        }
-
-        .chart-container {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .chart-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .table-wrapper {
-            margin-top: 20px;
-            overflow-x: auto;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .table-wrapper:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .table thead {
-            background-color: #343a40;
-            color: #fff;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f1f3f5;
-            transition: background-color 0.3s ease;
-        }
-
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 0.85rem;
-            color: #888;
-        }
-
-        .filter-section {
-            margin-bottom: 20px;
-            background-color: #e9ecef;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease;
-        }
-
-        .filter-section:hover {
-            background-color: #dee2e6;
-        }
-
-        .filter-section .form-control {
-            border-radius: 5px;
-            transition: border-color 0.3s ease;
-        }
-
-        .filter-section .form-control:focus {
-            border-color: #28a745;
-            box-shadow: none;
-        }
-
-        .filter-btn {
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .filter-btn:hover {
-            background-color: #218838;
-            transform: scale(1.05);
-        }
-
-        .prediction-section {
-            margin-top: 20px;
-            padding: 25px;
-            border-radius: 12px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .prediction-section:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .prediction-section h5 {
-            margin-bottom: 20px;
-            font-weight: bold;
-            color: #007bff;
-            font-size: 1.5rem;
-            animation: fadeInDown 1s ease;
-        }
-
-        .prediction-result {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
-        .prediction-box {
-            background-color: #e2e6ea;
-            padding: 20px 25px;
-            border-radius: 15px;
-            margin: 10px;
-            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
-            min-width: 180px;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #495057;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .prediction-box:hover {
-            background-color: #dae0e5;
-            transform: translateY(-3px);
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
+        body { font-family: 'Roboto', sans-serif; background: #f4f7fa; }
+        .container { max-width:1200px; margin:30px auto; }
+        .header h1 { font-size:2.5rem; font-weight:bold; }
+        .stat-card { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); margin-bottom:20px; }
+        .chart-container { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); margin-top:30px; }
+        .table-wrapper { background:#fff; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); margin-top:20px; overflow-x:auto; }
         .update-notification {
-            animation: slideIn 0.5s forwards;
+            position:fixed; bottom:20px; right:20px;
+            background:#28a745; color:#fff; padding:10px 15px; border-radius:5px;
+            animation:slideIn .5s forwards;
         }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(100%);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
+        @keyframes slideIn { from {opacity:0;transform:translateX(100%);} to {opacity:1;transform:translateX(0);} }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo-container">
-                <a href="index.html">
-                    <img src="img/Logo1.png" alt="Logo">
-                </a>
-            </div>
-            <h1>TLD66 Data Analytics Dashboard</h1>
-            <p>Dữ liệu được cập nhật và lưu trữ theo thời gian thực, vui lòng đợi trong 30s để upload dữ liệu.....</p>
-            <button id="exportPDF" class="btn btn-primary btn-export">Export as PDF</button>
-             <button id="exportFileButton" class="btn btn-primary btn-export" data-bs-toggle="modal" data-bs-target="#fileModal">Query data</button>
-        </div>
-        <div class="file-list-section">
-            <div id="file-list"></div>
-        </div>
-        <div class="modal fade" id="fileModal" tabindex="-1" aria-labelledby="fileModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="fileModalLabel">File list</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <label for="startDate" class="form-label">Start Date</label>
-                        <input type="date" id="startDate" class="form-control mb-3">
-                        <label for="endDate" class="form-label">End Date</label>
-                        <input type="date" id="endDate" class="form-control mb-3">
-                        <button class="btn btn-success mb-3" onclick="filterFilesByDate()">Filter by Date</button>
-                        <div id="file-list-modal">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-        <div class="filter-section">
-            <h5>Filter Data</h5>
-            <form id="filterForm" class="row g-3">
-                <div class="col-md-4">
-                    <label for="startDate" class="form-label">Start Date</label>
-                    <input type="date" class="form-control" id="startDate">
-                </div>
-                <div class="col-md-4">
-                    <label for="endDate" class="form-label">End Date</label>
-                    <input type="date" class="form-control" id="endDate">
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="button" class="filter-btn" onclick="applyFilters()">Apply Filters</button>
-                </div>
-            </form>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="stat-card">
-                    <h2>Temperature (°C)</h2>
-                    <p>Average: <span id="tempAvg">0</span> °C</p>
-                    <p>Max: <span id="tempMax">0</span> °C</p>
-                    <p>Min: <span id="tempMin">0</span> °C</p>
-                    <p>Standard Deviation: <span id="tempStdDev">0</span> °C</p>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="stat-card">
-                    <h2>Humidity (%)</h2>
-                    <p>Average: <span id="humidityAvg">0</span> %</p>
-                    <p>Max: <span id="humidityMax">0</span> %</p>
-                    <p>Min: <span id="humidityMin">0</span> %</p>
-                    <p>Standard Deviation: <span id="humidityStdDev">0</span> %</p>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="stat-card">
-                    <h2>CO Levels (ppm)</h2>
-                    <p>Average: <span id="coAvg">0</span> ppm</p>
-                    <p>Max: <span id="coMax">0</span> ppm</p>
-                    <p>Min: <span id="coMin">0</span> ppm</p>
-                    <p>Standard Deviation: <span id="coStdDev">0</span> ppm</p>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="stat-card">
-                    <h2>PM2.5 Levels (µg/m³)</h2>
-                    <p>Average: <span id="pm25Avg">0</span> µg/m³</p>
-                    <p>Max: <span id="pm25Max">0</span> µg/m³</p>
-                    <p>Min: <span id="pm25Min">0</span> µg/m³</p>
-                    <p>Standard Deviation: <span id="pm25StdDev">0</span> µg/m³</p>
-                </div>
-            </div>
-            <div class="prediction-section">
-                <h5>Kết quả dự báo trong những giờ tới:</h5>
-                 <p>Dữ liệu đang được cập nhật, vui lòng đợi trong 1 phút.... </p>
-                <div id="prediction-datetime" class="mb-3"></div> 
-                <div id="prediction-result" class="prediction-result">
-                    <div class="prediction-box">Đang tính toán...</div>
-                </div>
-                <p class="note">
-                    Chú ý: đây là kết quả dự báo dự trên mô hình học máy thử nghiệm của nhóm nghiên cứu TLD66 
-                    không phải là kết quả dự báo thay cho thông tin của cơ quan nhà nước!
-                </p>
-            </div>
-        </div>
-        <div class="table-wrapper">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Temperature (°C)</th>
-                        <th>Humidity (%)</th>
-                        <th>CO (ppm)</th>
-                        <th>PM2.5 (µg/m³)</th>
-                    </tr>
-                </thead>
-                <tbody id="data-table">
-                </tbody>
-            </table>
-            <div id="error-message" class="text-center text-danger"></div>
-        </div>
-        <div class="chart-container">
-            <h2>Data Visualization</h2>
-            <div class="row">
-                <div class="col-md-6">
-                    <canvas id="temperatureChart"></canvas>
-                </div>
-                <div class="col-md-6">
-                    <canvas id="humidityChart"></canvas>
-                </div>
-                <div class="col-md-6">
-                    <canvas id="coChart"></canvas>
-                </div>
-                <div class="col-md-6">
-                    <canvas id="pm25Chart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="footer">
-            © TLD66 Data Analytics Dashboard 2024.
-        </div>
+  <div class="container">
+    <div class="header text-center mb-4">
+      <img src="img/Logo1.png" alt="Logo" style="max-height:70px">
+      <h1>TLD66 Data Analytics Dashboard</h1>
+      <p>Dữ liệu được cập nhật theo thời gian thực, tự động refresh mỗi 60s.</p>
+      <button id="exportPDF" class="btn btn-success">Export as PDF</button>
     </div>
 
-    <script>
-        const sheetId = '1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4'; 
-        const apiKey = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw'; 
-        let originalData = []; 
-    
-        async function fetchData() {
-            const url = https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1?key=${apiKey};
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                if (data && data.values) {
-                    const rows = data.values.slice(1); 
-                    originalData = rows;
-                    const last12Rows = rows.slice(-12);
-                    displayData(last12Rows);
-                    displayStatistics(last12Rows);
-                    renderCharts(last12Rows);
-                    showUpdateNotification(); 
-                } else {
-                    throw new Error('Không có dữ liệu');
-                }
-            } catch (error) {
-                console.error('Lỗi khi lấy dữ liệu:', error);
-                document.getElementById('error-message').textContent = 'Không thể tải dữ liệu.';
-            }
-        }
-        function displayData(data) {
-            const tableBody = document.getElementById('data-table');
-            tableBody.innerHTML = '';
-            data.forEach((row, index) => {
-                const date = row[0]; 
-                const time = row[1]; 
-                const temperature = isNaN(row[2]) ? 'N/A' : row[2];
-                const humidity = isNaN(row[3]) ? 'N/A' : row[3];
-                const coLevel = isNaN(row[4]) ? 'N/A' : row[4];
-                const pm25Level = isNaN(row[5]) ? 'N/A' : row[5];
-                const rowHTML = 
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${date}</td>
-                        <td>${time}</td>
-                        <td>${temperature}</td>
-                        <td>${humidity}</td>
-                        <td>${coLevel}</td>
-                        <td>${pm25Level}</td>
-                    </tr>
-                ;
-                tableBody.insertAdjacentHTML('beforeend', rowHTML);
-            });
-        }
-        function displayStatistics(data) {
-            const temperatures = data.map(row => parseFloat(row[2])).filter(value => !isNaN(value));
-            const humidities = data.map(row => parseFloat(row[3])).filter(value => !isNaN(value));
-            const coLevels = data.map(row => parseFloat(row[4])).filter(value => !isNaN(value));
-            const pm25Levels = data.map(row => parseFloat(row[5])).filter(value => !isNaN(value));
-    
-            document.getElementById('tempAvg').textContent = calculateAverage(temperatures).toFixed(2);
-            document.getElementById('tempMax').textContent = Math.max(...temperatures).toFixed(2);
-            document.getElementById('tempMin').textContent = Math.min(...temperatures).toFixed(2);
-            document.getElementById('tempStdDev').textContent = calculateStandardDeviation(temperatures).toFixed(2);
-    
-            document.getElementById('humidityAvg').textContent = calculateAverage(humidities).toFixed(2);
-            document.getElementById('humidityMax').textContent = Math.max(...humidities).toFixed(2);
-            document.getElementById('humidityMin').textContent = Math.min(...humidities).toFixed(2);
-            document.getElementById('humidityStdDev').textContent = calculateStandardDeviation(humidities).toFixed(2);
-    
-            document.getElementById('coAvg').textContent = calculateAverage(coLevels).toFixed(2);
-            document.getElementById('coMax').textContent = Math.max(...coLevels).toFixed(2);
-            document.getElementById('coMin').textContent = Math.min(...coLevels).toFixed(2);
-            document.getElementById('coStdDev').textContent = calculateStandardDeviation(coLevels).toFixed(2);
-    
-            document.getElementById('pm25Avg').textContent = calculateAverage(pm25Levels).toFixed(2);
-            document.getElementById('pm25Max').textContent = Math.max(...pm25Levels).toFixed(2);
-            document.getElementById('pm25Min').textContent = Math.min(...pm25Levels).toFixed(2);
-            document.getElementById('pm25StdDev').textContent = calculateStandardDeviation(pm25Levels).toFixed(2);
-        }
+    <!-- Thống kê nhanh -->
+    <div class="row">
+      <div class="col-md-4">
+        <div class="stat-card">
+          <h2>Temperature (°C)</h2>
+          <p>Avg: <span id="tempAvg">0</span></p>
+          <p>Max: <span id="tempMax">0</span></p>
+          <p>Min: <span id="tempMin">0</span></p>
+          <p>StdDev: <span id="tempStdDev">0</span></p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card">
+          <h2>Humidity (%)</h2>
+          <p>Avg: <span id="humAvg">0</span></p>
+          <p>Max: <span id="humMax">0</span></p>
+          <p>Min: <span id="humMin">0</span></p>
+          <p>StdDev: <span id="humStdDev">0</span></p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card">
+          <h2>CO (ppm)</h2>
+          <p>Avg: <span id="coAvg">0</span></p>
+          <p>Max: <span id="coMax">0</span></p>
+          <p>Min: <span id="coMin">0</span></p>
+          <p>StdDev: <span id="coStdDev">0</span></p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card">
+          <h2>PM2.5 (µg/m³)</h2>
+          <p>Avg: <span id="pm25Avg">0</span></p>
+          <p>Max: <span id="pm25Max">0</span></p>
+          <p>Min: <span id="pm25Min">0</span></p>
+          <p>StdDev: <span id="pm25StdDev">0</span></p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card">
+          <h2>PM10 (µg/m³)</h2>
+          <p>Avg: <span id="pm10Avg">0</span></p>
+          <p>Max: <span id="pm10Max">0</span></p>
+          <p>Min: <span id="pm10Min">0</span></p>
+          <p>StdDev: <span id="pm10StdDev">0</span></p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card">
+          <h2>CO₂ (ppm)</h2>
+          <p>Avg: <span id="co2Avg">0</span></p>
+          <p>Max: <span id="co2Max">0</span></p>
+          <p>Min: <span id="co2Min">0</span></p>
+          <p>StdDev: <span id="co2StdDev">0</span></p>
+        </div>
+      </div>
+    </div>
 
-        function calculateAverage(array) {
-            if (array.length === 0) return 0;
-            const total = array.reduce((sum, value) => sum + value, 0);
-            return total / array.length;
-        }
-    
-        function calculateStandardDeviation(array) {
-            if (array.length === 0) return 0;
-            const mean = calculateAverage(array);
-            const squareDiffs = array.map(value => Math.pow(value - mean, 2));
-            const avgSquareDiff = calculateAverage(squareDiffs);
-            return Math.sqrt(avgSquareDiff);
-        }
+    <!-- Bảng dữ liệu -->
+    <div class="table-wrapper">
+      <table class="table table-striped mb-0">
+        <thead class="table-dark">
+          <tr>
+            <th>No</th><th>Ngày</th><th>Giờ</th>
+            <th>Temp (°C)</th><th>Hum (%)</th><th>CO</th>
+            <th>PM2.5</th><th>PM10</th><th>CO₂</th>
+          </tr>
+        </thead>
+        <tbody id="data-table"></tbody>
+      </table>
+      <p id="error-message" class="text-center text-danger mt-2"></p>
+    </div>
 
-        function renderCharts(data) {
-            const labels = data.map(row => ${row[0]} ${row[1]}); 
-            const temperatures = data.map(row => parseFloat(row[2])).filter(value => !isNaN(value));
-            const humidities = data.map(row => parseFloat(row[3])).filter(value => !isNaN(value));
-            const coLevels = data.map(row => parseFloat(row[4])).filter(value => !isNaN(value));
-            const pm25Levels = data.map(row => parseFloat(row[5])).filter(value => !isNaN(value));
-    
-            new Chart(document.getElementById('temperatureChart'), {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Temperature (°C)',
-                        data: temperatures,
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { title: { display: true, text: 'Date and Time' } },
-                        y: { beginAtZero: true, title: { display: true, text: 'Temperature (°C)' } }
-                    }
-                }
-            });
-    
-            new Chart(document.getElementById('humidityChart'), {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Humidity (%)',
-                        data: humidities,
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { title: { display: true, text: 'Date and Time' } },
-                        y: { beginAtZero: true, title: { display: true, text: 'Humidity (%)' } }
-                    }
-                }
-            });
-    
-            new Chart(document.getElementById('coChart'), {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'CO Levels (ppm)',
-                        data: coLevels,
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { title: { display: true, text: 'Date and Time' } },
-                        y: { beginAtZero: true, title: { display: true, text: 'CO Levels (ppm)' } }
-                    }
-                }
-            });
-    
-            new Chart(document.getElementById('pm25Chart'), {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'PM2.5 Levels (µg/m³)',
-                        data: pm25Levels,
-                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { title: { display: true, text: 'Date and Time' } },
-                        y: { beginAtZero: true, title: { display: true, text: 'PM2.5 Levels (µg/m³)' } }
-                    }
-                }
-            });
-        }
-    
-        function applyFilters() {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const filteredData = originalData.filter(row => {
-                const date = new Date(row[0]);
-                return (!startDate || date >= new Date(startDate)) && (!endDate || date <= new Date(endDate));
-            });
-            displayData(filteredData);
-            displayStatistics(filteredData);
-            renderCharts(filteredData);
-        }
-    
-        function showUpdateNotification() {
-            const notification = document.createElement('div');
-            notification.className = 'update-notification';
-            notification.innerText = 'Dữ liệu đã được cập nhật!';
-            notification.style.position = 'fixed';
-            notification.style.bottom = '20px';
-            notification.style.right = '20px';
-            notification.style.backgroundColor = '#28a745';
-            notification.style.color = '#fff';
-            notification.style.padding = '10px';
-            notification.style.borderRadius = '5px';
-            document.body.appendChild(notification);
-    
-            setTimeout(() => {
-                notification.remove();
-            }, 3000); 
-        }
+    <!-- Biểu đồ -->
+    <div class="chart-container">
+      <h2 class="mb-4">Visualization (Last 12 records)</h2>
+      <div class="row">
+        <div class="col-md-6"><canvas id="chart-temp"></canvas></div>
+        <div class="col-md-6"><canvas id="chart-hum"></canvas></div>
+        <div class="col-md-6"><canvas id="chart-co"></canvas></div>
+        <div class="col-md-6"><canvas id="chart-pm25"></canvas></div>
+        <div class="col-md-6"><canvas id="chart-pm10"></canvas></div>
+        <div class="col-md-6"><canvas id="chart-co2"></canvas></div>
+      </div>
+    </div>
+  </div>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchData();
-            setInterval(fetchData, 60000); 
-        });
-    
-        document.getElementById('exportPDF').addEventListener('click', () => {
-            const element = document.querySelector('.container');
-            html2pdf().from(element).toPdf().get('pdf').then(pdf => {
-                pdf.save('data_analytics.pdf');
-            });
-        });
-        let fileData = []; 
-        const folderId = '1Q2-Ld0PElM0xwMEDdclNhmk7Uhoo8xpe'; 
-       
-        async function fetchDriveFiles() {
-            const url = https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id, name, webViewLink);
+  <script>
+    const sheetId = '1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4';
+    const apiKey  = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
+    let originalData = [];
 
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                if (data.files && data.files.length > 0) {
-                    fileData = data.files; 
-                    displayFilesInModal(fileData);
-                } else {
-                    document.getElementById('file-list-modal').innerHTML = 'Không có tệp nào trong thư mục này.';
-                }
-            } catch (error) {
-                console.error('Lỗi khi lấy danh sách tệp:', error);
-                document.getElementById('file-list-modal').innerHTML = 'Không thể tải danh sách tệp.';
-            }
-        }
+    async function fetchData() {
+      const range = 'Sheet1!A:I';
+      const url   = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+      try {
+        const res  = await fetch(url);
+        const json = await res.json();
+        if (!json.values) throw new Error('Không có dữ liệu');
+        const rows = json.values.slice(1);    // bỏ header
+        originalData = rows;
+        const last12 = rows.slice(-12);
+        displayData(last12);
+        displayStatistics(last12);
+        renderCharts(last12);
+        showUpdateNotification();
+      } catch (err) {
+        console.error(err);
+        document.getElementById('error-message').textContent = 'Không thể tải dữ liệu.';
+      }
+    }
 
-        function displayFilesInModal(files) {
-            const fileListContainer = document.getElementById('file-list-modal');
-            fileListContainer.innerHTML = ''; 
+    function displayData(data) {
+      const tbody = document.getElementById('data-table');
+      tbody.innerHTML = '';
+      data.forEach((r,i) => {
+        const [ts, date, time, t, h, co, pm25, pm10, co2] = r;
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td>${i+1}</td>
+            <td>${date}</td>
+            <td>${time}</td>
+            <td>${t || 'N/A'}</td>
+            <td>${h || 'N/A'}</td>
+            <td>${co||'N/A'}</td>
+            <td>${pm25||'N/A'}</td>
+            <td>${pm10||'N/A'}</td>
+            <td>${co2||'N/A'}</td>
+          </tr>
+        `);
+      });
+    }
 
-            files.forEach(file => {
-                const fileElement = document.createElement('div');
-                fileElement.classList.add('file-item');
-                fileElement.innerHTML = 
-                    <p><a href="${file.webViewLink}" target="_blank">${file.name}</a></p>
-                ;
-                fileListContainer.appendChild(fileElement);
-            });
-        }
+    function displayStatistics(data) {
+      const toNum = (idx) => data.map(r=>parseFloat(r[idx])).filter(v=>!isNaN(v));
+      const stats = (arr, idAvg,idMax,idMin,idStd) => {
+        document.getElementById(idAvg).textContent = avg(arr).toFixed(2);
+        document.getElementById(idMax).textContent = Math.max(...arr).toFixed(2);
+        document.getElementById(idMin).textContent = Math.min(...arr).toFixed(2);
+        document.getElementById(idStd).textContent = std(arr).toFixed(2);
+      };
+      stats(toNum(3),'tempAvg','tempMax','tempMin','tempStdDev');
+      stats(toNum(4),'humAvg','humMax','humMin','humStdDev');
+      stats(toNum(5),'coAvg','coMax','coMin','coStdDev');
+      stats(toNum(6),'pm25Avg','pm25Max','pm25Min','pm25StdDev');
+      stats(toNum(7),'pm10Avg','pm10Max','pm10Min','pm10StdDev');
+      stats(toNum(8),'co2Avg','co2Max','co2Min','co2StdDev');
+    }
 
-        function filterFilesByDate() {
-            const startDateInput = document.getElementById('startDate').value;
-            const endDateInput = document.getElementById('endDate').value;
+    function avg(a){return a.reduce((s,v)=>s+v,0)/ (a.length||1);}
+    function std(a){
+      const m = avg(a);
+      return Math.sqrt( avg(a.map(v=>Math.pow(v-m,2))) );
+    }
 
-            if (!startDateInput || !endDateInput) {
-                alert('Please select both start and end dates');
-                return;
-            }
+    let charts = {};
+    function renderCharts(data) {
+      const labels = data.map(r=>`${r[1]} ${r[2]}`);
+      const ds = (idx) => data.map(r=>parseFloat(r[idx])).filter(v=>!isNaN(v));
+      const configs = [
+        { id:'chart-temp', label:'Temp (°C)', data:ds(3) },
+        { id:'chart-hum',  label:'Hum (%)',    data:ds(4) },
+        { id:'chart-co',   label:'CO (ppm)',    data:ds(5) },
+        { id:'chart-pm25', label:'PM2.5',       data:ds(6) },
+        { id:'chart-pm10', label:'PM10',        data:ds(7) },
+        { id:'chart-co2',  label:'CO₂ (ppm)',   data:ds(8) },
+      ];
+      configs.forEach(c => {
+        if (charts[c.id]) charts[c.id].destroy();
+        charts[c.id] = new Chart(
+          document.getElementById(c.id), {
+            type:'line',
+            data:{ labels, datasets:[{
+              label:c.label,
+              data:c.data,
+              fill:false,
+              tension:0.3
+            }]},
+            options:{ responsive:true, scales:{ x:{display:true}, y:{beginAtZero:false}}}
+          }
+        );
+      });
+    }
 
-            const startDate = new Date(startDateInput);
-            const endDate = new Date(endDateInput);
+    function showUpdateNotification(){
+      const n = document.createElement('div');
+      n.className='update-notification';
+      n.textContent='Dữ liệu đã được cập nhật!';
+      document.body.appendChild(n);
+      setTimeout(()=>n.remove(),3000);
+    }
 
-            const filteredFiles = fileData.filter(file => {
-                const fileName = file.name;
-                const dateMatch = fileName.match(/TLD66_(\d{4})-(\d{2})-(\d{2})/);
-                if (dateMatch) {
-                    const fileDate = new Date(${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]});
-                    return fileDate >= startDate && fileDate <= endDate;
-                }
-                return false;
-            });
-
-            displayFilesInModal(filteredFiles);
-        }
-
-        document.getElementById('exportFileButton').addEventListener('click', () => {
-            fetchDriveFiles(); 
-        });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script>
-        let model;
-        function createModel() {
-            model = tf.sequential();
-            model.add(tf.layers.dense({ inputShape: [4], units: 50, activation: 'relu' }));
-            model.add(tf.layers.dense({ units: 50, activation: 'relu' }));
-            model.add(tf.layers.dense({ units: 4 }));
-            model.compile({ optimizer: 'adam', loss: 'meanSquaredError' });
-        }
-    
-        function prepareData(data) {
-            const inputs = [];
-            const outputs = [];
-            for (let i = 0; i < data.length - 1; i++) {
-                const currentRow = data[i];
-                const nextRow = data[i + 1];
-                const inputFeatures = [
-                    parseFloat(currentRow[2]), // Nhiệt độ
-                    parseFloat(currentRow[3]), // Độ ẩm
-                    parseFloat(currentRow[4]), // CO
-                    parseFloat(currentRow[5])  // PM2.5
-                ];
-                const outputFeatures = [
-                    parseFloat(nextRow[2]),
-                    parseFloat(nextRow[3]),
-                    parseFloat(nextRow[4]),
-                    parseFloat(nextRow[5])
-                ];
-                if (inputFeatures.every(value => !isNaN(value)) && outputFeatures.every(value => !isNaN(value))) {
-                    inputs.push(inputFeatures);
-                    outputs.push(outputFeatures);
-                }
-            }
-            const xs = tf.tensor2d(inputs);
-            const ys = tf.tensor2d(outputs);
-            return { xs, ys };
-        }
-        async function trainModel(data) {
-            const { xs, ys } = prepareData(data);
-            await model.fit(xs, ys, {
-                epochs: 200,
-                callbacks: {
-                    onEpochEnd: (epoch, logs) => {
-                        console.log(Epoch ${epoch}: loss = ${logs.loss});
-                    }
-                }
-            });
-            console.log("Huấn luyện mô hình xong!");
-        }
-        function predictNextValues(latestValues) {
-            const input = tf.tensor2d([latestValues], [1, 4]);
-            const prediction = model.predict(input);
-            const predictedValues = prediction.dataSync();
-            return predictedValues.map(value => parseFloat(value.toFixed(2)));
-        }
-    
-        document.addEventListener('DOMContentLoaded', async () => {
-            createModel();
-            await fetchData();
-            await trainModel(originalData);
-    
-            const latestRow = originalData[originalData.length - 1];
-            const latestValues = [
-                parseFloat(latestRow[2]),
-                parseFloat(latestRow[3]),
-                parseFloat(latestRow[4]),
-                parseFloat(latestRow[5])
-            ];
-    
-            const nextPrediction = predictNextValues(latestValues);
-            console.log(Dự báo những giờ tiếp theo: Nhiệt độ: ${nextPrediction[0]} °C, Độ ẩm: ${nextPrediction[1]} %, CO: ${nextPrediction[2]} ppm, PM2.5: ${nextPrediction[3]} µg/m³);
-    
-            document.getElementById('prediction-result').innerHTML = 
-            <div class="prediction-box">
-                <img src="${getCOWarning(nextPrediction[2])}" alt="CO Warning"> 
-                Nhiệt độ: ${nextPrediction[0].toFixed(2)} °C
-            </div>
-            <div class="prediction-box">
-                <img src="${getPM25Warning(nextPrediction[3])}" alt="PM2.5 Warning"> 
-                Độ ẩm: ${nextPrediction[1].toFixed(2)} %
-            </div>
-            <div class="prediction-box">
-                <img src="${getCOWarning(nextPrediction[2])}" alt="CO Warning"> 
-                CO: ${nextPrediction[2].toFixed(2)} ppm
-            </div>
-            <div class="prediction-box">
-                <img src="${getPM25Warning(nextPrediction[3])}" alt="PM2.5 Warning"> 
-                PM2.5: ${nextPrediction[3].toFixed(2)} µg/m³
-            </div>
-        ;
+    document.addEventListener('DOMContentLoaded',()=>{
+      fetchData();
+      setInterval(fetchData,60000);
+      document.getElementById('exportPDF').addEventListener('click',()=>{
+        html2pdf().from(document.querySelector('.container')).toPdf().get('pdf').then(pdf=>pdf.save('report.pdf'));
+      });
     });
-        function updatePredictionDateTime() {
-            const predictionDateTime = new Date();
-            const formattedDateTime = predictionDateTime.toLocaleString('vi-VN', { 
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
-                hour: 'numeric', minute: 'numeric', second: 'numeric'
-            });
-            document.getElementById('prediction-datetime').textContent = Ngày giờ dự báo: ${formattedDateTime};
-        }
-        
-        updatePredictionDateTime();
-        function getPM25Warning(pm25) {
-            if (pm25 <= 12) {
-                return "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; // Tốt
-            } else if (pm25 <= 35) {
-                return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; // Vừa phải
-            } else if (pm25 <= 55) {
-                return "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"; // Kém
-            } else {
-                return "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Rất kém
-            }
-        }
-        
-        function getCOWarning(co) {
-            if (co <= 9) {
-                return "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; // Tốt
-            } else if (co <= 35) {
-                return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; // Vừa phải
-            } else if (co <= 100) {
-                return "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"; // Kém
-            } else {
-                return "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Rất kém
-            }
-        }
-        
-    </script>
-    
+  </script>
 </body>
-
 </html>

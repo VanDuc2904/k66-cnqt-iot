@@ -108,6 +108,124 @@
       </table>
       <p id="error-message" class="text-center text-danger mt-2"></p>
     </div>
+    <!-- SAU PHẦN STAT-CARD -->
+    <div class="stat-card mb-4">
+      <h2>Dự báo LSTM bước tiếp theo</h2>
+        <p>Đây chỉ là kết quả nghiên cứu của nhóm TLD66, không phải là kết quả dự báo của cơ quan nhà nước!</p>
+      <div id="lstmPrediction" class="d-flex flex-wrap">
+        <!-- JS sẽ tạo ra 6 hộp nhỏ tương ứng 6 thông số -->
+      </div>
+    </div>
+    <script>
+  // --- CẤU HÌNH LSTM ---
+  const WINDOW_SIZE = 5;   // số bản ghi làm “cửa sổ” đầu vào
+  const FEATURE_CNT = 6;   // số cột dự đoán: Temp, Hum, CO, PM2.5, PM10, CO2
+
+  let lstmModel;
+
+  // 2.1. Chuẩn dữ liệu thành X: [số_window, FEATURE_CNT] và y: [FEATURE_CNT]
+  function prepareLSTM(data) {
+    const X = [], Y = [];
+    for (let i = 0; i + WINDOW_SIZE < data.length; i++) {
+      const win = data.slice(i, i + WINDOW_SIZE);
+      const next = data[i + WINDOW_SIZE];
+      X.push(win.map(r => [
+        +r[3],         // Temperature
+        +r[4],         // Humidity
+        +r[5],         // CO
+        +r[6],         // PM2.5
+        +r[7] || 0,    // PM10
+        +r[8] || 0     // CO2
+      ]));
+      Y.push([
+        +next[3], +next[4], +next[5],
+        +next[6], +next[7] || 0, +next[8] || 0
+      ]);
+    }
+    return {
+      xs: tf.tensor3d(X),     // shape [N, WINDOW_SIZE, FEATURE_CNT]
+      ys: tf.tensor2d(Y)      // shape [N, FEATURE_CNT]
+    };
+  }
+
+  // 2.2. Xây dựng mô hình LSTM
+  function buildLSTM() {
+    lstmModel = tf.sequential();
+    lstmModel.add(tf.layers.lstm({
+      units: 32,
+      inputShape: [WINDOW_SIZE, FEATURE_CNT],
+      returnSequences: false
+    }));
+    lstmModel.add(tf.layers.dense({ units: FEATURE_CNT }));
+    lstmModel.compile({ loss: 'meanSquaredError', optimizer: 'adam' });
+  }
+
+  // 2.3. Huấn luyện LSTM trên toàn bộ originalData
+  async function trainLSTM(fullData) {
+    if (fullData.length < WINDOW_SIZE + 1) return;
+    buildLSTM();
+    const { xs, ys } = prepareLSTM(fullData);
+    await lstmModel.fit(xs, ys, {
+      epochs: 50,
+      batchSize: 8,
+      verbose: 0
+    });
+    xs.dispose(); ys.dispose();
+  }
+
+  // 2.4. Dự báo bước kế tiếp và hiển thị
+  function predictNextLSTM(fullData) {
+    if (!lstmModel || fullData.length < WINDOW_SIZE) return;
+    const window = fullData.slice(-WINDOW_SIZE)
+      .map(r => [
+        +r[3], +r[4], +r[5],
+        +r[6], +r[7] || 0, +r[8] || 0
+      ]);
+    const input = tf.tensor3d([window]);           // shape [1, WINDOW_SIZE, FEATURE_CNT]
+    const pred  = lstmModel.predict(input).dataSync();
+    input.dispose();
+
+    // 6 nhãn tương ứng
+    const labels = ['Temp','Hum','CO','PM2.5','PM10','CO₂'];
+    const html = labels.map((lab,i) => `
+      <div class="me-3 mb-2 p-2 bg-light rounded">
+        <strong>${lab}:</strong> ${pred[i].toFixed(2)}
+      </div>
+    `).join('');
+    document.getElementById('lstmPrediction').innerHTML = html;
+  }
+
+  // 2.5. Kết hợp vào luồng chính: sau khi fetchData() thành công
+  async function onNewData(fullData) {
+    await trainLSTM(fullData);       // huấn luyện
+    predictNextLSTM(fullData);       // hiển thị dự báo
+  }
+
+  // Cuối cùng, gọi onNewData(originalData) ngay trong fetchData()
+  // Ví dụ trong fetchData(), khi đã set `originalData = rows`:
+  //
+  //    originalData = rows;
+  //    displayData(...);
+  //    displayStatistics(...);
+  //    renderCharts(...);
+  //    showUpdateNotification();
+  //    await onNewData(originalData);
+  //
+  // Đừng quên biến fetchData thành async:
+  //
+  //  async function fetchData() {
+  //    ...
+  //    originalData = rows;
+  //    ...
+  //    await onNewData(originalData);
+  //  }
+  //
+  // Và khởi chạy fetchData() ban đầu:
+  //  document.addEventListener('DOMContentLoaded', async () => {
+  //    await fetchData();
+  //    setInterval(fetchData,60000);
+  //  });
+</script>
 
     <!-- Biểu đồ -->
     <div class="chart-container">

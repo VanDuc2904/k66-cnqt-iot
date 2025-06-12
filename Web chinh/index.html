@@ -461,6 +461,8 @@
                         <p class="card-text" data-translate="humidity">Độ ẩm: ${data[3] ? data[3] : 'Không có dữ liệu'} %</p>
                         <p class="card-text" data-translate="co">CO: ${data[4] ? data[4] : 'Không có dữ liệu'} ppm</p>
                         <p class="card-text" data-translate="pm25">PM2.5: ${data[5] ? data[5] : 'Không có dữ liệu'} µg/m³</p>
+                        <p>PM10: ${data[7] || 'Không có dữ liệu'} µg/m³</p>
+                        <p>CO₂: ${data[8] || 'Không có dữ liệu'} ppm</p>
                     </div>
                 </div>
             `;
@@ -582,21 +584,33 @@
             }
         }
         async function fetchData() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/sheet_id?key=${apiKey}`;
-
+            const sheetName = 'Sheet1';
+            // Lấy cột A–I (A: timestamp, B: date, C: time, D: temp, E: hum, F: co, G: pm25, H: pm10, I: co2)
+            const range = `${sheetName}!A:I`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
             try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data && data.values) {
-                    const lastRow = data.values[data.values.length - 1];
+                const res  = await fetch(url);
+                const json = await res.json();
+                if (json.values && json.values.length) {
+                    const lastRow = json.values[json.values.length - 1];
                     displayData(lastRow);
-                    updateChart(data.values.slice(-20));
+                    updateInfoWindow({
+                      date:        lastRow[1],
+                      time:        lastRow[2],
+                      temperature: lastRow[3],
+                      humidity:    lastRow[4],
+                      co:          lastRow[5],
+                      pm25:        lastRow[6],
+                      pm10:        lastRow[7],
+                      co2:         lastRow[8]
+                    });
+                    updateChart(json.values.slice(-20));
                 }
-            } catch (error) {
-                console.error('Error fetching data:', error);
+            } catch (err) {
+                console.error('Error fetching data:', err);
             }
         }
+
         const sheetId = '1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4';
         const apiKey = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
 
@@ -618,28 +632,32 @@
                 <div class="modal-body">
                     <table class="table table-bordered">
                         <thead>
-                            <tr>
-                                <th scope="col">STT</th>
-                                <th scope="col" data-translate="location">Vị trí</th>
-                                <th scope="col" data-translate="date">Ngày</th>
-                                <th scope="col" data-translate="time">Giờ</th>
-                                <th scope="col" data-translate="temperature">Nhiệt độ</th>
-                                <th scope="col" data-translate="humidity">Độ ẩm</th>
-                                <th scope="col" data-translate="co">CO</th>
-                                <th scope="col" data-translate="pm25">PM2.5</th>
-                            </tr>
+                          <tr>
+                            <th scope="col">STT</th>
+                            <th scope="col" data-translate="location">Vị trí</th>
+                            <th scope="col" data-translate="date">Ngày</th>
+                            <th scope="col" data-translate="time">Giờ</th>
+                            <th scope="col" data-translate="temperature">Nhiệt độ</th>
+                            <th scope="col" data-translate="humidity">Độ ẩm</th>
+                            <th scope="col" data-translate="co">CO</th>
+                            <th scope="col" data-translate="pm25">PM2.5</th>
+                            <th scope="col">PM10</th>
+                            <th scope="col">CO₂</th>
+                          </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td id="latestLocation">ĐHQG HN</td>
-                                <td id="latestDate">Đang tải...</td>
-                                <td id="latestTime">Đang tải...</td>
-                                <td id="latestTemperature">Đang tải...</td>
-                                <td id="latestHumidity">Đang tải...</td>
-                                <td id="latestCO">Đang tải...</td>
-                                <td id="latestPM25">Đang tải...</td>
-                            </tr>
+                          <tr>
+                            <td>1</td>
+                            <td id="latestLocation">ĐHQG HN</td>
+                            <td id="latestDate">Đang tải...</td>
+                            <td id="latestTime">Đang tải...</td>
+                            <td id="latestTemperature">Đang tải...</td>
+                            <td id="latestHumidity">Đang tải...</td>
+                            <td id="latestCO">Đang tải...</td>
+                            <td id="latestPM25">Đang tải...</td>
+                            <td id="latestPM10">Đang tải...</td>
+                            <td id="latestCO2">Đang tải...</td>
+                          </tr>
                         </tbody>
                     </table>
                     <h5 class="mt-4" data-translate="pollutionLevelsTitle">Các cấp độ ô nhiễm không khí</h5>

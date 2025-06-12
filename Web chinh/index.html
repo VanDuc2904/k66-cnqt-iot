@@ -449,32 +449,47 @@
             return { date, time, temperature, humidity, co, pm25 };
         }
         function displayData(data) {
-            const container = document.getElementById('data-container');
-            container.innerHTML = `
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title" data-translate="environmentInfoTitle">Dữ liệu thời gian thực</h5>
-                        <p class="card-text" style="font-size: 14px; font-style: italic;">Dữ liệu được cập nhật mỗi 5 phút 1 lần</p>
-                        <p class="card-text" data-translate="date">Ngày: ${data[0]}</p>
-                        <p class="card-text" data-translate="time">Giờ: ${data[1]}</p>
-                        <p class="card-text" data-translate="temperature">Nhiệt độ: ${data[2] ? data[2] : 'Không có dữ liệu'} °C</p>
-                        <p class="card-text" data-translate="humidity">Độ ẩm: ${data[3] ? data[3] : 'Không có dữ liệu'} %</p>
-                        <p class="card-text" data-translate="co">CO: ${data[4] ? data[4] : 'Không có dữ liệu'} ppm</p>
-                        <p class="card-text" data-translate="pm25">PM2.5: ${data[5] ? data[5] : 'Không có dữ liệu'} µg/m³</p>
-                        <p>PM10: ${data[7] || 'Không có dữ liệu'} µg/m³</p>
-                        <p>CO₂: ${data[8] || 'Không có dữ liệu'} ppm</p>
-                    </div>
-                </div>
-            `;
-            updateInfoWindow({
-                date: data[0],
-                time: data[1],
-                temperature: parseFloat(data[2]) || 'Không có dữ liệu',
-                humidity: parseFloat(data[3]) || 'Không có dữ liệu',
-                co: parseFloat(data[4]) || 'Không có dữ liệu',
-                pm25: parseFloat(data[5]) || 'Không có dữ liệu',
-            });
+          // 1. Parse timestamp thành ngày & giờ
+          const ts = data[0] || '';
+          let dateStr = 'Không có dữ liệu', timeStr = 'Không có dữ liệu';
+          if (ts) {
+            const d = new Date(ts);
+            if (!isNaN(d)) {
+              dateStr = d.toLocaleDateString('vi-VN');
+              timeStr = d.toLocaleTimeString('vi-VN');
+            }
+          }
+        
+          // 2. Lấy các chỉ số theo đúng index
+          const temperature = data[1] ?? 'Không có dữ liệu';
+          const humidity    = data[2] ?? 'Không có dữ liệu';
+          const co          = data[3] ?? 'Không có dữ liệu';
+          const pm25        = data[4] ?? 'Không có dữ liệu';
+          const pm10        = data[5] ?? 'Không có dữ liệu';
+          const co2         = data[6] ?? 'Không có dữ liệu';
+        
+          // 3. Cập nhật HTML
+          const container = document.getElementById('data-container');
+          container.innerHTML = `
+            <div class="card mb-4">
+              <div class="card-body">
+                <h5 class="card-title" data-translate="environmentInfoTitle">Dữ liệu thời gian thực</h5>
+                <p class="card-text" style="font-size:14px;font-style:italic;">
+                  Dữ liệu được cập nhật mỗi 5 phút 1 lần
+                </p>
+                <p class="card-text" data-translate="date"><strong>Ngày:</strong> ${dateStr}</p>
+                <p class="card-text" data-translate="time"><strong>Giờ:</strong> ${timeStr}</p>
+                <p class="card-text" data-translate="temperature"><strong>Nhiệt độ:</strong> ${temperature} °C</p>
+                <p class="card-text" data-translate="humidity"><strong>Độ ẩm:</strong> ${humidity} %</p>
+                <p class="card-text" data-translate="co"><strong>CO:</strong> ${co} ppm</p>
+                <p class="card-text" data-translate="pm25"><strong>PM2.5:</strong> ${pm25} µg/m³</p>
+                <p class="card-text"><strong>PM10:</strong> ${pm10} µg/m³</p>
+                <p class="card-text"><strong>CO₂:</strong> ${co2} ppm</p>
+              </div>
+            </div>
+          `;
         }
+
         
         function updateInfoWindow(latestData) {
             const contentString = `

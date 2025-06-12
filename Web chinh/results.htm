@@ -4,17 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>TLD66 Data Analytics Dashboard</title>
-
-  <!-- Bootstrap, Chart.js, html2pdf -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- TensorFlow.js -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-
   <style>
-    body { background:#f4f7fa; font-family:sans-serif; }
+    body { background:#f4f7fa; font-family:sans-serif }
     .stat-card { background:#fff; padding:1rem; border-radius:.5rem; box-shadow:0 2px 8px rgba(0,0,0,.1); margin-bottom:1rem; }
     .prediction-box { background:#e2e6ea; padding:.75rem; border-radius:.5rem; margin:.25rem; flex:1; min-width:120px; text-align:center; }
     .update-notif { position:fixed; bottom:1rem; right:1rem; background:#28a745; color:#fff; padding:.5rem 1rem; border-radius:.25rem; animation:slideIn .5s; }
@@ -23,8 +19,7 @@
 </head>
 <body>
   <div class="container my-4">
-
-    <!-- HEADER -->
+    <!-- Header -->
     <div class="text-center mb-4">
       <img src="img/Logo1.png" alt="Logo" style="height:60px" class="mb-2"/>
       <h1>TLD66 Data Analytics Dashboard</h1>
@@ -33,7 +28,7 @@
       <button id="openFiles" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filesModal">Query Drive</button>
     </div>
 
-    <!-- DRIVE FILES MODAL -->
+    <!-- Drive Files Modal -->
     <div class="modal fade" id="filesModal" tabindex="-1">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -43,8 +38,8 @@
           </div>
           <div class="modal-body">
             <div class="row g-3 mb-3">
-              <div class="col"><input type="date" id="fileStart" class="form-control" /></div>
-              <div class="col"><input type="date" id="fileEnd"   class="form-control" /></div>
+              <div class="col"><input type="date" id="fileStart" class="form-control"/></div>
+              <div class="col"><input type="date" id="fileEnd" class="form-control"/></div>
               <div class="col-auto"><button class="btn btn-success" onclick="filterFilesByDate()">Filter</button></div>
             </div>
             <div id="filesList">Đang tải danh sách...</div>
@@ -53,16 +48,16 @@
       </div>
     </div>
 
-    <!-- DATA FILTER -->
+    <!-- Data Filter -->
     <div class="bg-light p-3 rounded mb-4">
       <div class="row g-3">
         <div class="col-md-4">
           <label>Từ ngày:</label>
-          <input type="date" id="dataStart" class="form-control" />
+          <input type="date" id="dataStart" class="form-control"/>
         </div>
         <div class="col-md-4">
           <label>Đến ngày:</label>
-          <input type="date" id="dataEnd"   class="form-control" />
+          <input type="date" id="dataEnd" class="form-control"/>
         </div>
         <div class="col-md-4 d-flex align-items-end">
           <button class="btn btn-success w-100" onclick="applyFilters()">Áp dụng</button>
@@ -70,7 +65,7 @@
       </div>
     </div>
 
-    <!-- STAT CARDS -->
+    <!-- Stat Cards: đầy đủ 6 thông số -->
     <div class="row">
       <div class="col-md-4">
         <div class="stat-card">
@@ -90,6 +85,30 @@
       </div>
       <div class="col-md-4">
         <div class="stat-card">
+          <h5>CO (ppm)</h5>
+          <p>Avg: <span id="coAvg">0</span></p>
+          <p>Min: <span id="coMin">0</span></p>
+          <p>Max: <span id="coMax">0</span></p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card">
+          <h5>PM2.5 (µg/m³)</h5>
+          <p>Avg: <span id="pm25Avg">0</span></p>
+          <p>Min: <span id="pm25Min">0</span></p>
+          <p>Max: <span id="pm25Max">0</span></p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card">
+          <h5>PM10 (µg/m³)</h5>
+          <p>Avg: <span id="pm10Avg">0</span></p>
+          <p>Min: <span id="pm10Min">0</span></p>
+          <p>Max: <span id="pm10Max">0</span></p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card">
           <h5>CO₂ (ppm)</h5>
           <p>Avg: <span id="co2Avg">0</span></p>
           <p>Min: <span id="co2Min">0</span></p>
@@ -98,13 +117,13 @@
       </div>
     </div>
 
-    <!-- LSTM PREDICTION -->
-    <div class="stat-card d-flex flex-wrap">
+    <!-- LSTM Prediction: show luôn 6 giá trị -->
+    <div class="stat-card d-flex flex-wrap mb-4">
       <h5 class="w-100">Dự báo bước tiếp theo</h5>
       <div id="predictionResult" class="d-flex flex-wrap w-100"></div>
     </div>
 
-    <!-- DATA TABLE -->
+    <!-- Data Table -->
     <div class="table-responsive table-wrapper mb-4">
       <table class="table table-striped">
         <thead class="table-dark">
@@ -119,185 +138,180 @@
       <div id="errMsg" class="text-center text-danger"></div>
     </div>
 
-    <!-- CHARTS -->
+    <!-- Charts -->
     <div class="chart-container mb-5">
       <div class="row">
         <div class="col-md-6"><canvas id="chartTemp"></canvas></div>
         <div class="col-md-6"><canvas id="chartHum"></canvas></div>
-        <div class="col-md-6"><canvas id="chartCO2"></canvas></div>
+        <div class="col-md-6"><canvas id="chartCO"></canvas></div>
         <div class="col-md-6"><canvas id="chartPM25"></canvas></div>
       </div>
     </div>
   </div>
 
   <script>
-  // ====== CẤU HÌNH ======
-  const sheetId  = '1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4';
-  const apiKey   = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
-  const folderId = '1Q2-Ld0PElM0xwMEDdclNhmk7Uhoo8xpe';
-  let originalData = [], driveFiles = [];
+    // Cấu hình
+    const sheetId  = '1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4';
+    const apiKey   = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
+    const folderId = '1Q2-Ld0PElM0xwMEDdclNhmk7Uhoo8xpe';
+    let originalData = [], driveFiles = [];
 
-  // 1) Fetch Google Sheets
-  async function fetchData(){
-    try {
-      const range = encodeURIComponent('Sheet1!A:I');
-      const url   = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-      const res   = await fetch(url);
-      const js    = await res.json();
-      if(!js.values) throw 'Không có dữ liệu';
-      originalData = js.values.slice(1);
-      renderAll(originalData);
-      showNotif('Dữ liệu cập nhật thành công');
-    } catch(e){
-      document.getElementById('errMsg').innerText = 'Lỗi tải dữ liệu';
-      console.error(e);
+    // Fetch dữ liệu Google Sheets
+    async function fetchData(){
+      try {
+        const range = encodeURIComponent('Sheet1!A:I');
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+        const res = await fetch(url);
+        const js  = await res.json();
+        if(!js.values) throw 'Không có dữ liệu';
+        originalData = js.values.slice(1);
+        renderAll(originalData);
+        showNotif('Dữ liệu cập nhật thành công');
+      } catch(e){
+        document.getElementById('errMsg').innerText = 'Lỗi tải dữ liệu';
+        console.error(e);
+      }
     }
-  }
 
-  // 2) Render Table, Stats, Charts, LSTM
-  function renderAll(data){
-    renderTable(data);
-    renderStats(data);
-    renderCharts(data);
-    runLSTM(data);
-  }
+    // Render table, stats, charts, LSTM
+    function renderAll(data){
+      renderTable(data);
+      renderStats(data);
+      renderCharts(data);
+      runLSTM(data);
+    }
 
-  function renderTable(data){
-    const tb = document.getElementById('dataTable');
-    tb.innerHTML = '';
-    data.slice(-12).forEach((r,i)=>{
-      const [ts,date,time,temp,hum,co,pm25,pm10,co2] = r;
-      tb.insertAdjacentHTML('beforeend', `
-        <tr>
-          <td>${i+1}</td>
-          <td>${date}</td><td>${time}</td>
-          <td>${temp}</td><td>${hum}</td><td>${co}</td>
-          <td>${pm25}</td><td>${pm10||'N/A'}</td><td>${co2||'N/A'}</td>
-        </tr>
-      `);
-    });
-  }
+    // Table 12 bản ghi cuối
+    function renderTable(data){
+      const tb = document.getElementById('dataTable'); tb.innerHTML = '';
+      data.slice(-12).forEach((r,i)=>{
+        const [ts,date,time,temp,hum,co,pm25,pm10,co2] = r;
+        tb.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td>${i+1}</td><td>${date}</td><td>${time}</td>
+            <td>${temp}</td><td>${hum}</td><td>${co}</td>
+            <td>${pm25}</td><td>${pm10||'N/A'}</td><td>${co2||'N/A'}</td>
+          </tr>
+        `);
+      });
+    }
 
-  function renderStats(data){
-    const slice12 = data.slice(-12);
-    const col = i => slice12.map(r=>parseFloat(r[i])||0);
-    const set = (id, arr) => {
-      document.getElementById(id+'Avg').innerText = avg(arr).toFixed(2);
-      document.getElementById(id+'Min').innerText = Math.min(...arr).toFixed(2);
-      document.getElementById(id+'Max').innerText = Math.max(...arr).toFixed(2);
-    };
-    set('temp', col(3));
-    set('hum',  col(4));
-    set('co2',  col(8));
-  }
+    // Stats 6 thông số
+    function renderStats(data){
+      const last12 = data.slice(-12);
+      const col = idx=> last12.map(r=>parseFloat(r[idx])||0);
+      [['temp',3],['hum',4],['co',5],['pm25',6],['pm10',7],['co2',8]]
+        .forEach(([id,i])=>{
+          const arr = col(i);
+          document.getElementById(id+'Avg').innerText = avg(arr).toFixed(2);
+          document.getElementById(id+'Min').innerText = Math.min(...arr).toFixed(2);
+          document.getElementById(id+'Max').innerText = Math.max(...arr).toFixed(2);
+        });
+    }
 
-  function renderCharts(data){
-    const slice12 = data.slice(-12);
-    const labels = slice12.map(r=>r[1]+' '+r[2]);
-    const col    = i=>slice12.map(r=>parseFloat(r[i])||0);
+    function avg(a){return a.reduce((s,v)=>s+v,0)/a.length;}
 
-    new Chart('chartTemp',{type:'line', data:{labels,datasets:[{label:'Temp',data:col(3),fill:false}]}});
-    new Chart('chartHum',{type:'line', data:{labels,datasets:[{label:'Hum',data:col(4),fill:false}]}});
-    new Chart('chartCO2',{type:'line', data:{labels,datasets:[{label:'CO₂',data:col(8),fill:false}]}});
-    new Chart('chartPM25',{type:'line', data:{labels,datasets:[{label:'PM2.5',data:col(6),fill:false}]}});
-  }
+    // Charts
+    function renderCharts(data){
+      const last12 = data.slice(-12);
+      const labels = last12.map(r=>r[1]+' '+r[2]);
+      const col = i=> last12.map(r=>parseFloat(r[i])||0);
+      new Chart('chartTemp',{type:'line',data:{labels,datasets:[{label:'Temp',data:col(3),fill:false}]},options:{responsive:true}});
+      new Chart('chartHum',{type:'line',data:{labels,datasets:[{label:'Hum',data:col(4),fill:false}]},options:{responsive:true}});
+      new Chart('chartCO',{type:'line',data:{labels,datasets:[{label:'CO',data:col(5),fill:false}]},options:{responsive:true}});
+      new Chart('chartPM25',{type:'line',data:{labels,datasets:[{label:'PM2.5',data:col(6),fill:false}]},options:{responsive:true}});
+    }
 
-  function avg(a){return a.reduce((s,v)=>s+v,0)/a.length;}
-
-  // 3) LSTM forecast
-  const W = 5, F = 6;
-  let lstmModel;
-  function prepare(data){
-    const X=[],Y=[];
-    for(let i=0;i+W<data.length;i++){
-      const win = data.slice(i,i+W).map(r=>[
+    // LSTM dự báo 6 features
+    const W=5, F=6;
+    let lstmModel;
+    function prepare(data){
+      const X=[], Y=[];
+      for(let i=0;i+W<data.length;i++){
+        const win = data.slice(i,i+W).map(r=>[
+          +r[3],+r[4],+r[5],+r[6],+(r[7]||0),+(r[8]||0)
+        ]);
+        X.push(win);
+        Y.push([
+          +data[i+W][3],+data[i+W][4],+data[i+W][5],
+          +data[i+W][6],+(data[i+W][7]||0),+(data[i+W][8]||0)
+        ]);
+      }
+      return { xs:tf.tensor3d(X), ys:tf.tensor2d(Y) };
+    }
+    function buildLSTM(){
+      lstmModel = tf.sequential();
+      lstmModel.add(tf.layers.lstm({units:32,inputShape:[W,F]}));
+      lstmModel.add(tf.layers.dense({units:F}));
+      lstmModel.compile({optimizer:'adam',loss:'mse'});
+    }
+    async function runLSTM(data){
+      if(data.length < W+1) return;
+      buildLSTM();
+      const {xs,ys} = prepare(data);
+      await lstmModel.fit(xs,ys,{epochs:30,batchSize:8,verbose:0});
+      const window = data.slice(-W).map(r=>[
         +r[3],+r[4],+r[5],+r[6],+(r[7]||0),+(r[8]||0)
       ]);
-      X.push(win);
-      Y.push([
-        +data[i+W][3],+data[i+W][4],+data[i+W][5],
-        +data[i+W][6],+(data[i+W][7]||0),+(data[i+W][8]||0)
-      ]);
+      const pred = lstmModel.predict(tf.tensor3d([window])).dataSync();
+      const labels = ['Temp','Hum','CO','PM2.5','PM10','CO₂'];
+      document.getElementById('predictionResult').innerHTML =
+        pred.map((v,i)=>`<div class="prediction-box">${labels[i]}: ${v.toFixed(2)}</div>`).join('');
     }
-    return { xs:tf.tensor3d(X), ys:tf.tensor2d(Y) };
-  }
-  function buildLSTM(){
-    lstmModel = tf.sequential();
-    lstmModel.add(tf.layers.lstm({units:32,inputShape:[W,F]}));
-    lstmModel.add(tf.layers.dense({units:F}));
-    lstmModel.compile({optimizer:'adam', loss:'mse'});
-  }
-  async function runLSTM(data){
-    if(data.length < W+1) return;
-    buildLSTM();
-    const {xs,ys} = prepare(data);
-    await lstmModel.fit(xs, ys, {epochs:30, batchSize:8, verbose:0});
-    const window = data.slice(-W).map(r=>[
-      +r[3],+r[4],+r[5],+r[6],+(r[7]||0),+(r[8]||0)
-    ]);
-    const pred   = lstmModel.predict(tf.tensor3d([window])).dataSync();
-    const html   = Array.from(pred).map((v,i)=>{
-      const lbl = ['Temp','Hum','CO','PM2.5','PM10','CO₂'][i];
-      return `<div class="prediction-box">${lbl}: ${v.toFixed(2)}</div>`;
-    }).join('');
-    document.getElementById('predictionResult').innerHTML = html;
-  }
 
-  // 4) Drive files
-  async function fetchFiles(){
-    const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,webViewLink)&key=${apiKey}`;
-    const res = await fetch(url);
-    const js  = await res.json();
-    driveFiles = js.files||[];
-    displayFiles(driveFiles);
-  }
-  function displayFiles(arr){
-    const c = document.getElementById('filesList');
-    if(!arr.length) return c.innerText = 'Không có file';
-    c.innerHTML = arr.map(f=>
-      `<p><a href="${f.webViewLink}" target="_blank">${f.name}</a></p>`
-    ).join('');
-  }
-  function filterFilesByDate(){
-    const s = new Date(document.getElementById('fileStart').value);
-    const e = new Date(document.getElementById('fileEnd').value);
-    displayFiles(driveFiles.filter(f=>{
-      const m = f.name.match(/(\d{4})-(\d{2})-(\d{2})/);
-      if(!m) return false;
-      const d = new Date(`${m[1]}-${m[2]}-${m[3]}`);
-      return d>=s && d<=e;
-    }));
-  }
+    // Drive files
+    async function fetchFiles(){
+      const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,webViewLink)&key=${apiKey}`;
+      const res = await fetch(url);
+      const js  = await res.json();
+      driveFiles = js.files||[];
+      displayFiles(driveFiles);
+    }
+    function displayFiles(arr){
+      const c = document.getElementById('filesList');
+      if(!arr.length) return c.innerText = 'Không có file';
+      c.innerHTML = arr.map(f=>
+        `<p><a href="${f.webViewLink}" target="_blank">${f.name}</a></p>`
+      ).join('');
+    }
+    function filterFilesByDate(){
+      const s=new Date(document.getElementById('fileStart').value),
+            e=new Date(document.getElementById('fileEnd').value);
+      displayFiles(driveFiles.filter(f=>{
+        const m=f.name.match(/(\d{4})-(\d{2})-(\d{2})/);
+        if(!m) return false;
+        const d=new Date(`${m[1]}-${m[2]}-${m[3]}`);
+        return d>=s && d<=e;
+      }));
+    }
 
-  // 5) Data filter
-  function applyFilters(){
-    const s = document.getElementById('dataStart').value;
-    const e = document.getElementById('dataEnd').value;
-    const filtered = originalData.filter(r=>{
-      const d = new Date(r[1]);
-      return (!s||d>=new Date(s)) && (!e||d<=new Date(e));
+    // Data filter
+    function applyFilters(){
+      const s=document.getElementById('dataStart').value,
+            e=document.getElementById('dataEnd').value;
+      const filtered = originalData.filter(r=>{
+        const d=new Date(r[1]);
+        return (!s||d>=new Date(s)) && (!e||d<=new Date(e));
+      });
+      renderAll(filtered);
+    }
+
+    // Export PDF & notification
+    document.getElementById('exportPDF').onclick = ()=>{
+      html2pdf().from(document.body).save('dashboard.pdf');
+    };
+    function showNotif(txt){
+      const d=document.createElement('div');
+      d.className='update-notif'; d.innerText=txt;
+      document.body.appendChild(d);
+      setTimeout(()=>d.remove(),2000);
+    }
+
+    document.addEventListener('DOMContentLoaded',async()=>{
+      await fetchData();
+      setInterval(fetchData,60000);
+      fetchFiles();
     });
-    renderAll(filtered);
-  }
-
-  // 6) Export PDF & notif
-  document.getElementById('exportPDF').onclick = ()=>{
-    html2pdf().from(document.body).save('dashboard.pdf');
-  };
-  function showNotif(txt){
-    const d = document.createElement('div');
-    d.className = 'update-notif';
-    d.innerText = txt;
-    document.body.appendChild(d);
-    setTimeout(()=>d.remove(),2000);
-  }
-
-  // Khởi động
-  document.addEventListener('DOMContentLoaded', async ()=>{
-    await fetchData();
-    setInterval(fetchData,60000);
-    fetchFiles();
-  });
   </script>
 </body>
 </html>

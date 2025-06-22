@@ -442,17 +442,6 @@
                 isClickListenerAdded = true;
             }
         }
-        function getMarkerIcon(pm25) {
-            if (pm25 <= 12) {
-                return "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; // Tốt
-            } else if (pm25 <= 35) {
-                return "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; // Vừa phải
-            } else if (pm25 <= 55) {
-                return "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"; // Có hại cho sức khỏe
-            } else {
-                return "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; 
-            }
-        }
         function updateInfoWindow() {
             const latestData = getLatestDataFromDOM();
 
@@ -557,16 +546,29 @@
         }
 
         function getMarkerIcon(pm25) {
+            const baseIconSize = new google.maps.Size(20, 20); // Giảm kích thước xuống 20x20 pixel
             if (pm25 <= 12) {
-                return 'img/t.png'; // Thay bằng URL icon xanh của bạn
+                return {
+                    url: 'img/t.png', // Icon xanh
+                    scaledSize: baseIconSize
+                };
             } else if (pm25 <= 35) {
-                return 'img/TB.png'; // Thay bằng URL icon vàng của bạn
+                return {
+                    url: 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png', // Icon vàng
+                    scaledSize: baseIconSize
+                };
             } else if (pm25 <= 55) {
-                return 'img/K.png'; // Thay bằng URL icon cam của bạn
+                return {
+                    url: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png', // Icon cam
+                    scaledSize: baseIconSize
+                };
             } else {
-                return 'img/RK.png'; // Thay bằng URL icon đỏ của bạn
+                return {
+                    url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png', // Icon đỏ
+                    scaledSize: baseIconSize
+                };
             }
-        }    
+        }
         function updateChart(recentData) {
             const labels = recentData.map(row => {
                 const date = new Date(row[0]); // Sử dụng cột Ngay_gio (A)

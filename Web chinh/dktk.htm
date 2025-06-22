@@ -1,383 +1,648 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TLD66 Đăng Ký & Đăng Nhập</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-database-compat.js"></script>
+    <title>Quản trị web TLD-66</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> <!-- Thư viện Excel -->
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: url('img/Truong.jpg') center/cover no-repeat;
-            font-family: Arial, sans-serif;
-        }
-        
-        .logo {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 150px;
-            height: auto;
-        }
-        .main-container {
-            display: flex;
-            flex-direction: column; 
-            width: 95%;
-            max-width: 600px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
-            color: white;
-        }
-        
-        .section {
-            margin: 10px 0;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-        .section h2 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-        }
-        .form-control {
-            background: transparent;
-            border: 1px solid #ddd;
-            color: white;
-            margin-bottom: 10px;
-            padding: 8px;
-            font-size: 14px;
-        }
-        .form-control::placeholder {
-            color: #ddd;
-        }
-        .btn-custom {
-            background: transparent;
-            border: 1px solid white;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            margin: 5px 0;
-            width: 100%;
-            font-size: 14px;
-            transition: background 0.3s, color 0.3s, border-color 0.3s;
-        }
-        
-        /* Button Hover Effect */
-        .btn-custom:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #aaa;
-        }
-        .modal-content {
-            background: rgba(0, 0, 0, 0.85);
-            border: none;
-            border-radius: 10px;
-            color: white;
-        }
-        .modal-header, .modal-body, .modal-footer {
-            border: none;
-            padding: 15px;
-        }
-        .links {
-            margin-top: 10px;
-            font-size: 0.8rem;
-        }
-        .links a {
-            color: white;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .links a:hover {
-            color: #ddd;
-        }
-        @media (max-width: 576px) {
-            .main-container {
-                padding: 10px;
-            }
-        
-            .section {
-                padding: 10px;
-            }
-        
-            .section h2 {
-                font-size: 1.2rem;
-                margin-bottom: 10px;
-            }
-        
-            .form-control {
-                padding: 7px;
-                font-size: 13px;
-            }
-        
-            .btn-custom {
-                padding: 7px 10px;
-                font-size: 13px;
-            }
-        
-            .modal-content {
-                padding: 15px;
-            }
-        
-            .modal-header, .modal-body, .modal-footer {
-                padding: 10px;
-            }
-        
-            .logo {
-                top: 5px;
-                left: 5px;
-                width: 120px;
-            }
-        }
+        body { font-family: 'Roboto', sans-serif; background: #f8f9fa; }
+        .sidebar { width: 250px; position: fixed; top: 0; bottom: 0; left: 0; background: #34495e; padding-top: 20px; color: #fff; }
+        .sidebar a { color: #fff; text-decoration: none; display: block; padding: 10px 15px; }
+        .sidebar a:hover { background: #2c3e50; }
+        .content { margin-left: 260px; padding: 20px; }
+        .card { margin-bottom: 20px; }
+        .history-table, .device-table, .user-table { max-height: 300px; overflow-y: auto; }
+        .btn-custom { background: #2c3e50; color: #fff; border: none; transition: background 0.3s; }
+        .btn-custom:hover { background: #1a252f; }
+        .maintenance-card { background: #fff3cd; }
     </style>
 </head>
 <body>
-    <a href="index.html">
-        <img src="img/Logo1.png" alt="Logo" class="logo">
-    </a>    
-    <div class="main-container">
-        <!-- Login Section -->
-        <div class="section">
-            <h2>Đăng nhập</h2>
-            <form id="loginForm">
-                <input type="email" class="form-control" id="loginEmail" placeholder="Email" required>
-                <input type="password" class="form-control" id="loginPassword" placeholder="Mật khẩu" required>
-                <div class="d-flex justify-content-between">
-                    <button type="submit" class="btn-custom">Đăng nhập</button>
-                    <button type="button" class="btn-custom" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng kí</button>
-                </div>
-                <div class="links">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Quên mật khẩu?</a>
-                </div>
-            </form>
-        </div>
-        <div class="section">
-            <h2>Chức năng khác</h2>
-            <button class="btn-custom" data-bs-toggle="modal" data-bs-target="#emailModal">Sign up for updates via email</button>
-            <button class="btn-custom" data-bs-toggle="modal" data-bs-target="#adminLoginModal">Đăng nhập quản trị viên</button>
-        </div>
+    <div class="sidebar">
+        <h4 class="text-center">Menu</h4>
+        <a href="#notification">Quản lý thông báo</a>
+        <a href="#mapSettings">Cài đặt bản đồ</a>
+        <a href="#commandControl">Kiểm soát chức năng</a>
+        <a href="#dataAccess">Truy cập dữ liệu</a>
+        <a href="#deviceManagement">Quản lý thiết bị</a>
+        <a href="#maintenance">Bảo trì hệ thống</a>
+        <a href="#userManagement">Phân quyền người dùng</a>
+        <a href="#userList">Danh sách người dùng</a>
+        <a href="#activityLog">Lịch sử hoạt động</a>
+        <a href="#" onclick="logout()">Đăng xuất</a>
     </div>
-    <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="emailModalLabel">Sign up for updates via email</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+
+    <div class="content">
+        <div class="container mt-4">
+            <h1>Quản trị web TLD-66</h1>
+            <p>Chào mừng bạn đến với trang quản trị. Thời gian hiện tại: 04:13 AM, 23/06/2025</p>
+
+            <!-- Quản lý thông báo -->
+            <div class="card" id="notification">
+                <div class="card-body">
+                    <h5 class="card-title">Quản lý thông báo</h5>
+                    <div class="mb-3">
+                        <label for="newNotification" class="form-label">Cập nhật thông báo mới:</label>
+                        <input type="text" class="form-control" id="newNotification" placeholder="Nhập thông báo mới">
+                        <button class="btn btn-custom mt-2" onclick="updateNotification()">Cập nhật</button>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="emailForm">
-                        <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
-                        <input type="text" class="form-control" id="fullName" placeholder="Enter your full name" required>
-                        <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number" required>
-                        <select class="form-control" id="useData" required>
-                            <option value="">Would you like to use data?</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
+            </div>
+
+            <!-- Cài đặt bản đồ -->
+            <div class="card" id="mapSettings">
+                <div class="card-body">
+                    <h5 class="card-title">Cài đặt bản đồ</h5>
+                    <div class="mb-3">
+                        <label for="latitude" class="form-label">Latitude:</label>
+                        <input type="number" step="0.00001" class="form-control" id="latitude" placeholder="Nhập latitude">
+                    </div>
+                    <div class="mb-3">
+                        <label for="longitude" class="form-label">Longitude:</label>
+                        <input type="number" step="0.00001" class="form-control" id="longitude" placeholder="Nhập longitude">
+                    </div>
+                    <div class="mb-3">
+                        <label for="markerTitle" class="form-label">Tiêu đề:</label>
+                        <input type="text" class="form-control" id="markerTitle" placeholder="Nhập tiêu đề cho marker">
+                    </div>
+                    <button class="btn btn-custom mt-2" onclick="updateMapSettings()">Cập nhật bản đồ</button>
+                </div>
+            </div>
+
+            <!-- Kiểm soát chức năng -->
+            <div class="card" id="commandControl">
+                <div class="card-body">
+                    <h5 class="card-title">Kiểm soát chức năng</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Thông số thời gian thực</label>
+                        <button class="btn btn-success me-2" onclick="unlockCommand()">Mở khóa</button>
+                        <button class="btn btn-danger" onclick="lockCommand()">Đóng khóa</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Truy cập dữ liệu -->
+            <div class="card" id="dataAccess">
+                <div class="card-body">
+                    <h5 class="card-title">Truy cập dữ liệu</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Dữ liệu & thống kê</label>
+                        <button class="btn btn-success me-2" onclick="unlockDataStatistics()">Mở khóa</button>
+                        <button class="btn btn-danger" onclick="lockDataStatistics()">Đóng khóa</button>
+                    </div>
+                    <button class="btn btn-custom mt-2" onclick="exportExcel()">Xuất báo cáo Excel</button>
+                </div>
+            </div>
+
+            <!-- Quản lý thiết bị -->
+            <div class="card" id="deviceManagement">
+                <div class="card-body">
+                    <h5 class="card-title">Quản lý thiết bị</h5>
+                    <div class="mb-3">
+                        <label for="deviceId" class="form-label">ID thiết bị:</label>
+                        <input type="text" class="form-control" id="deviceId" placeholder="Nhập ID thiết bị">
+                    </div>
+                    <div class="mb-3">
+                        <label for="deviceStatus" class="form-label">Trạng thái:</label>
+                        <select class="form-control" id="deviceStatus">
+                            <option value="active">Hoạt động</option>
+                            <option value="inactive">Ngưng hoạt động</option>
                         </select>
-                        <input type="text" class="form-control" id="purpose" placeholder="Enter your usage purpose" required>
-                        <button type="submit" class="btn-custom">Sign up</button>
-                    </form>
-                    <div id="responseMessage" class="mt-3"></div>
+                    </div>
+                    <button class="btn btn-custom mt-2" onclick="updateDevice()">Cập nhật thiết bị</button>
+                    <div class="device-table mt-3">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deviceTable"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="registerModalLabel">Đăng ký tài khoản</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="registerForm">
-                        <input type="email" class="form-control" id="registerEmail" placeholder="Nhập email" required>
-                        <input type="password" class="form-control" id="registerPassword" placeholder="Nhập mật khẩu" required>
-                        <button type="submit" class="btn-custom">Đăng ký</button>
-                    </form>
+
+            <!-- Bảo trì hệ thống -->
+            <div class="card maintenance-card" id="maintenance">
+                <div class="card-body">
+                    <h5 class="card-title">Bảo trì hệ thống</h5>
+                    <div class="mb-3">
+                        <label for="maintenanceDate" class="form-label">Ngày bảo trì:</label>
+                        <input type="date" class="form-control" id="maintenanceDate">
+                    </div>
+                    <button class="btn btn-custom mt-2" onclick="scheduleMaintenance()">Lên lịch bảo trì</button>
+                    <p id="maintenanceStatus" class="mt-2">Trạng thái: Chưa kiểm tra</p>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-labelledby="adminLoginModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="adminLoginModalLabel">Đăng Nhập Quản Trị Viên</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="adminLoginForm">
-                        <input type="email" class="form-control" id="adminEmail" placeholder="Nhập email" required>
-                        <input type="password" class="form-control" id="adminPassword" placeholder="Nhập mật khẩu" required>
-                        <button type="submit" class="btn-custom">Đăng Nhập</button>
-                        <div id="adminLoginMessage" class="mt-3"></div>
-                    </form>
+
+            <!-- Phân quyền người dùng -->
+            <div class="card" id="userManagement">
+                <div class="card-body">
+                    <h5 class="card-title">Phân quyền người dùng</h5>
+                    <div class="mb-3">
+                        <label for="userEmail" class="form-label">Email người dùng:</label>
+                        <input type="email" class="form-control" id="userEmail" placeholder="Nhập email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="userRole" class="form-label">Quyền:</label>
+                        <select class="form-control" id="userRole">
+                            <option value="admin">Admin</option>
+                            <option value="editor">Editor</option>
+                            <option value="viewer">Viewer</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-custom mt-2" onclick="updateUserRole()">Cập nhật quyền</button>
+                    <div class="mt-3">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Quyền</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTable"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="forgotPasswordModalLabel">Quên mật khẩu</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            <!-- Danh sách người dùng -->
+            <div class="card" id="userList">
+                <div class="card-body">
+                    <h5 class="card-title">Danh sách người dùng</h5>
+                    <div class="user-table mt-3">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Quyền</th>
+                                    <th>Thời gian đăng ký</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userListTable"></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="forgotPasswordForm">
-                        <input type="email" class="form-control" id="forgotEmail" placeholder="Nhập email để đặt lại mật khẩu" required>
-                        <button type="submit" class="btn-custom">Gửi yêu cầu</button>
-                    </form>
-                    <div id="forgotResponseMessage" class="mt-3"></div>
+            </div>
+
+            <!-- Lịch sử hoạt động -->
+            <div class="card" id="activityLog">
+                <div class="card-body">
+                    <h5 class="card-title">Lịch sử hoạt động</h5>
+                    <div class="history-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Hành động</th>
+                                    <th>Chi tiết</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityLogTable"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-database-compat.js"></script>
+    <!-- Thêm Firebase SDK từ CDN (Firebase v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Firebase Initialization
-            const firebaseConfig = {
-                apiKey: "AIzaSyC3EhCzgXR02e_gjvJqEb32htKMqo3mXug",
-                authDomain: "tld66-3d929.firebaseapp.com",
-                databaseURL: "https://tld66-3d929-default-rtdb.firebaseio.com",
-                projectId: "tld66-3d929",
-                storageBucket: "tld66-3d929.appspot.com",
-                messagingSenderId: "580068871289",
-                appId: "1:580068871289:web:d46a8e49eee792a6d518a8",
-                measurementId: "G-3R2JXXFMD0"
-            };
+        // Cấu hình Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC3EhCzgXR02e_gjvJqEb32htKMqo3mXug",
+            authDomain: "tld66-3d929.firebaseapp.com",
+            databaseURL: "https://tld66-3d929-default-rtdb.firebaseio.com/",
+            projectId: "tld66-3d929",
+            storageBucket: "tld66-3d929.appspot.com",
+            messagingSenderId: "580068871289",
+            appId: "1:580068871289:web:d46a8e49eee792a6d518a8",
+            measurementId: "G-3R2JXXFMD0"
+        };
 
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-            const auth = firebase.auth();
-            document.getElementById('emailForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const email = document.getElementById('email').value;
-                const fullName = document.getElementById('fullName').value;
-                const phone = document.getElementById('phone').value;
-                const purpose = document.getElementById('purpose').value;
-                const useData = document.getElementById('useData').value;
-                const responseMessage = document.getElementById('responseMessage');
+        // Khởi tạo Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const activityLogRef = firebase.database().ref('activityLog');
+        const usersRef = firebase.database().ref('users');
+        const devicesRef = firebase.database().ref('devices');
+        const maintenanceRef = firebase.database().ref('maintenance');
 
-                fetch('https://script.google.com/macros/s/AKfycbxbNEtTmMrDnoyaNZJc04b3-NfwAOWCNhd_A2AlJeIaP6z0u0gy4K5H5cqjLGUo9A/exec', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `email=${encodeURIComponent(email)}&fullName=${encodeURIComponent(fullName)}&phone=${encodeURIComponent(phone)}&purpose=${encodeURIComponent(purpose)}&useData=${encodeURIComponent(useData)}`
-                }).then(response => {
-                    responseMessage.textContent = "Đã ghi nhận đăng ký của bạn!";
-                    responseMessage.classList.add('text-success');
-                    document.getElementById('emailForm').reset();
-                    setTimeout(() => {
-                        var emailModal = bootstrap.Modal.getInstance(document.getElementById('emailModal'));
-                        emailModal.hide();
-                        responseMessage.textContent = "";
-                    }, 2000);
-                }).catch(error => {
-                    responseMessage.textContent = "Đã xảy ra lỗi khi đăng ký: " + error.message;
-                    responseMessage.classList.add('text-danger');
+        // Tải dữ liệu khi trang quản trị được tải
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMapSettings();
+            loadActivityLog();
+            loadDevices();
+            loadUserRoles();
+            loadUserList();
+            checkMaintenanceStatus();
+        });
+
+        function loadMapSettings() {
+            firebase.database().ref('mapSettings').once('value')
+                .then(snapshot => {
+                    const mapSettings = snapshot.val();
+                    if (mapSettings) {
+                        document.getElementById('latitude').value = mapSettings.lat;
+                        document.getElementById('longitude').value = mapSettings.lng;
+                        document.getElementById('markerTitle').value = mapSettings.title;
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi tải dữ liệu bản đồ:', error);
+                    alert('Có lỗi xảy ra khi tải dữ liệu bản đồ.');
+                });
+        }
+
+        function loadActivityLog() {
+            activityLogRef.on('value', snapshot => {
+                const logs = snapshot.val() || {};
+                const tbody = document.getElementById('activityLogTable');
+                tbody.innerHTML = '';
+                Object.entries(logs).forEach(([key, log]) => {
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr>
+                            <td>${new Date(log.timestamp).toLocaleString('vi-VN')}</td>
+                            <td>${log.action}</td>
+                            <td>${log.details}</td>
+                        </tr>
+                    `);
                 });
             });
-            document.getElementById('registerForm').addEventListener('submit', function (event) {
-                event.preventDefault();
-                const email = document.getElementById('registerEmail').value;
-                const password = document.getElementById('registerPassword').value;
+        }
 
-                if (auth) {
-                    auth.createUserWithEmailAndPassword(email, password)
-                        .then((userCredential) => {
-                            if (userCredential.user) {
-                                auth.currentUser.sendEmailVerification()
-                                    .then(() => {
-                                        alert('Đã gửi email xác thực. Vui lòng kiểm tra email của bạn.');
-                                        document.getElementById('registerForm').reset();
-                                        const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
-                                        registerModal.hide();
-                                    });
-                            }
-                        })
-                        .catch((error) => {
-                            alert("Đăng ký thất bại: " + error.message);
-                        });
-                } else {
-                    alert("Firebase chưa khởi tạo thành công.");
+        function loadDevices() {
+            devicesRef.on('value', snapshot => {
+                const devices = snapshot.val() || {};
+                const tbody = document.getElementById('deviceTable');
+                tbody.innerHTML = '';
+                Object.entries(devices).forEach(([id, status]) => {
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr>
+                            <td>${id}</td>
+                            <td>${status}</td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        function loadUserRoles() {
+            usersRef.on('value', snapshot => {
+                const users = snapshot.val() || {};
+                const tbody = document.getElementById('userTable');
+                tbody.innerHTML = '';
+                Object.entries(users).forEach(([email, role]) => {
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr>
+                            <td>${email}</td>
+                            <td>${role}</td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        function loadUserList() {
+            usersRef.on('value', snapshot => {
+                const users = snapshot.val() || {};
+                const tbody = document.getElementById('userListTable');
+                tbody.innerHTML = '';
+                Object.entries(users).forEach(([email, data]) => {
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr>
+                            <td>${email}</td>
+                            <td>${data.role || 'Chưa phân quyền'}</td>
+                            <td>${new Date(data.timestamp || Date.now()).toLocaleString('vi-VN')}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editUser('${email}')">Sửa</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteUser('${email}')">Xóa</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        function checkMaintenanceStatus() {
+            maintenanceRef.once('value').then(snapshot => {
+                const maintenance = snapshot.val();
+                if (maintenance && maintenance.date) {
+                    const maintDate = new Date(maintenance.date);
+                    const today = new Date();
+                    document.getElementById('maintenanceStatus').textContent = maintDate > today ? `Trạng thái: Đã lên lịch (${maintDate.toLocaleDateString('vi-VN')})` : 'Trạng thái: Đã kiểm tra';
                 }
             });
-            document.getElementById('loginForm').addEventListener('submit', function(event) {
-                event.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
+        }
 
-                if (auth) {
-                    auth.signInWithEmailAndPassword(email, password)
-                        .then((userCredential) => {
-                            alert("Đăng nhập thành công!");
-                            window.location.href = "results.htm"; // Redirect after successful login
-                        })
-                        .catch((error) => {
-                            alert("Đăng nhập thất bại: " + error.message);
-                        });
-                } else {
-                    alert("Firebase chưa khởi tạo thành công.");
-                }
-            });
-            document.getElementById('forgotPasswordForm').addEventListener('submit', function(event) {
-                event.preventDefault();
-                const forgotEmail = document.getElementById('forgotEmail').value;
-
-                if (auth) {
-                    auth.sendPasswordResetEmail(forgotEmail)
+        // Cập nhật thông báo
+        function updateNotification() {
+            if (confirm('Bạn có chắc muốn cập nhật thông báo?')) {
+                const newNotification = document.getElementById('newNotification').value.trim();
+                if (newNotification) {
+                    firebase.database().ref('notification/content').set(newNotification)
                         .then(() => {
-                            alert("Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email của bạn.");
+                            activityLogRef.push({
+                                timestamp: Date.now(),
+                                action: 'Cập nhật thông báo',
+                                details: `Nội dung: ${newNotification}`
+                            });
+                            alert('Thông báo đã được cập nhật.');
+                            document.getElementById('newNotification').value = '';
                         })
-                        .catch((error) => {
-                            alert("Đặt lại mật khẩu thất bại: " + error.message);
+                        .catch(error => {
+                            console.error('Lỗi cập nhật thông báo:', error);
+                            alert('Có lỗi xảy ra khi cập nhật thông báo.');
                         });
                 } else {
-                    alert("Firebase chưa khởi tạo thành công.");
+                    alert('Vui lòng nhập thông báo.');
                 }
-            });
-            document.getElementById('adminLoginForm').addEventListener('submit', function (event) {
-                event.preventDefault();
-                const email = document.getElementById('adminEmail').value;
-                const password = document.getElementById('adminPassword').value;
-                const adminLoginMessage = document.getElementById('adminLoginMessage');
+            }
+        }
 
-                const adminUsers = [
-                    { email: 'thaivanduc_t66@hus.edu.vn', password: 'DucQT' },
-                    { email: 'giangngocthao_t66@hus.edu.vn', password: 'ThaoQT' },
-                    { email: 'nguyenkhanhlinh2_t66@hus.edu.vn', password: 'LinhQT' }
-                ];
+        // Cập nhật cài đặt bản đồ
+        function updateMapSettings() {
+            if (confirm('Bạn có chắc muốn cập nhật cài đặt bản đồ?')) {
+                const latitude = document.getElementById('latitude').value.trim();
+                const longitude = document.getElementById('longitude').value.trim();
+                const markerTitle = document.getElementById('markerTitle').value.trim();
 
-                const adminUser = adminUsers.find(user => user.email === email && user.password === password);
+                if (latitude && longitude && markerTitle) {
+                    const lat = parseFloat(latitude);
+                    const lng = parseFloat(longitude);
 
-                if (adminUser) {
-                    alert('Redirecting to admin dashboard...');
-                    window.location.href = 'admin_dashboard.htm'; 
+                    firebase.database().ref('mapSettings').set({
+                        lat: lat,
+                        lng: lng,
+                        title: markerTitle
+                    })
+                    .then(() => {
+                        activityLogRef.push({
+                            timestamp: Date.now(),
+                            action: 'Cập nhật bản đồ',
+                            details: `Lat: ${lat}, Lng: ${lng}, Title: ${markerTitle}`
+                        });
+                        localStorage.setItem('mapLat', lat);
+                        localStorage.setItem('mapLng', lng);
+                        localStorage.setItem('mapTitle', markerTitle);
+
+                        if (window.opener && !window.opener.closed && typeof window.opener.updateMarkerPosition === 'function') {
+                            window.opener.updateMarkerPosition(lat, lng, markerTitle);
+                        }
+
+                        alert('Cài đặt bản đồ đã được cập nhật.');
+                    })
+                    .catch(error => {
+                        console.error('Lỗi cập nhật bản đồ:', error);
+                        alert('Có lỗi xảy ra khi cập nhật bản đồ.');
+                    });
                 } else {
-                    adminLoginMessage.textContent = 'Thông tin đăng nhập không đúng. Vui lòng kiểm tra lại.';
-                    adminLoginMessage.classList.add('text-danger');
+                    alert('Vui lòng nhập đầy đủ thông tin vị trí.');
                 }
-            });
-        });
+            }
+        }
+
+        // Hàm đăng xuất
+        function logout() {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                window.location.href = "index.html";
+            }
+        }
+
+        function unlockCommand() {
+            if (confirm('Bạn có chắc muốn mở khóa chức năng?')) {
+                firebase.database().ref('commandSettings').set({
+                    isUnlocked: true
+                })
+                .then(() => {
+                    activityLogRef.push({
+                        timestamp: Date.now(),
+                        action: 'Mở khóa chức năng',
+                        details: 'Thông số thời gian thực'
+                    });
+                    alert('Chức năng đã được mở khóa.');
+                    if (window.opener && !window.opener.closed && typeof window.opener.updateCommandStatus === 'function') {
+                        window.opener.updateCommandStatus(true);
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi khi mở khóa:', error);
+                    alert('Có lỗi xảy ra khi mở khóa.');
+                });
+            }
+        }
+
+        function lockCommand() {
+            if (confirm('Bạn có chắc muốn đóng khóa chức năng?')) {
+                firebase.database().ref('commandSettings').set({
+                    isUnlocked: false
+                })
+                .then(() => {
+                    activityLogRef.push({
+                        timestamp: Date.now(),
+                        action: 'Đóng khóa chức năng',
+                        details: 'Thông số thời gian thực'
+                    });
+                    alert('Chức năng đã bị đóng.');
+                    if (window.opener && !window.opener.closed && typeof window.opener.updateCommandStatus === 'function') {
+                        window.opener.updateCommandStatus(false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi khi đóng chức năng:', error);
+                    alert('Có lỗi xảy ra khi đóng chức năng.');
+                });
+            }
+        }
+
+        function unlockDataStatistics() {
+            if (confirm('Bạn có chắc muốn mở khóa truy cập?')) {
+                firebase.database().ref('accessControl/dataStatistics').set({
+                    isUnlocked: true
+                })
+                .then(() => {
+                    activityLogRef.push({
+                        timestamp: Date.now(),
+                        action: 'Mở khóa truy cập',
+                        details: 'Dữ liệu & thống kê'
+                    });
+                    alert('Đã mở khóa truy cập vào Dữ liệu & Thống kê.');
+                })
+                .catch(error => {
+                    console.error('Lỗi khi mở khóa truy cập:', error);
+                    alert('Có lỗi xảy ra khi mở khóa truy cập.');
+                });
+            }
+        }
+
+        function lockDataStatistics() {
+            if (confirm('Bạn có chắc muốn đóng khóa truy cập?')) {
+                firebase.database().ref('accessControl/dataStatistics').set({
+                    isUnlocked: false
+                })
+                .then(() => {
+                    activityLogRef.push({
+                        timestamp: Date.now(),
+                        action: 'Đóng khóa truy cập',
+                        details: 'Dữ liệu & thống kê'
+                    });
+                    alert('Đã đóng khóa truy cập vào Dữ liệu & Thống kê.');
+                })
+                .catch(error => {
+                    console.error('Lỗi khi đóng khóa truy cập:', error);
+                    alert('Có lỗi xảy ra khi đóng khóa truy cập.');
+                });
+            }
+        }
+
+        function updateDevice() {
+            if (confirm('Bạn có chắc muốn cập nhật trạng thái thiết bị?')) {
+                const deviceId = document.getElementById('deviceId').value.trim();
+                const deviceStatus = document.getElementById('deviceStatus').value;
+                if (deviceId) {
+                    devicesRef.child(deviceId).set(deviceStatus)
+                        .then(() => {
+                            activityLogRef.push({
+                                timestamp: Date.now(),
+                                action: 'Cập nhật thiết bị',
+                                details: `ID: ${deviceId}, Trạng thái: ${deviceStatus}`
+                            });
+                            alert('Thiết bị đã được cập nhật.');
+                            document.getElementById('deviceId').value = '';
+                        })
+                        .catch(error => {
+                            console.error('Lỗi cập nhật thiết bị:', error);
+                            alert('Có lỗi xảy ra khi cập nhật thiết bị.');
+                        });
+                } else {
+                    alert('Vui lòng nhập ID thiết bị.');
+                }
+            }
+        }
+
+        function scheduleMaintenance() {
+            if (confirm('Bạn có chắc muốn lên lịch bảo trì?')) {
+                const maintenanceDate = document.getElementById('maintenanceDate').value;
+                if (maintenanceDate) {
+                    maintenanceRef.set({
+                        date: maintenanceDate,
+                        status: 'scheduled'
+                    })
+                    .then(() => {
+                        activityLogRef.push({
+                            timestamp: Date.now(),
+                            action: 'Lên lịch bảo trì',
+                            details: `Ngày: ${maintenanceDate}`
+                        });
+                        checkMaintenanceStatus();
+                        alert('Lịch bảo trì đã được lên.');
+                        document.getElementById('maintenanceDate').value = '';
+                    })
+                    .catch(error => {
+                        console.error('Lỗi lên lịch bảo trì:', error);
+                        alert('Có lỗi xảy ra khi lên lịch bảo trì.');
+                    });
+                } else {
+                    alert('Vui lòng chọn ngày bảo trì.');
+                }
+            }
+        }
+
+        function updateUserRole() {
+            if (confirm('Bạn có chắc muốn cập nhật quyền người dùng?')) {
+                const userEmail = document.getElementById('userEmail').value.trim();
+                const userRole = document.getElementById('userRole').value;
+                if (userEmail) {
+                    usersRef.child(userEmail).update({
+                        role: userRole,
+                        timestamp: Date.now()
+                    })
+                    .then(() => {
+                        activityLogRef.push({
+                            timestamp: Date.now(),
+                            action: 'Cập nhật quyền người dùng',
+                            details: `Email: ${userEmail}, Quyền: ${userRole}`
+                        });
+                        alert('Quyền người dùng đã được cập nhật.');
+                        document.getElementById('userEmail').value = '';
+                    })
+                    .catch(error => {
+                        console.error('Lỗi cập nhật quyền:', error);
+                        alert('Có lỗi xảy ra khi cập nhật quyền.');
+                    });
+                } else {
+                    alert('Vui lòng nhập email.');
+                }
+            }
+        }
+
+        function exportExcel() {
+            const data = originalData.map(r => ({
+                Timestamp: r[0],
+                Nhiet_do: r[1],
+                Do_am: r[2],
+                CO: r[3],
+                PM25: r[4],
+                PM10: r[5],
+                CO2: r[6]
+            }));
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Dữ liệu");
+            XLSX.writeFile(wb, 'bao_cao_du_lieu.xlsx');
+        }
+
+        function editUser(email) {
+            if (confirm('Bạn có chắc muốn chỉnh sửa quyền cho người dùng này?')) {
+                const newRole = prompt('Nhập quyền mới (admin/editor/viewer):', '');
+                if (newRole && ['admin', 'editor', 'viewer'].includes(newRole)) {
+                    usersRef.child(email).update({
+                        role: newRole,
+                        timestamp: Date.now()
+                    })
+                    .then(() => {
+                        activityLogRef.push({
+                            timestamp: Date.now(),
+                            action: 'Chỉnh sửa quyền người dùng',
+                            details: `Email: ${email}, Quyền mới: ${newRole}`
+                        });
+                        alert('Quyền đã được cập nhật.');
+                    })
+                    .catch(error => {
+                        console.error('Lỗi chỉnh sửa quyền:', error);
+                        alert('Có lỗi xảy ra khi chỉnh sửa quyền.');
+                    });
+                } else {
+                    alert('Quyền không hợp lệ.');
+                }
+            }
+        }
+
+        function deleteUser(email) {
+            if (confirm('Bạn có chắc muốn xóa người dùng này? Hành động này không thể hoàn tác!')) {
+                usersRef.child(email).remove()
+                    .then(() => {
+                        activityLogRef.push({
+                            timestamp: Date.now(),
+                            action: 'Xóa người dùng',
+                            details: `Email: ${email}`
+                        });
+                        alert('Người dùng đã được xóa.');
+                    })
+                    .catch(error => {
+                        console.error('Lỗi xóa người dùng:', error);
+                        alert('Có lỗi xảy ra khi xóa người dùng.');
+                    });
+            }
+        }
     </script>
 </body>
 </html>

@@ -411,7 +411,7 @@
         function loadUserList() {
             usersRef.on('value', snapshot => {
                 const users = snapshot.val() || {};
-                console.log('Dữ liệu người dùng:', users); // Debug
+                console.log('Dữ liệu người dùng:', users);
                 const tbody = document.getElementById('userListTable');
                 tbody.innerHTML = '';
                 if (Object.keys(users).length === 0) {

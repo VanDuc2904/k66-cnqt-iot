@@ -546,25 +546,25 @@
         }
 
         function getMarkerIcon(pm25) {
-            const baseIconSize = new google.maps.Size(20, 20); // Giảm kích thước xuống 20x20 pixel
+            const baseIconSize = new google.maps.Size(25, 25); // Giảm kích thước xuống 20x20 pixel
             if (pm25 <= 12) {
                 return {
-                    url: 'img/t.png', // Icon xanh
+                    url: 'img/thap.png', // Icon xanh
                     scaledSize: baseIconSize
                 };
             } else if (pm25 <= 35) {
                 return {
-                    url: 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png', // Icon vàng
+                    url: 'img/trungbinh.png', // Icon vàng
                     scaledSize: baseIconSize
                 };
             } else if (pm25 <= 55) {
                 return {
-                    url: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png', // Icon cam
+                    url: 'img/cao.png', // Icon cam
                     scaledSize: baseIconSize
                 };
             } else {
                 return {
-                    url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png', // Icon đỏ
+                    url: 'img/ratcao.png', // Icon đỏ
                     scaledSize: baseIconSize
                 };
             }

@@ -364,24 +364,54 @@
         
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 13,
-                center: {lat: lat, lng: lng}
+                center: { lat: lat, lng: lng }
             });
         
             marker = new google.maps.Marker({
-                position: {lat: lat, lng: lng},
+                position: { lat: lat, lng: lng },
                 map: map,
                 title: title
             });
         
             infowindow = new google.maps.InfoWindow({
-                content: `<h3>${title}</h3>`
+                content: `<h3>${title}</h3><p>Đang tải dữ liệu...</p>`
             });
         
             marker.addListener('click', function() {
                 infowindow.open(map, marker);
             });
-
-            //setInterval(updateInfoWindow, 3000); 
+        
+            fetchData().then(() => {
+                const lastRow = json.values[json.values.length - 1];
+                const md = {
+                    date: lastRow[0] ? new Date(lastRow[0]).toLocaleDateString('vi-VN') : 'Không có dữ liệu',
+                    time: lastRow[0] ? new Date(lastRow[0]).toLocaleTimeString('vi-VN') : 'Không có dữ liệu',
+                    temperature: lastRow[1] || 0,
+                    humidity: lastRow[2] || 0,
+                    co: lastRow[3] || 0,
+                    pm25: lastRow[4] || 0,
+                    pm10: lastRow[5] || 0,
+                    co2: lastRow[6] || 0
+                };
+                updateMapInfoWindow(md);
+            });
+        
+            setInterval(() => {
+                fetchData().then(() => {
+                    const lastRow = json.values[json.values.length - 1];
+                    const md = {
+                        date: lastRow[0] ? new Date(lastRow[0]).toLocaleDateString('vi-VN') : 'Không có dữ liệu',
+                        time: lastRow[0] ? new Date(lastRow[0]).toLocaleTimeString('vi-VN') : 'Không có dữ liệu',
+                        temperature: lastRow[1] || 0,
+                        humidity: lastRow[2] || 0,
+                        co: lastRow[3] || 0,
+                        pm25: lastRow[4] || 0,
+                        pm10: lastRow[5] || 0,
+                        co2: lastRow[6] || 0
+                    };
+                    updateMapInfoWindow(md);
+                });
+            }, 30000);
         }
         function updateMarkerPosition(lat, lng, title) {
             const position = {lat: parseFloat(lat), lng: parseFloat(lng)};
@@ -511,19 +541,20 @@
  * ngay khi có latestData mới
  */
         function updateMapInfoWindow(latestData) {
-          const content = `
-            <h3>Nhà Khách KTX ĐHQG Hòa Lạc</h3>
-            <p><strong>Ngày:</strong> ${latestData.date}</p>
-            <p><strong>Giờ:</strong> ${latestData.time}</p>
-            <p><strong>Nhiệt độ:</strong> ${latestData.temperature} °C</p>
-            <p><strong>Độ ẩm:</strong> ${latestData.humidity} %</p>
-            <p><strong>CO:</strong> ${latestData.co} ppm</p>
-            <p><strong>PM2.5:</strong> ${latestData.pm25} µg/m³</p>
-            <p><strong>PM10:</strong> ${latestData.pm10} µg/m³</p>
-            <p><strong>CO₂:</strong> ${latestData.co2} ppm</p>
-          `;
-          infowindow.setContent(content);
-          marker.setIcon(getMarkerIcon(latestData.pm25));
+            const content = `
+                <h3>Vườn Quốc Gia Xuân Thủy</h3>
+                <p><strong>Ngày:</strong> ${latestData.date || 'Không có dữ liệu'}</p>
+                <p><strong>Giờ:</strong> ${latestData.time || 'Không có dữ liệu'}</p>
+                <p><strong>Nhiệt độ:</strong> ${latestData.temperature || 0} °C</p>
+                <p><strong>Độ ẩm:</strong> ${latestData.humidity || 0} %</p>
+                <p><strong>CO:</strong> ${latestData.co || 0} ppm</p>
+                <p><strong>PM2.5:</strong> ${latestData.pm25 || 0} µg/m³</p>
+                <p><strong>PM10:</strong> ${latestData.pm10 || 0} µg/m³</p>
+                <p><strong>CO₂:</strong> ${latestData.co2 || 0} ppm</p>
+            `;
+            infowindow.setContent(content);
+            marker.setIcon(getMarkerIcon(latestData.pm25 || 0));
+            infowindow.open(map, marker);
         }
 
         function getMarkerIcon(pm25) {
@@ -538,115 +569,110 @@
             }
         }       
         function updateChart(recentData) {
-        const labels = recentData.map(row => {
-            const date = new Date(row[0]); 
-            return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); 
-        });
-        const temperatureData = recentData.map(row => parseFloat(row[1] || 0)); // Nhiệt độ (B)
-        const humidityData = recentData.map(row => parseFloat(row[2] || 0));    // Độ ẩm (C)
-        const coData = recentData.map(row => parseFloat(row[3] || 0));          // CO (D)
-        const pm25Data = recentData.map(row => parseFloat(row[4] || 0));        // PM2.5 (E)
-    
-        if (!environmentChart) {
-            const ctx = document.getElementById('environmentChart').getContext('2d');
-            environmentChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Nhiệt độ (°C)',
-                            data: temperatureData,
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            fill: true,
-                        },
-                        {
-                            label: 'Độ ẩm (%)',
-                            data: humidityData,
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            fill: true,
-                        },
-                        {
-                            label: 'CO (ppm)',
-                            data: coData,
-                            borderColor: 'rgba(255, 206, 86, 1)',
-                            backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                            fill: true,
-                        },
-                        {
-                            label: 'PM2.5 (µg/m³)',
-                            data: pm25Data,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            fill: true,
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Biểu đồ chất lượng không khí',
-                        }
+            const labels = recentData.map(row => {
+                const date = new Date(row[0]); // Sử dụng cột Ngay_gio (A)
+                return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); // Hiển thị giờ:phút
+            });
+            const temperatureData = recentData.map(row => parseFloat(row[1] || 0)); // Nhiệt độ (B)
+            const humidityData = recentData.map(row => parseFloat(row[2] || 0));    // Độ ẩm (C)
+            const coData = recentData.map(row => parseFloat(row[3] || 0));          // CO (D)
+            const pm25Data = recentData.map(row => parseFloat(row[4] || 0));        // PM2.5 (E)
+        
+            if (!environmentChart) {
+                const ctx = document.getElementById('environmentChart').getContext('2d');
+                environmentChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Nhiệt độ (°C)',
+                                data: temperatureData,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                fill: true,
+                            },
+                            {
+                                label: 'Độ ẩm (%)',
+                                data: humidityData,
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                fill: true,
+                            },
+                            {
+                                label: 'CO (ppm)',
+                                data: coData,
+                                borderColor: 'rgba(255, 206, 86, 1)',
+                                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                                fill: true,
+                            },
+                            {
+                                label: 'PM2.5 (µg/m³)',
+                                data: pm25Data,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                fill: true,
+                            }
+                        ]
                     },
-                    scales: {
-                        x: {
-                            beginAtZero: false,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
                             title: {
                                 display: true,
-                                text: 'Thời gian'
+                                text: 'Biểu đồ chất lượng không khí',
                             }
                         },
-                        y: {
-                            beginAtZero: false,
-                            title: {
-                                display: true,
-                                text: 'Giá trị'
+                        scales: {
+                            x: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'Thời gian'
+                                }
+                            },
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'Giá trị'
+                                }
                             }
                         }
                     }
-                }
-            });
-        } else {
-            environmentChart.data.labels = labels;
-            environmentChart.data.datasets[0].data = temperatureData;
-            environmentChart.data.datasets[1].data = humidityData;
-            environmentChart.data.datasets[2].data = coData;
-            environmentChart.data.datasets[3].data = pm25Data;
-            environmentChart.update();
+                });
+            } else {
+                environmentChart.data.labels = labels;
+                environmentChart.data.datasets[0].data = temperatureData;
+                environmentChart.data.datasets[1].data = humidityData;
+                environmentChart.data.datasets[2].data = coData;
+                environmentChart.data.datasets[3].data = pm25Data;
+                environmentChart.update();
+            }
         }
-    }
         async function fetchData() {
             const sheetName = 'Sheet1';
-            // Lấy cột A–I (A: timestamp, B: date, C: time, D: temp, E: hum, F: co, G: pm25, H: pm10, I: co2)
-            const range = `${sheetName}!A:I`;
+            const range = `${sheetName}!A:G`; // Lấy cột A-G (Ngay_gio, T, H, CO, P25, P10, CO2)
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
             try {
-                const res  = await fetch(url);
+                const res = await fetch(url);
                 const json = await res.json();
                 if (json.values && json.values.length) {
                     const lastRow = json.values[json.values.length - 1];
-                   displayData(lastRow);
-                    const md = {
-                      date:        lastRow[1],
-                      time:        lastRow[2],
-                      temperature: lastRow[3],
-                      humidity:    lastRow[4],
-                      co:          lastRow[5],
-                      pm25:        lastRow[6],
-                      pm10:        lastRow[7],
-                      co2:         lastRow[8]
-                    };
-                    
-                    // Cập nhật map ngay khi có dữ liệu mới
-                    updateMapInfoWindow(md);
-                    
-                    // Vẽ chart
+                    displayData(lastRow);
                     updateChart(json.values.slice(-20));
+                    const md = {
+                        date: lastRow[0] ? new Date(lastRow[0]).toLocaleDateString('vi-VN') : 'Không có dữ liệu',
+                        time: lastRow[0] ? new Date(lastRow[0]).toLocaleTimeString('vi-VN') : 'Không có dữ liệu',
+                        temperature: lastRow[1] || 0,
+                        humidity: lastRow[2] || 0,
+                        co: lastRow[3] || 0,
+                        pm25: lastRow[4] || 0,
+                        pm10: lastRow[5] || 0,
+                        co2: lastRow[6] || 0
+                    };
+                    updateMapInfoWindow(md);
                 }
             } catch (err) {
                 console.error('Error fetching data:', err);

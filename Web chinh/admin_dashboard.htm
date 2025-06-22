@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản trị web TLD-66</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> <!-- Thư viện Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Roboto', sans-serif; background: #f8f9fa; margin: 0; padding: 0; }
         .sidebar {
@@ -83,11 +83,26 @@
             }
         }
 
-        /* Ẩn nút toggle trên desktop */
         @media (min-width: 769px) {
             .sidebar-toggle {
                 display: none;
             }
+        }
+
+        /* Toast Styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+        .toast {
+            background-color: #28a745;
+            color: white;
+        }
+        .toast-header {
+            background-color: #218838;
+            color: white;
         }
     </style>
 </head>
@@ -110,7 +125,7 @@
     <div class="content">
         <div class="container mt-4">
             <h1>Quản trị web TLD-66</h1>
-            <p>Chào mừng bạn đến với trang quản trị. Thời gian hiện tại: 04:19 AM, 23/06/2025</p>
+            <p>Chào mừng bạn đến với trang quản trị. Thời gian hiện tại: 04:28 AM, 23/06/2025</p>
 
             <!-- Quản lý thông báo -->
             <div class="card" id="notification">
@@ -284,6 +299,9 @@
         </div>
     </div>
 
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3"></div>
+
     <!-- Thêm Firebase SDK từ CDN (Firebase v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -318,6 +336,7 @@
                 usersRef.child(user.email).once('value').then((snapshot) => {
                     const userData = snapshot.val();
                     currentUserRole = userData ? userData.role : 'admin'; // Lấy role từ Firebase
+                    console.log('Vai trò hiện tại:', currentUserRole); // Debug
                     updatePermissions();
                 }).catch((error) => {
                     console.error('Lỗi lấy vai trò người dùng:', error);
@@ -371,7 +390,7 @@
                 })
                 .catch(error => {
                     console.error('Lỗi tải dữ liệu bản đồ:', error);
-                    alert('Có lỗi xảy ra khi tải dữ liệu bản đồ.');
+                    showToast('Lỗi tải dữ liệu bản đồ.', error');
                 });
         }
 
@@ -456,6 +475,27 @@
             });
         }
 
+        // Hiển thị toast
+        function showToast(message, error = false) {
+            const toastContainer = document.querySelector('.toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${error ? 'bg-danger' : 'bg-success'} text-white`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            toast.innerHTML = `
+                <div class="toast-header ${error ? 'bg-danger' : 'bg-success'} text-white">
+                    <strong class="me-auto">Thông báo</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">${message}</div>
+            `;
+            toastContainer.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            setTimeout(() => bsToast.hide(), 3000);
+        }
+
         // Cập nhật thông báo
         function updateNotification() {
             if (confirm('Bạn có chắc muốn cập nhật thông báo?')) {
@@ -468,15 +508,15 @@
                                 action: 'Cập nhật thông báo',
                                 details: `Nội dung: ${newNotification}`
                             });
-                            alert('Thông báo đã được cập nhật.');
+                            showToast('Thông báo đã được cập nhật thành công.');
                             document.getElementById('newNotification').value = '';
                         })
                         .catch(error => {
                             console.error('Lỗi cập nhật thông báo:', error);
-                            alert('Có lỗi xảy ra khi cập nhật thông báo.');
+                            showToast('Lỗi cập nhật thông báo: ' + error.message, true);
                         });
                 } else {
-                    alert('Vui lòng nhập thông báo.');
+                    showToast('Vui lòng nhập thông báo.', true');
                 }
             }
         }
@@ -511,14 +551,14 @@
                             window.opener.updateMarkerPosition(lat, lng, markerTitle);
                         }
 
-                        alert('Cài đặt bản đồ đã được cập nhật.');
+                        showToast('Cài đặt bản đồ đã được cập nhật thành công.');
                     })
                     .catch(error => {
                         console.error('Lỗi cập nhật bản đồ:', error);
-                        alert('Có lỗi xảy ra khi cập nhật bản đồ.');
+                        showToast('Lỗi cập nhật bản đồ: ' + error.message, true);
                     });
                 } else {
-                    alert('Vui lòng nhập đầy đủ thông tin vị trí.');
+                    showToast('Vui lòng nhập đầy đủ thông tin vị trí.', true');
                 }
             }
         }
@@ -530,7 +570,7 @@
                     window.location.href = "index.html";
                 }).catch((error) => {
                     console.error('Lỗi đăng xuất:', error);
-                    alert('Có lỗi xảy ra khi đăng xuất.');
+                    showToast('Lỗi đăng xuất: ' + error.message, true);
                 });
             }
         }
@@ -546,14 +586,14 @@
                         action: 'Mở khóa chức năng',
                         details: 'Thông số thời gian thực'
                     });
-                    alert('Chức năng đã được mở khóa.');
+                    showToast('Chức năng đã được mở khóa thành công.');
                     if (window.opener && !window.opener.closed && typeof window.opener.updateCommandStatus === 'function') {
                         window.opener.updateCommandStatus(true);
                     }
                 })
                 .catch(error => {
                     console.error('Lỗi khi mở khóa:', error);
-                    alert('Có lỗi xảy ra khi mở khóa.');
+                    showToast('Lỗi khi mở khóa: ' + error.message, true);
                 });
             }
         }
@@ -569,14 +609,14 @@
                         action: 'Đóng khóa chức năng',
                         details: 'Thông số thời gian thực'
                     });
-                    alert('Chức năng đã bị đóng.');
+                    showToast('Chức năng đã bị đóng thành công.');
                     if (window.opener && !window.opener.closed && typeof window.opener.updateCommandStatus === 'function') {
                         window.opener.updateCommandStatus(false);
                     }
                 })
                 .catch(error => {
                     console.error('Lỗi khi đóng chức năng:', error);
-                    alert('Có lỗi xảy ra khi đóng chức năng.');
+                    showToast('Lỗi khi đóng chức năng: ' + error.message, true);
                 });
             }
         }
@@ -592,11 +632,11 @@
                         action: 'Mở khóa truy cập',
                         details: 'Dữ liệu & thống kê'
                     });
-                    alert('Đã mở khóa truy cập vào Dữ liệu & Thống kê.');
+                    showToast('Đã mở khóa truy cập vào Dữ liệu & Thống kê thành công.');
                 })
                 .catch(error => {
                     console.error('Lỗi khi mở khóa truy cập:', error);
-                    alert('Có lỗi xảy ra khi mở khóa truy cập.');
+                    showToast('Lỗi khi mở khóa truy cập: ' + error.message, true);
                 });
             }
         }
@@ -612,11 +652,11 @@
                         action: 'Đóng khóa truy cập',
                         details: 'Dữ liệu & thống kê'
                     });
-                    alert('Đã đóng khóa truy cập vào Dữ liệu & Thống kê.');
+                    showToast('Đã đóng khóa truy cập vào Dữ liệu & Thống kê thành công.');
                 })
                 .catch(error => {
                     console.error('Lỗi khi đóng khóa truy cập:', error);
-                    alert('Có lỗi xảy ra khi đóng khóa truy cập.');
+                    showToast('Lỗi khi đóng khóa truy cập: ' + error.message, true);
                 });
             }
         }
@@ -633,15 +673,15 @@
                                 action: 'Cập nhật thiết bị',
                                 details: `ID: ${deviceId}, Trạng thái: ${deviceStatus}`
                             });
-                            alert('Thiết bị đã được cập nhật.');
+                            showToast('Thiết bị đã được cập nhật thành công.');
                             document.getElementById('deviceId').value = '';
                         })
                         .catch(error => {
                             console.error('Lỗi cập nhật thiết bị:', error);
-                            alert('Có lỗi xảy ra khi cập nhật thiết bị.');
+                            showToast('Lỗi cập nhật thiết bị: ' + error.message, true);
                         });
                 } else {
-                    alert('Vui lòng nhập ID thiết bị.');
+                    showToast('Vui lòng nhập ID thiết bị.', true');
                 }
             }
         }
@@ -661,15 +701,15 @@
                             details: `Ngày: ${maintenanceDate}`
                         });
                         checkMaintenanceStatus();
-                        alert('Lịch bảo trì đã được lên.');
+                        showToast('Lịch bảo trì đã được lên thành công.');
                         document.getElementById('maintenanceDate').value = '';
                     })
                     .catch(error => {
                         console.error('Lỗi lên lịch bảo trì:', error);
-                        alert('Có lỗi xảy ra khi lên lịch bảo trì.');
+                        showToast('Lỗi lên lịch bảo trì: ' + error.message, true);
                     });
                 } else {
-                    alert('Vui lòng chọn ngày bảo trì.');
+                    showToast('Vui lòng chọn ngày bảo trì.', true');
                 }
             }
         }
@@ -689,15 +729,15 @@
                             action: 'Cập nhật quyền người dùng',
                             details: `Email: ${userEmail}, Quyền: ${userRole}`
                         });
-                        alert('Quyền người dùng đã được cập nhật.');
+                        showToast(`Quyền cho ${userEmail} đã được cập nhật thành công thành ${userRole}.`);
                         document.getElementById('userEmail').value = '';
                     })
                     .catch(error => {
                         console.error('Lỗi cập nhật quyền:', error);
-                        alert('Có lỗi xảy ra khi cập nhật quyền.');
+                        showToast('Lỗi cập nhật quyền: ' + error.message, true);
                     });
                 } else {
-                    alert('Chỉ Admin có thể cập nhật quyền hoặc vui lòng nhập email.');
+                    showToast('Chỉ Admin có thể cập nhật quyền hoặc vui lòng nhập email.', true');
                 }
             }
         }
@@ -717,12 +757,13 @@
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Dữ liệu");
                 XLSX.writeFile(wb, 'bao_cao_du_lieu.xlsx');
+                showToast('Báo cáo Excel đã được xuất thành công.');
             }
         }
 
         function editUser(email) {
             if (currentUserRole !== 'admin') {
-                alert('Chỉ Admin có thể chỉnh sửa quyền.');
+                showToast('Chỉ Admin có thể chỉnh sửa quyền.', true');
                 return;
             }
             if (confirm('Bạn có chắc muốn chỉnh sửa quyền cho người dùng này?')) {
@@ -738,21 +779,21 @@
                             action: 'Chỉnh sửa quyền người dùng',
                             details: `Email: ${email}, Quyền mới: ${newRole}`
                         });
-                        alert('Quyền đã được cập nhật.');
+                        showToast(`Quyền cho ${email} đã được cập nhật thành ${newRole} thành công.`);
                     })
                     .catch(error => {
                         console.error('Lỗi chỉnh sửa quyền:', error);
-                        alert('Có lỗi xảy ra khi chỉnh sửa quyền.');
+                        showToast('Lỗi chỉnh sửa quyền: ' + error.message, true);
                     });
                 } else {
-                    alert('Quyền không hợp lệ.');
+                    showToast('Quyền không hợp lệ., true');
                 }
             }
         }
 
         function deleteUser(email) {
             if (currentUserRole !== 'admin') {
-                alert('Chỉ Admin có thể xóa người dùng.');
+                showToast('Chỉ Admin có thể xóa người dùng.', true');
                 return;
             }
             if (confirm('Bạn có chắc muốn xóa người dùng này? Hành động này không thể hoàn tác!')) {
@@ -763,11 +804,11 @@
                             action: 'Xóa người dùng',
                             details: `Email: ${email}`
                         });
-                        alert('Người dùng đã được xóa.');
+                        showToast(`Người dùng ${email} đã được xóa thành công.`);
                     })
                     .catch(error => {
                         console.error('Lỗi xóa người dùng:', error);
-                        alert('Có lỗi xảy ra khi xóa người dùng.');
+                        showToast('Lỗi xóa người dùng: ' + error.message, true);
                     });
             }
         }

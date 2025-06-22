@@ -285,45 +285,7 @@
                                 const userData = snapshot.val() || {};
                                 const role = userData.role || 'viewer';
                                 alert("Đăng nhập thành công!");
-                                // Không chuyển hướng tự động, để người dùng chọn
-                                // Thêm nút hoặc link để chuyển hướng thủ công
-                            }).catch((error) => {
-                                alert("Lỗi kiểm tra vai trò: " + error.message);
-                            });
-                        })
-                        .catch((error) => {
-                            alert("Đăng nhập thất bại: " + error.message);
-                        });
-                } else {
-                    alert("Firebase chưa khởi tạo thành công.");
-                }
-            });
-
-            // Thêm nút chuyển hướng sau đăng nhập
-            document.getElementById('loginForm').addEventListener('submit', function(event) {
-                event.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-
-                if (auth) {
-                    auth.signInWithEmailAndPassword(email, password)
-                        .then((userCredential) => {
-                            const userEmail = userCredential.user.email.replace(/\./g, '_');
-                            usersRef.child(userEmail).once('value').then((snapshot) => {
-                                const userData = snapshot.val() || {};
-                                const role = userData.role || 'viewer';
-                                alert("Đăng nhập thành công!");
-                                // Hiển thị tùy chọn chuyển hướng
-                                if (confirm('Bạn muốn vào trang quản trị (Admin) hay trang dữ liệu thống kê (User)?\nNhấn OK cho Admin, Cancel cho User.')) {
-                                    if (role === 'admin') {
-                                        window.location.href = 'admin_dashboard.htm';
-                                    } else {
-                                        alert('Bạn không có quyền truy cập trang quản trị.');
-                                        window.location.href = 'results.htm';
-                                    }
-                                } else {
-                                    window.location.href = 'results.htm';
-                                }
+                                window.location.href = 'results.htm'; // Mặc định chuyển hướng về results.htm
                             }).catch((error) => {
                                 alert("Lỗi kiểm tra vai trò: " + error.message);
                             });

@@ -8,437 +8,475 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script> <!-- Thêm TensorFlow.js cho LSTM -->
     <style>
         body { font-family: 'Roboto', sans-serif; background: #f4f7fa; }
-        .container { max-width:1200px; margin:30px auto; }
-        .header h1 { font-size:2.5rem; font-weight:bold; }
-        .stat-card { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); margin-bottom:20px; }
-        .chart-container { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); margin-top:30px; }
-        .table-wrapper { background:#fff; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); margin-top:20px; overflow-x:auto; }
+        .container { max-width: 1200px; margin: 30px auto; }
+        .header h1 { font-size: 2.5rem; font-weight: bold; }
+        .stat-card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .chart-container { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 30px; }
+        .table-wrapper { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 20px; overflow-x: auto; }
         .update-notification {
-            position:fixed; bottom:20px; right:20px;
-            background:#28a745; color:#fff; padding:10px 15px; border-radius:5px;
-            animation:slideIn .5s forwards;
+            position: fixed; bottom: 20px; right: 20px;
+            background: #28a745; color: #fff; padding: 10px 15px; border-radius: 5px;
+            animation: slideIn .5s forwards;
         }
-        @keyframes slideIn { from {opacity:0;transform:translateX(100%);} to {opacity:1;transform:translateX(0);} }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header text-center mb-4">
-      <img src="img/Logo1.png" alt="Logo" style="max-height:70px">
-      <h1>TLD66 Data Analytics Dashboard</h1>
-      <p>Dữ liệu được cập nhật theo thời gian thực, tự động refresh mỗi 60s.</p>
-      <button id="exportPDF" class="btn btn-success">Export as PDF</button>
-        <button id="btnQueryDrive" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#driveModal">
-          Query Drive
-    </button>
-    </div>
-    
+    <div class="container">
+        <div class="header text-center mb-4">
+            <a href="index.html">
+                <img src="img/Logo1.png" alt="Logo" style="max-height: 70px; cursor: pointer;" onclick="window.location.href='index.html';">
+            </a>
+            <h1>TLD66 Data Analytics Dashboard</h1>
+            <p>Dữ liệu được cập nhật theo thời gian thực, tự động refresh mỗi 60s.</p>
+            <button id="exportPDF" class="btn btn-success">Export as PDF</button>
+            <button id="btnQueryDrive" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#driveModal">
+                Query Drive
+            </button>
+        </div>
 
-    <!-- Thống kê nhanh -->
-    <div class="row">
-      <div class="col-md-4">
-        <div class="stat-card">
-          <h2>Temperature (°C)</h2>
-          <p>Avg: <span id="tempAvg">0</span></p>
-          <p>Max: <span id="tempMax">0</span></p>
-          <p>Min: <span id="tempMin">0</span></p>
-          <p>StdDev: <span id="tempStdDev">0</span></p>
+        <!-- Thống kê nhanh -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h2>Temperature</h2>
+                    <p>Avg: <span id="tempAvg">0</span></p>
+                    <p>Max: <span id="tempMax">0</span></p>
+                    <p>Min: <span id="tempMin">0</span></p>
+                    <p>StdDev: <span id="tempStdDev">0</span></p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h2>Humidity</h2>
+                    <p>Avg: <span id="humAvg">0</span></p>
+                    <p>Max: <span id="humMax">0</span></p>
+                    <p>Min: <span id="humMin">0</span></p>
+                    <p>StdDev: <span id="humStdDev">0</span></p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h2>CO</h2>
+                    <p>Avg: <span id="coAvg">0</span></p>
+                    <p>Max: <span id="coMax">0</span></p>
+                    <p>Min: <span id="coMin">0</span></p>
+                    <p>StdDev: <span id="coStdDev">0</span></p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h2>PM2.5</h2>
+                    <p>Avg: <span id="pm25Avg">0</span></p>
+                    <p>Max: <span id="pm25Max">0</span></p>
+                    <p>Min: <span id="pm25Min">0</span></p>
+                    <p>StdDev: <span id="pm25StdDev">0</span></p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h2>PM10</h2>
+                    <p>Avg: <span id="pm10Avg">0</span></p>
+                    <p>Max: <span id="pm10Max">0</span></p>
+                    <p>Min: <span id="pm10Min">0</span></p>
+                    <p>StdDev: <span id="pm10StdDev">0</span></p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h2>CO₂</h2>
+                    <p>Avg: <span id="co2Avg">0</span></p>
+                    <p>Max: <span id="co2Max">0</span></p>
+                    <p>Min: <span id="co2Min">0</span></p>
+                    <p>StdDev: <span id="co2StdDev">0</span></p>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card">
-          <h2>Humidity (%)</h2>
-          <p>Avg: <span id="humAvg">0</span></p>
-          <p>Max: <span id="humMax">0</span></p>
-          <p>Min: <span id="humMin">0</span></p>
-          <p>StdDev: <span id="humStdDev">0</span></p>
+
+        <!-- Bảng dữ liệu -->
+        <div class="table-wrapper">
+            <table class="table table-striped mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>No</th><th>Ngày</th><th>Giờ</th>
+                        <th>Temp</th><th>Hum</th><th>CO</th>
+                        <th>PM2.5</th><th>PM10</th><th>CO₂</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table"></tbody>
+            </table>
+            <p id="error-message" class="text-center text-danger mt-2"></p>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card">
-          <h2>CO (ppm)</h2>
-          <p>Avg: <span id="coAvg">0</span></p>
-          <p>Max: <span id="coMax">0</span></p>
-          <p>Min: <span id="coMin">0</span></p>
-          <p>StdDev: <span id="coStdDev">0</span></p>
+
+        <!-- Dự báo LSTM -->
+        <div class="stat-card mb-4">
+            <h2>Dự báo LSTM bước tiếp theo</h2>
+            <p>Đây chỉ là kết quả nghiên cứu của nhóm TLD66, không phải là kết quả dự báo của cơ quan nhà nước!</p>
+            <div id="lstmPrediction" class="d-flex flex-wrap"></div>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card">
-          <h2>PM2.5 (µg/m³)</h2>
-          <p>Avg: <span id="pm25Avg">0</span></p>
-          <p>Max: <span id="pm25Max">0</span></p>
-          <p>Min: <span id="pm25Min">0</span></p>
-          <p>StdDev: <span id="pm25StdDev">0</span></p>
+
+        <!-- Biểu đồ -->
+        <div class="chart-container">
+            <h2 class="mb-4">Visualization (Last 12 records)</h2>
+            <div class="row">
+                <div class="col-md-6"><canvas id="chart-temp"></canvas></div>
+                <div class="col-md-6"><canvas id="chart-hum"></canvas></div>
+                <div class="col-md-6"><canvas id="chart-co"></canvas></div>
+                <div class="col-md-6"><canvas id="chart-pm25"></canvas></div>
+                <div class="col-md-6"><canvas id="chart-pm10"></canvas></div>
+                <div class="col-md-6"><canvas id="chart-co2"></canvas></div>
+            </div>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card">
-          <h2>PM10 (µg/m³)</h2>
-          <p>Avg: <span id="pm10Avg">0</span></p>
-          <p>Max: <span id="pm10Max">0</span></p>
-          <p>Min: <span id="pm10Min">0</span></p>
-          <p>StdDev: <span id="pm10StdDev">0</span></p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="stat-card">
-          <h2>CO₂ (ppm)</h2>
-          <p>Avg: <span id="co2Avg">0</span></p>
-          <p>Max: <span id="co2Max">0</span></p>
-          <p>Min: <span id="co2Min">0</span></p>
-          <p>StdDev: <span id="co2StdDev">0</span></p>
-        </div>
-      </div>
     </div>
 
-    <!-- Bảng dữ liệu -->
-    <div class="table-wrapper">
-      <table class="table table-striped mb-0">
-        <thead class="table-dark">
-          <tr>
-            <th>No</th><th>Ngày</th><th>Giờ</th>
-            <th>Temp (°C)</th><th>Hum (%)</th><th>CO</th>
-            <th>PM2.5</th><th>PM10</th><th>CO₂</th>
-          </tr>
-        </thead>
-        <tbody id="data-table"></tbody>
-      </table>
-      <p id="error-message" class="text-center text-danger mt-2"></p>
-    </div>
-    <!-- SAU PHẦN STAT-CARD -->
-    <div class="stat-card mb-4">
-      <h2>Dự báo LSTM bước tiếp theo</h2>
-        <p>Đây chỉ là kết quả nghiên cứu của nhóm TLD66, không phải là kết quả dự báo của cơ quan nhà nước!</p>
-      <div id="lstmPrediction" class="d-flex flex-wrap">
-        <!-- JS sẽ tạo ra 6 hộp nhỏ tương ứng 6 thông số -->
-      </div>
-    </div>
     <script>
-  // --- CẤU HÌNH LSTM ---
-  const WINDOW_SIZE = 5;   // số bản ghi làm “cửa sổ” đầu vào
-  const FEATURE_CNT = 6;   // số cột dự đoán: Temp, Hum, CO, PM2.5, PM10, CO2
+        const sheetId = '1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4';
+        const apiKey = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
+        let originalData = [];
 
-  let lstmModel;
+        // --- Cấu hình LSTM ---
+        const WINDOW_SIZE = 5;   // Số bản ghi làm "cửa sổ" đầu vào
+        const FEATURE_CNT = 6;   // Số cột dự đoán: Temp, Hum, CO, PM2.5, PM10, CO2
+        let lstmModel;
 
-  // 2.1. Chuẩn dữ liệu thành X: [số_window, FEATURE_CNT] và y: [FEATURE_CNT]
-  function prepareLSTM(data) {
-    const X = [], Y = [];
-    for (let i = 0; i + WINDOW_SIZE < data.length; i++) {
-      const win = data.slice(i, i + WINDOW_SIZE);
-      const next = data[i + WINDOW_SIZE];
-      X.push(win.map(r => [
-        +r[3],         // Temperature
-        +r[4],         // Humidity
-        +r[5],         // CO
-        +r[6],         // PM2.5
-        +r[7] || 0,    // PM10
-        +r[8] || 0     // CO2
-      ]));
-      Y.push([
-        +next[3], +next[4], +next[5],
-        +next[6], +next[7] || 0, +next[8] || 0
-      ]);
-    }
-    return {
-      xs: tf.tensor3d(X),     // shape [N, WINDOW_SIZE, FEATURE_CNT]
-      ys: tf.tensor2d(Y)      // shape [N, FEATURE_CNT]
-    };
-  }
+        // Chuẩn bị dữ liệu cho LSTM (chuẩn hóa dữ liệu)
+        function prepareLSTM(data) {
+            const X = [], Y = [];
+            const minMax = { temp: [Infinity, -Infinity], hum: [Infinity, -Infinity], co: [Infinity, -Infinity], pm25: [Infinity, -Infinity], pm10: [Infinity, -Infinity], co2: [Infinity, -Infinity] };
+            data.forEach(r => {
+                minMax.temp[0] = Math.min(minMax.temp[0], parseFloat(r[1] || 0));
+                minMax.temp[1] = Math.max(minMax.temp[1], parseFloat(r[1] || 0));
+                minMax.hum[0] = Math.min(minMax.hum[0], parseFloat(r[2] || 0));
+                minMax.hum[1] = Math.max(minMax.hum[1], parseFloat(r[2] || 0));
+                minMax.co[0] = Math.min(minMax.co[0], parseFloat(r[3] || 0));
+                minMax.co[1] = Math.max(minMax.co[1], parseFloat(r[3] || 0));
+                minMax.pm25[0] = Math.min(minMax.pm25[0], parseFloat(r[4] || 0));
+                minMax.pm25[1] = Math.max(minMax.pm25[1], parseFloat(r[4] || 0));
+                minMax.pm10[0] = Math.min(minMax.pm10[0], parseFloat(r[5] || 0));
+                minMax.pm10[1] = Math.max(minMax.pm10[1], parseFloat(r[5] || 0));
+                minMax.co2[0] = Math.min(minMax.co2[0], parseFloat(r[6] || 0));
+                minMax.co2[1] = Math.max(minMax.co2[1], parseFloat(r[6] || 0));
+            });
 
-  // 2.2. Xây dựng mô hình LSTM
-  function buildLSTM() {
-    lstmModel = tf.sequential();
-    lstmModel.add(tf.layers.lstm({
-      units: 32,
-      inputShape: [WINDOW_SIZE, FEATURE_CNT],
-      returnSequences: false
-    }));
-    lstmModel.add(tf.layers.dense({ units: FEATURE_CNT }));
-    lstmModel.compile({ loss: 'meanSquaredError', optimizer: 'adam' });
-  }
+            for (let i = 0; i + WINDOW_SIZE < data.length; i++) {
+                const win = data.slice(i, i + WINDOW_SIZE);
+                const next = data[i + WINDOW_SIZE];
+                X.push(win.map(r => [
+                    (parseFloat(r[1] || 0) - minMax.temp[0]) / (minMax.temp[1] - minMax.temp[0] || 1),
+                    (parseFloat(r[2] || 0) - minMax.hum[0]) / (minMax.hum[1] - minMax.hum[0] || 1),
+                    (parseFloat(r[3] || 0) - minMax.co[0]) / (minMax.co[1] - minMax.co[0] || 1),
+                    (parseFloat(r[4] || 0) - minMax.pm25[0]) / (minMax.pm25[1] - minMax.pm25[0] || 1),
+                    (parseFloat(r[5] || 0) - minMax.pm10[0]) / (minMax.pm10[1] - minMax.pm10[0] || 1),
+                    (parseFloat(r[6] || 0) - minMax.co2[0]) / (minMax.co2[1] - minMax.co2[0] || 1)
+                ]));
+                Y.push([
+                    (parseFloat(next[1] || 0) - minMax.temp[0]) / (minMax.temp[1] - minMax.temp[0] || 1),
+                    (parseFloat(next[2] || 0) - minMax.hum[0]) / (minMax.hum[1] - minMax.hum[0] || 1),
+                    (parseFloat(next[3] || 0) - minMax.co[0]) / (minMax.co[1] - minMax.co[0] || 1),
+                    (parseFloat(next[4] || 0) - minMax.pm25[0]) / (minMax.pm25[1] - minMax.pm25[0] || 1),
+                    (parseFloat(next[5] || 0) - minMax.pm10[0]) / (minMax.pm10[1] - minMax.pm10[0] || 1),
+                    (parseFloat(next[6] || 0) - minMax.co2[0]) / (minMax.co2[1] - minMax.co2[0] || 1)
+                ]);
+            }
+            return {
+                xs: tf.tensor3d(X, [X.length, WINDOW_SIZE, FEATURE_CNT]),
+                ys: tf.tensor2d(Y, [Y.length, FEATURE_CNT])
+            };
+        }
 
-  // 2.3. Huấn luyện LSTM trên toàn bộ originalData
-  async function trainLSTM(fullData) {
-    if (fullData.length < WINDOW_SIZE + 1) return;
-    buildLSTM();
-    const { xs, ys } = prepareLSTM(fullData);
-    await lstmModel.fit(xs, ys, {
-      epochs: 50,
-      batchSize: 8,
-      verbose: 0
-    });
-    xs.dispose(); ys.dispose();
-  }
+        // Xây dựng mô hình LSTM
+        function buildLSTM() {
+            lstmModel = tf.sequential();
+            lstmModel.add(tf.layers.lstm({
+                units: 32,
+                inputShape: [WINDOW_SIZE, FEATURE_CNT],
+                returnSequences: false
+            }));
+            lstmModel.add(tf.layers.dense({ units: FEATURE_CNT }));
+            lstmModel.compile({ loss: 'meanSquaredError', optimizer: 'adam' });
+        }
 
-  // 2.4. Dự báo bước kế tiếp và hiển thị
-  function predictNextLSTM(fullData) {
-    if (!lstmModel || fullData.length < WINDOW_SIZE) return;
-    const window = fullData.slice(-WINDOW_SIZE)
-      .map(r => [
-        +r[3], +r[4], +r[5],
-        +r[6], +r[7] || 0, +r[8] || 0
-      ]);
-    const input = tf.tensor3d([window]);           // shape [1, WINDOW_SIZE, FEATURE_CNT]
-    const pred  = lstmModel.predict(input).dataSync();
-    input.dispose();
+        // Huấn luyện LSTM
+        async function trainLSTM(fullData) {
+            if (fullData.length < WINDOW_SIZE + 1) return;
+            buildLSTM();
+            const { xs, ys } = prepareLSTM(fullData);
+            await lstmModel.fit(xs, ys, {
+                epochs: 50,
+                batchSize: 8,
+                verbose: 0
+            });
+            xs.dispose();
+            ys.dispose();
+        }
 
-    // 6 nhãn tương ứng
-    const labels = ['Temp','Hum','CO','PM2.5','PM10','CO₂'];
-    const html = labels.map((lab,i) => `
-      <div class="me-3 mb-2 p-2 bg-light rounded">
-        <strong>${lab}:</strong> ${pred[i].toFixed(2)}
-      </div>
-    `).join('');
-    document.getElementById('lstmPrediction').innerHTML = html;
-  }
+        // Dự báo bước kế tiếp (chuẩn hóa ngược lại)
+        function predictNextLSTM(fullData) {
+            if (!lstmModel || fullData.length < WINDOW_SIZE) return;
+            const minMax = { temp: [Infinity, -Infinity], hum: [Infinity, -Infinity], co: [Infinity, -Infinity], pm25: [Infinity, -Infinity], pm10: [Infinity, -Infinity], co2: [Infinity, -Infinity] };
+            fullData.forEach(r => {
+                minMax.temp[0] = Math.min(minMax.temp[0], parseFloat(r[1] || 0));
+                minMax.temp[1] = Math.max(minMax.temp[1], parseFloat(r[1] || 0));
+                minMax.hum[0] = Math.min(minMax.hum[0], parseFloat(r[2] || 0));
+                minMax.hum[1] = Math.max(minMax.hum[1], parseFloat(r[2] || 0));
+                minMax.co[0] = Math.min(minMax.co[0], parseFloat(r[3] || 0));
+                minMax.co[1] = Math.max(minMax.co[1], parseFloat(r[3] || 0));
+                minMax.pm25[0] = Math.min(minMax.pm25[0], parseFloat(r[4] || 0));
+                minMax.pm25[1] = Math.max(minMax.pm25[1], parseFloat(r[4] || 0));
+                minMax.pm10[0] = Math.min(minMax.pm10[0], parseFloat(r[5] || 0));
+                minMax.pm10[1] = Math.max(minMax.pm10[1], parseFloat(r[5] || 0));
+                minMax.co2[0] = Math.min(minMax.co2[0], parseFloat(r[6] || 0));
+                minMax.co2[1] = Math.max(minMax.co2[1], parseFloat(r[6] || 0));
+            });
 
-  // 2.5. Kết hợp vào luồng chính: sau khi fetchData() thành công
-  async function onNewData(fullData) {
-    await trainLSTM(fullData);       // huấn luyện
-    predictNextLSTM(fullData);       // hiển thị dự báo
-  }
+            const window = fullData.slice(-WINDOW_SIZE).map(r => [
+                (parseFloat(r[1] || 0) - minMax.temp[0]) / (minMax.temp[1] - minMax.temp[0] || 1),
+                (parseFloat(r[2] || 0) - minMax.hum[0]) / (minMax.hum[1] - minMax.hum[0] || 1),
+                (parseFloat(r[3] || 0) - minMax.co[0]) / (minMax.co[1] - minMax.co[0] || 1),
+                (parseFloat(r[4] || 0) - minMax.pm25[0]) / (minMax.pm25[1] - minMax.pm25[0] || 1),
+                (parseFloat(r[5] || 0) - minMax.pm10[0]) / (minMax.pm10[1] - minMax.pm10[0] || 1),
+                (parseFloat(r[6] || 0) - minMax.co2[0]) / (minMax.co2[1] - minMax.co2[0] || 1)
+            ]);
+            const input = tf.tensor3d([window], [1, WINDOW_SIZE, FEATURE_CNT]);
+            const pred = lstmModel.predict(input).dataSync();
+            input.dispose();
 
-  // Cuối cùng, gọi onNewData(originalData) ngay trong fetchData()
-  // Ví dụ trong fetchData(), khi đã set `originalData = rows`:
-  //
-  //    originalData = rows;
-  //    displayData(...);
-  //    displayStatistics(...);
-  //    renderCharts(...);
-  //    showUpdateNotification();
-  //    await onNewData(originalData);
-  //
-  // Đừng quên biến fetchData thành async:
-  //
-  //  async function fetchData() {
-  //    ...
-  //    originalData = rows;
-  //    ...
-  //    await onNewData(originalData);
-  //  }
-  //
-  // Và khởi chạy fetchData() ban đầu:
-  //  document.addEventListener('DOMContentLoaded', async () => {
-  //    await fetchData();
-  //    setInterval(fetchData,60000);
-  //  });
-</script>
+            const unnormalize = (value, min, max) => value * (max - min) + min;
+            const unnormalizedPred = [
+                unnormalize(pred[0], minMax.temp[0], minMax.temp[1]),
+                unnormalize(pred[1], minMax.hum[0], minMax.hum[1]),
+                unnormalize(pred[2], minMax.co[0], minMax.co[1]),
+                unnormalize(pred[3], minMax.pm25[0], minMax.pm25[1]),
+                unnormalize(pred[4], minMax.pm10[0], minMax.pm10[1]),
+                unnormalize(pred[5], minMax.co2[0], minMax.co2[1])
+            ];
 
-    <!-- Biểu đồ -->
-    <div class="chart-container">
-      <h2 class="mb-4">Visualization (Last 12 records)</h2>
-      <div class="row">
-        <div class="col-md-6"><canvas id="chart-temp"></canvas></div>
-        <div class="col-md-6"><canvas id="chart-hum"></canvas></div>
-        <div class="col-md-6"><canvas id="chart-co"></canvas></div>
-        <div class="col-md-6"><canvas id="chart-pm25"></canvas></div>
-        <div class="col-md-6"><canvas id="chart-pm10"></canvas></div>
-        <div class="col-md-6"><canvas id="chart-co2"></canvas></div>
-      </div>
-    </div>
-  </div>
+            const labels = ['Temp', 'Hum', 'CO', 'PM2.5', 'PM10', 'CO₂'];
+            const html = labels.map((lab, i) => `
+                <div class="me-3 mb-2 p-2 bg-light rounded">
+                    <strong>${lab}:</strong> ${unnormalizedPred[i].toFixed(2)}
+                </div>
+            `).join('');
+            document.getElementById('lstmPrediction').innerHTML = html;
+        }
 
-  <script>
-    const sheetId = '1oOeN-HUb_xZfcIiY0d06MXUGL0-vsJW5r-zNa_NIKe4';
-    const apiKey  = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
-    let originalData = [];
+        // Xử lý dữ liệu mới
+        async function onNewData(fullData) {
+            await trainLSTM(fullData);
+            predictNextLSTM(fullData);
+        }
 
-    async function fetchData() {
-      const range = 'Sheet1!A:I';
-      const url   = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
-      try {
-        const res  = await fetch(url);
-        const json = await res.json();
-        if (!json.values) throw new Error('Không có dữ liệu');
-        const rows = json.values.slice(1);    // bỏ header
-        originalData = rows;
-        const last12 = rows.slice(-12);
-        displayData(last12);
-        displayStatistics(last12);
-        renderCharts(last12);
-        showUpdateNotification();
-      } catch (err) {
-        console.error(err);
-        document.getElementById('error-message').textContent = 'Không thể tải dữ liệu.';
-      }
-    }
+        // Fetch dữ liệu từ Google Sheets
+        async function fetchData() {
+            const range = 'Sheet1!A:I';
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+            try {
+                const res = await fetch(url);
+                const json = await res.json();
+                if (!json.values) throw new Error('Không có dữ liệu');
+                const rows = json.values.slice(1); // Bỏ header, giả định header là dòng đầu
+                console.log('Dữ liệu thô từ Google Sheets:', rows); // Debug dữ liệu thô
+                originalData = rows;
+                const last12 = rows.slice(-12);
+                displayData(last12);
+                displayStatistics(last12);
+                renderCharts(last12);
+                showUpdateNotification();
+                await onNewData(originalData); // Gọi LSTM
+            } catch (err) {
+                console.error('Lỗi fetch dữ liệu:', err);
+                document.getElementById('error-message').textContent = 'Không thể tải dữ liệu.';
+            }
+        }
 
-    function displayData(data) {
-      const tbody = document.getElementById('data-table');
-      tbody.innerHTML = '';
-      data.forEach((r,i) => {
-        const [ts, date, time, t, h, co, pm25, pm10, co2] = r;
-        tbody.insertAdjacentHTML('beforeend', `
-          <tr>
-            <td>${i+1}</td>
-            <td>${date}</td>
-            <td>${time}</td>
-            <td>${t || 'N/A'}</td>
-            <td>${h || 'N/A'}</td>
-            <td>${co||'N/A'}</td>
-            <td>${pm25||'N/A'}</td>
-            <td>${pm10||'N/A'}</td>
-            <td>${co2||'N/A'}</td>
-          </tr>
-        `);
-      });
-    }
+        // Hiển thị bảng dữ liệu
+        function displayData(data) {
+            const tbody = document.getElementById('data-table');
+            tbody.innerHTML = '';
+            data.forEach((r, i) => {
+                const ts = r[0] || '';
+                let dateStr = 'Không có dữ liệu', timeStr = 'Không có dữ liệu';
+                if (ts) {
+                    const d = new Date(ts);
+                    if (!isNaN(d)) {
+                        dateStr = d.toLocaleDateString('vi-VN');
+                        timeStr = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                    }
+                }
+                // Lấy các chỉ số theo đúng index
+                const temperature = r[1] ?? 'Không có dữ liệu';
+                const humidity = r[2] ?? 'Không có dữ liệu';
+                const co = r[3] ?? 'Không có dữ liệu';
+                const pm25 = r[4] ?? 'Không có dữ liệu';
+                const pm10 = r[5] ?? 'Không có dữ liệu';
+                const co2 = r[6] ?? 'Không có dữ liệu';
+                console.log(`Dòng ${i + 1}: date=${dateStr}, time=${timeStr}, temp=${temperature}, hum=${humidity}, co=${co}, pm25=${pm25}, pm10=${pm10}, co2=${co2}`);
+                tbody.insertAdjacentHTML('beforeend', `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${dateStr}</td>
+                        <td>${timeStr}</td>
+                        <td>${temperature}</td>
+                        <td>${humidity}</td>
+                        <td>${co}</td>
+                        <td>${pm25}</td>
+                        <td>${pm10}</td>
+                        <td>${co2}</td>
+                    </tr>
+                `);
+            });
+        }
 
-    function displayStatistics(data) {
-      const toNum = (idx) => data.map(r=>parseFloat(r[idx])).filter(v=>!isNaN(v));
-      const stats = (arr, idAvg,idMax,idMin,idStd) => {
-        document.getElementById(idAvg).textContent = avg(arr).toFixed(2);
-        document.getElementById(idMax).textContent = Math.max(...arr).toFixed(2);
-        document.getElementById(idMin).textContent = Math.min(...arr).toFixed(2);
-        document.getElementById(idStd).textContent = std(arr).toFixed(2);
-      };
-      stats(toNum(3),'tempAvg','tempMax','tempMin','tempStdDev');
-      stats(toNum(4),'humAvg','humMax','humMin','humStdDev');
-      stats(toNum(5),'coAvg','coMax','coMin','coStdDev');
-      stats(toNum(6),'pm25Avg','pm25Max','pm25Min','pm25StdDev');
-      stats(toNum(7),'pm10Avg','pm10Max','pm10Min','pm10StdDev');
-      stats(toNum(8),'co2Avg','co2Max','co2Min','co2StdDev');
-    }
+        // Tính toán thống kê
+        function displayStatistics(data) {
+            const toNum = (idx) => data.map(r => parseFloat(r[idx] || 0)).filter(v => !isNaN(v));
+            const stats = (arr, idAvg, idMax, idMin, idStd) => {
+                document.getElementById(idAvg).textContent = avg(arr).toFixed(2);
+                document.getElementById(idMax).textContent = Math.max(...arr, 0).toFixed(2);
+                document.getElementById(idMin).textContent = Math.min(...arr, 0).toFixed(2);
+                document.getElementById(idStd).textContent = std(arr).toFixed(2);
+            };
+            stats(toNum(1), 'tempAvg', 'tempMax', 'tempMin', 'tempStdDev'); // Temperature
+            stats(toNum(2), 'humAvg', 'humMax', 'humMin', 'humStdDev');    // Humidity
+            stats(toNum(3), 'coAvg', 'coMax', 'coMin', 'coStdDev');        // CO
+            stats(toNum(4), 'pm25Avg', 'pm25Max', 'pm25Min', 'pm25StdDev'); // PM2.5
+            stats(toNum(5), 'pm10Avg', 'pm10Max', 'pm10Min', 'pm10StdDev'); // PM10
+            stats(toNum(6), 'co2Avg', 'co2Max', 'co2Min', 'co2StdDev');     // CO2
+        }
 
-    function avg(a){return a.reduce((s,v)=>s+v,0)/ (a.length||1);}
-    function std(a){
-      const m = avg(a);
-      return Math.sqrt( avg(a.map(v=>Math.pow(v-m,2))) );
-    }
+        // Hàm tính trung bình
+        function avg(a) { return a.reduce((s, v) => s + v, 0) / (a.length || 1); }
 
-    let charts = {};
-    function renderCharts(data) {
-      const labels = data.map(r=>`${r[1]} ${r[2]}`);
-      const ds = (idx) => data.map(r=>parseFloat(r[idx])).filter(v=>!isNaN(v));
-      const configs = [
-        { id:'chart-temp', label:'Temp (°C)', data:ds(3) },
-        { id:'chart-hum',  label:'Hum (%)',    data:ds(4) },
-        { id:'chart-co',   label:'CO (ppm)',    data:ds(5) },
-        { id:'chart-pm25', label:'PM2.5',       data:ds(6) },
-        { id:'chart-pm10', label:'PM10',        data:ds(7) },
-        { id:'chart-co2',  label:'CO₂ (ppm)',   data:ds(8) },
-      ];
-      configs.forEach(c => {
-        if (charts[c.id]) charts[c.id].destroy();
-        charts[c.id] = new Chart(
-          document.getElementById(c.id), {
-            type:'line',
-            data:{ labels, datasets:[{
-              label:c.label,
-              data:c.data,
-              fill:false,
-              tension:0.3
-            }]},
-            options:{ responsive:true, scales:{ x:{display:true}, y:{beginAtZero:false}}}
-          }
-        );
-      });
-    }
+        // Hàm tính độ lệch chuẩn
+        function std(a) {
+            const m = avg(a);
+            return Math.sqrt(avg(a.map(v => Math.pow(v - m, 2))) || 0);
+        }
 
-    function showUpdateNotification(){
-      const n = document.createElement('div');
-      n.className='update-notification';
-      n.textContent='Dữ liệu đã được cập nhật!';
-      document.body.appendChild(n);
-      setTimeout(()=>n.remove(),3000);
-    }
+        // Vẽ biểu đồ
+        let charts = {};
+        function renderCharts(data) {
+            const labels = data.map(r => {
+                const ts = r[0] || '';
+                if (ts) {
+                    const d = new Date(ts);
+                    if (!isNaN(d)) return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                }
+                return 'N/A';
+            });
+            const ds = (idx) => data.map(r => parseFloat(r[idx] || 0)).filter(v => !isNaN(v));
+            const configs = [
+                { id: 'chart-temp', label: 'Temp', data: ds(1) },  // Temperature
+                { id: 'chart-hum', label: 'Hum', data: ds(2) },    // Humidity
+                { id: 'chart-co', label: 'CO', data: ds(3) },      // CO
+                { id: 'chart-pm25', label: 'PM2.5', data: ds(4) }, // PM2.5
+                { id: 'chart-pm10', label: 'PM10', data: ds(5) },  // PM10
+                { id: 'chart-co2', label: 'CO₂', data: ds(6) },    // CO2
+            ];
+            configs.forEach(c => {
+                if (charts[c.id]) charts[c.id].destroy();
+                charts[c.id] = new Chart(document.getElementById(c.id), {
+                    type: 'line',
+                    data: { labels, datasets: [{ label: c.label, data: c.data, fill: false, tension: 0.3 }] },
+                    options: { responsive: true, scales: { x: { display: true }, y: { beginAtZero: false } } }
+                });
+            });
+        }
 
-    document.addEventListener('DOMContentLoaded',()=>{
-      fetchData();
-      setInterval(fetchData,60000);
-      document.getElementById('exportPDF').addEventListener('click',()=>{
-        html2pdf().from(document.querySelector('.container')).toPdf().get('pdf').then(pdf=>pdf.save('report.pdf'));
-      });
-    });
-  </script>
+        // Hiển thị thông báo cập nhật
+        function showUpdateNotification() {
+            const n = document.createElement('div');
+            n.className = 'update-notification';
+            n.textContent = 'Dữ liệu đã được cập nhật!';
+            document.body.appendChild(n);
+            setTimeout(() => n.remove(), 3000);
+        }
+
+        // Khởi chạy và làm mới dữ liệu
+        document.addEventListener('DOMContentLoaded', async () => {
+            await fetchData();
+            setInterval(fetchData, 60000);
+            document.getElementById('exportPDF').addEventListener('click', () => {
+                html2pdf().from(document.querySelector('.container')).toPdf().get('pdf').then(pdf => pdf.save('report.pdf'));
+            });
+        });
+
+        // DRIVE FILES MODAL
+        const DRIVE_FOLDER_ID = '1Q2-Ld0PElM0xwMEDdclNhmk7Uhoo8xpe';
+        const DRIVE_API_KEY = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
+        let driveFiles = [];
+
+        document.getElementById('btnQueryDrive').addEventListener('click', fetchDriveFiles);
+
+        async function fetchDriveFiles() {
+            const url = `https://www.googleapis.com/drive/v3/files?q='${DRIVE_FOLDER_ID}'+in+parents&fields=files(id,name,webViewLink,createdTime)&key=${DRIVE_API_KEY}`;
+            try {
+                const resp = await fetch(url);
+                const { files } = await resp.json();
+                driveFiles = files || [];
+                displayDriveFiles(driveFiles);
+            } catch (err) {
+                document.getElementById('driveFileList').innerText = 'Lỗi tải file.';
+                console.error(err);
+            }
+        }
+
+        function displayDriveFiles(list) {
+            const container = document.getElementById('driveFileList');
+            if (list.length === 0) {
+                container.innerHTML = '<p>Không tìm thấy file.</p>';
+                return;
+            }
+            container.innerHTML = list.map(f => {
+                const date = new Date(f.createdTime).toLocaleDateString('vi-VN');
+                return `<p><a href="${f.webViewLink}" target="_blank">${f.name}</a><small class="text-muted ms-2">(${date})</small></p>`;
+            }).join('');
+        }
+
+        function filterDriveFiles() {
+            const s = document.getElementById('driveStart').value;
+            const e = document.getElementById('driveEnd').value;
+            const start = s ? new Date(s) : null;
+            const end = e ? new Date(e) : null;
+            const filtered = driveFiles.filter(f => {
+                const t = new Date(f.createdTime);
+                return (!start || t >= start) && (!end || t <= end);
+            });
+            displayDriveFiles(filtered);
+        }
+    </script>
+
     <!-- DRIVE FILES MODAL -->
-<div class="modal fade" id="driveModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Drive File List</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row g-3 mb-3">
-          <div class="col">
-            <label>Từ ngày</label>
-            <input type="date" id="driveStart" class="form-control"/>
-          </div>
-          <div class="col">
-            <label>Đến ngày</label>
-            <input type="date" id="driveEnd" class="form-control"/>
-          </div>
-          <div class="col-auto align-self-end">
-            <button class="btn btn-success" onclick="filterDriveFiles()">Lọc</button>
-          </div>
+    <div class="modal fade" id="driveModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Drive File List</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col">
+                            <label>Từ ngày</label>
+                            <input type="date" id="driveStart" class="form-control"/>
+                        </div>
+                        <div class="col">
+                            <label>Đến ngày</label>
+                            <input type="date" id="driveEnd" class="form-control"/>
+                        </div>
+                        <div class="col-auto align-self-end">
+                            <button class="btn btn-success" onclick="filterDriveFiles()">Lọc</button>
+                        </div>
+                    </div>
+                    <div id="driveFileList" style="max-height:400px;overflow:auto">
+                        Đang tải danh sách…
+                    </div>
+                </div>
+            </div>
         </div>
-        <div id="driveFileList" style="max-height:400px;overflow:auto">
-          Đang tải danh sách…
-        </div>
-      </div>
     </div>
-  </div>
-</div>
-<script>
-  // Cấu hình
-  const DRIVE_FOLDER_ID = '1Q2-Ld0PElM0xwMEDdclNhmk7Uhoo8xpe';
-  const API_KEY         = 'AIzaSyAFLByP7yNm_HMSO8sTyWjAXxwVrcXNoXw';
-  let driveFiles = [];
-
-  // 3.1. Khi modal mở, lấy danh sách file lần đầu
-  document.getElementById('btnQueryDrive')
-    .addEventListener('click', fetchDriveFiles);
-
-  // 3.2. Fetch danh sách file từ Drive
-  async function fetchDriveFiles(){
-    const url = `https://www.googleapis.com/drive/v3/files`
-              + `?q='${DRIVE_FOLDER_ID}'+in+parents`
-              + `&fields=files(id,name,webViewLink,createdTime)`
-              + `&key=${API_KEY}`;
-    try {
-      const resp = await fetch(url);
-      const { files } = await resp.json();
-      driveFiles = files || [];
-      displayDriveFiles(driveFiles);
-    } catch(err){
-      document.getElementById('driveFileList').innerText = 'Lỗi tải file.';
-      console.error(err);
-    }
-  }
-
-  // 3.3. Hiển thị danh sách (có thể gọi lại sau khi lọc)
-  function displayDriveFiles(list){
-    const container = document.getElementById('driveFileList');
-    if (list.length === 0) {
-      container.innerHTML = '<p>Không tìm thấy file.</p>';
-      return;
-    }
-    container.innerHTML = list.map(f => {
-      const date = new Date(f.createdTime).toLocaleDateString();
-      return `<p>
-        <a href="${f.webViewLink}" target="_blank">${f.name}</a>
-        <small class="text-muted ms-2">(${date})</small>
-      </p>`;
-    }).join('');
-  }
-
-  // 3.4. Lọc theo ngày tạo file
-  function filterDriveFiles(){
-    const s = document.getElementById('driveStart').value;
-    const e = document.getElementById('driveEnd').value;
-    const start = s ? new Date(s) : null;
-    const end   = e ? new Date(e) : null;
-    const filtered = driveFiles.filter(f => {
-      const t = new Date(f.createdTime);
-      return (!start || t >= start) && (!end || t <= end);
-    });
-    displayDriveFiles(filtered);
-  }
-</script>
-
 </body>
 </html>

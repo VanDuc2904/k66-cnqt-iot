@@ -538,11 +538,11 @@
             }
         }       
         function updateChart(recentData) {
-            const labels = recentData.map(row => row[2]); // Sử dụng cột "time" (C) làm nhãn
-            const temperatureData = recentData.map(row => parseFloat(row[3] || 0)); // Nhiệt độ (D)
-            const humidityData = recentData.map(row => parseFloat(row[4] || 0));    // Độ ẩm (E)
-            const coData = recentData.map(row => parseFloat(row[5] || 0));          // CO (F)
-            const pm25Data = recentData.map(row => parseFloat(row[6] || 0));        // PM2.5 (G)
+            const labels = recentData.map(row => row[2]); // Sử dụng cột "H" (Humidity) làm nhãn tạm thời, nên dùng cột "C" (Time) nếu có
+            const temperatureData = recentData.map(row => parseFloat(row[1] || 0)); // Nhiệt độ (B)
+            const humidityData = recentData.map(row => parseFloat(row[2] || 0));    // Độ ẩm (C)
+            const coData = recentData.map(row => parseFloat(row[3] || 0));          // CO (D)
+            const pm25Data = recentData.map(row => parseFloat(row[4] || 0));        // PM2.5 (E)
         
             if (!environmentChart) {
                 const ctx = document.getElementById('environmentChart').getContext('2d');

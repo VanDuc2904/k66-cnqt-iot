@@ -7,20 +7,93 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> <!-- Thư viện Excel -->
     <style>
-        body { font-family: 'Roboto', sans-serif; background: #f8f9fa; }
-        .sidebar { width: 250px; position: fixed; top: 0; bottom: 0; left: 0; background: #34495e; padding-top: 20px; color: #fff; }
-        .sidebar a { color: #fff; text-decoration: none; display: block; padding: 10px 15px; }
+        body { font-family: 'Roboto', sans-serif; background: #f8f9fa; margin: 0; padding: 0; }
+        .sidebar {
+            width: 250px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            background: #34495e;
+            padding-top: 20px;
+            color: #fff;
+            transition: transform 0.3s;
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            padding: 10px 15px;
+        }
         .sidebar a:hover { background: #2c3e50; }
-        .content { margin-left: 260px; padding: 20px; }
+        .content { margin-left: 260px; padding: 20px; transition: margin-left 0.3s; }
         .card { margin-bottom: 20px; }
         .history-table, .device-table, .user-table { max-height: 300px; overflow-y: auto; }
         .btn-custom { background: #2c3e50; color: #fff; border: none; transition: background 0.3s; }
         .btn-custom:hover { background: #1a252f; }
         .maintenance-card { background: #fff3cd; }
+        .disabled-section { opacity: 0.6; pointer-events: none; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .content {
+                margin-left: 0;
+                padding: 10px;
+            }
+            .card {
+                margin-bottom: 10px;
+            }
+            .card-body {
+                padding: 10px;
+            }
+            .form-control {
+                font-size: 14px;
+                padding: 6px;
+            }
+            .btn-custom {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+            .table {
+                font-size: 12px;
+            }
+            .sidebar-toggle {
+                display: block;
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                z-index: 1000;
+                background: #2c3e50;
+                border: none;
+                color: #fff;
+                padding: 10px;
+                border-radius: 5px;
+            }
+            .sidebar-toggle:hover {
+                background: #1a252f;
+            }
+        }
+
+        /* Ẩn nút toggle trên desktop */
+        @media (min-width: 769px) {
+            .sidebar-toggle {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar" id="sidebar">
         <h4 class="text-center">Menu</h4>
         <a href="#notification">Quản lý thông báo</a>
         <a href="#mapSettings">Cài đặt bản đồ</a>
@@ -37,7 +110,7 @@
     <div class="content">
         <div class="container mt-4">
             <h1>Quản trị web TLD-66</h1>
-            <p>Chào mừng bạn đến với trang quản trị. Thời gian hiện tại: 04:13 AM, 23/06/2025</p>
+            <p>Chào mừng bạn đến với trang quản trị. Thời gian hiện tại: 04:19 AM, 23/06/2025</p>
 
             <!-- Quản lý thông báo -->
             <div class="card" id="notification">
@@ -46,7 +119,7 @@
                     <div class="mb-3">
                         <label for="newNotification" class="form-label">Cập nhật thông báo mới:</label>
                         <input type="text" class="form-control" id="newNotification" placeholder="Nhập thông báo mới">
-                        <button class="btn btn-custom mt-2" onclick="updateNotification()">Cập nhật</button>
+                        <button class="btn btn-custom mt-2" id="updateNotificationBtn" onclick="updateNotification()">Cập nhật</button>
                     </div>
                 </div>
             </div>
@@ -67,7 +140,7 @@
                         <label for="markerTitle" class="form-label">Tiêu đề:</label>
                         <input type="text" class="form-control" id="markerTitle" placeholder="Nhập tiêu đề cho marker">
                     </div>
-                    <button class="btn btn-custom mt-2" onclick="updateMapSettings()">Cập nhật bản đồ</button>
+                    <button class="btn btn-custom mt-2" id="updateMapSettingsBtn" onclick="updateMapSettings()">Cập nhật bản đồ</button>
                 </div>
             </div>
 
@@ -77,8 +150,8 @@
                     <h5 class="card-title">Kiểm soát chức năng</h5>
                     <div class="mb-3">
                         <label class="form-label">Thông số thời gian thực</label>
-                        <button class="btn btn-success me-2" onclick="unlockCommand()">Mở khóa</button>
-                        <button class="btn btn-danger" onclick="lockCommand()">Đóng khóa</button>
+                        <button class="btn btn-success me-2" id="unlockCommandBtn" onclick="unlockCommand()">Mở khóa</button>
+                        <button class="btn btn-danger" id="lockCommandBtn" onclick="lockCommand()">Đóng khóa</button>
                     </div>
                 </div>
             </div>
@@ -89,10 +162,10 @@
                     <h5 class="card-title">Truy cập dữ liệu</h5>
                     <div class="mb-3">
                         <label class="form-label">Dữ liệu & thống kê</label>
-                        <button class="btn btn-success me-2" onclick="unlockDataStatistics()">Mở khóa</button>
-                        <button class="btn btn-danger" onclick="lockDataStatistics()">Đóng khóa</button>
+                        <button class="btn btn-success me-2" id="unlockDataBtn" onclick="unlockDataStatistics()">Mở khóa</button>
+                        <button class="btn btn-danger" id="lockDataBtn" onclick="lockDataStatistics()">Đóng khóa</button>
                     </div>
-                    <button class="btn btn-custom mt-2" onclick="exportExcel()">Xuất báo cáo Excel</button>
+                    <button class="btn btn-custom mt-2" id="exportExcelBtn" onclick="exportExcel()">Xuất báo cáo Excel</button>
                 </div>
             </div>
 
@@ -111,7 +184,7 @@
                             <option value="inactive">Ngưng hoạt động</option>
                         </select>
                     </div>
-                    <button class="btn btn-custom mt-2" onclick="updateDevice()">Cập nhật thiết bị</button>
+                    <button class="btn btn-custom mt-2" id="updateDeviceBtn" onclick="updateDevice()">Cập nhật thiết bị</button>
                     <div class="device-table mt-3">
                         <table class="table table-striped">
                             <thead>
@@ -134,7 +207,7 @@
                         <label for="maintenanceDate" class="form-label">Ngày bảo trì:</label>
                         <input type="date" class="form-control" id="maintenanceDate">
                     </div>
-                    <button class="btn btn-custom mt-2" onclick="scheduleMaintenance()">Lên lịch bảo trì</button>
+                    <button class="btn btn-custom mt-2" id="scheduleMaintenanceBtn" onclick="scheduleMaintenance()">Lên lịch bảo trì</button>
                     <p id="maintenanceStatus" class="mt-2">Trạng thái: Chưa kiểm tra</p>
                 </div>
             </div>
@@ -155,7 +228,7 @@
                             <option value="viewer">Viewer</option>
                         </select>
                     </div>
-                    <button class="btn btn-custom mt-2" onclick="updateUserRole()">Cập nhật quyền</button>
+                    <button class="btn btn-custom mt-2" id="updateUserRoleBtn" onclick="updateUserRole()">Cập nhật quyền</button>
                     <div class="mt-3">
                         <table class="table table-striped">
                             <thead>
@@ -214,6 +287,7 @@
     <!-- Thêm Firebase SDK từ CDN (Firebase v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
     <script>
         // Cấu hình Firebase
@@ -231,10 +305,42 @@
         // Khởi tạo Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const auth = firebase.auth();
         const activityLogRef = firebase.database().ref('activityLog');
         const usersRef = firebase.database().ref('users');
         const devicesRef = firebase.database().ref('devices');
         const maintenanceRef = firebase.database().ref('maintenance');
+
+        // Lấy vai trò người dùng hiện tại
+        let currentUserRole = 'admin'; // Mặc định là admin, cần kiểm tra thực tế
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                usersRef.child(user.email).once('value').then((snapshot) => {
+                    const userData = snapshot.val();
+                    currentUserRole = userData ? userData.role : 'admin'; // Lấy role từ Firebase
+                    updatePermissions();
+                }).catch((error) => {
+                    console.error('Lỗi lấy vai trò người dùng:', error);
+                });
+            }
+        });
+
+        // Cập nhật quyền truy cập
+        function updatePermissions() {
+            const isAdmin = currentUserRole === 'admin';
+            const isEditor = currentUserRole === 'editor' || isAdmin;
+
+            document.getElementById('updateNotificationBtn').classList.toggle('disabled-section', !isEditor);
+            document.getElementById('updateMapSettingsBtn').classList.toggle('disabled-section', !isEditor);
+            document.getElementById('unlockCommandBtn').classList.toggle('disabled-section', !isEditor);
+            document.getElementById('lockCommandBtn').classList.toggle('disabled-section', !isEditor);
+            document.getElementById('unlockDataBtn').classList.toggle('disabled-section', !isEditor);
+            document.getElementById('lockDataBtn').classList.toggle('disabled-section', !isEditor);
+            document.getElementById('exportExcelBtn').classList.toggle('disabled-section', !isEditor);
+            document.getElementById('updateDeviceBtn').classList.toggle('disabled-section', !isEditor);
+            document.getElementById('scheduleMaintenanceBtn').classList.toggle('disabled-section', !isEditor);
+            document.getElementById('updateUserRoleBtn').classList.toggle('disabled-section', !isAdmin);
+        }
 
         // Tải dữ liệu khi trang quản trị được tải
         document.addEventListener('DOMContentLoaded', () => {
@@ -244,7 +350,14 @@
             loadUserRoles();
             loadUserList();
             checkMaintenanceStatus();
+            toggleSidebar(); // Mở sidebar mặc định trên mobile
         });
+
+        // Toggle sidebar cho mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
 
         function loadMapSettings() {
             firebase.database().ref('mapSettings').once('value')
@@ -323,8 +436,8 @@
                             <td>${data.role || 'Chưa phân quyền'}</td>
                             <td>${new Date(data.timestamp || Date.now()).toLocaleString('vi-VN')}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm" onclick="editUser('${email}')">Sửa</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteUser('${email}')">Xóa</button>
+                                <button class="btn btn-warning btn-sm" onclick="editUser('${email}')" ${currentUserRole !== 'admin' ? 'disabled' : ''}>Sửa</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteUser('${email}')" ${currentUserRole !== 'admin' ? 'disabled' : ''}>Xóa</button>
                             </td>
                         </tr>
                     `);
@@ -413,7 +526,12 @@
         // Hàm đăng xuất
         function logout() {
             if (confirm('Bạn có chắc muốn đăng xuất?')) {
-                window.location.href = "index.html";
+                auth.signOut().then(() => {
+                    window.location.href = "index.html";
+                }).catch((error) => {
+                    console.error('Lỗi đăng xuất:', error);
+                    alert('Có lỗi xảy ra khi đăng xuất.');
+                });
             }
         }
 
@@ -560,7 +678,7 @@
             if (confirm('Bạn có chắc muốn cập nhật quyền người dùng?')) {
                 const userEmail = document.getElementById('userEmail').value.trim();
                 const userRole = document.getElementById('userRole').value;
-                if (userEmail) {
+                if (userEmail && currentUserRole === 'admin') {
                     usersRef.child(userEmail).update({
                         role: userRole,
                         timestamp: Date.now()
@@ -579,28 +697,34 @@
                         alert('Có lỗi xảy ra khi cập nhật quyền.');
                     });
                 } else {
-                    alert('Vui lòng nhập email.');
+                    alert('Chỉ Admin có thể cập nhật quyền hoặc vui lòng nhập email.');
                 }
             }
         }
 
         function exportExcel() {
-            const data = originalData.map(r => ({
-                Timestamp: r[0],
-                Nhiet_do: r[1],
-                Do_am: r[2],
-                CO: r[3],
-                PM25: r[4],
-                PM10: r[5],
-                CO2: r[6]
-            }));
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Dữ liệu");
-            XLSX.writeFile(wb, 'bao_cao_du_lieu.xlsx');
+            if (confirm('Bạn có chắc muốn xuất báo cáo Excel?')) {
+                const data = originalData.map(r => ({
+                    Timestamp: r[0],
+                    Nhiet_do: r[1],
+                    Do_am: r[2],
+                    CO: r[3],
+                    PM25: r[4],
+                    PM10: r[5],
+                    CO2: r[6]
+                }));
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Dữ liệu");
+                XLSX.writeFile(wb, 'bao_cao_du_lieu.xlsx');
+            }
         }
 
         function editUser(email) {
+            if (currentUserRole !== 'admin') {
+                alert('Chỉ Admin có thể chỉnh sửa quyền.');
+                return;
+            }
             if (confirm('Bạn có chắc muốn chỉnh sửa quyền cho người dùng này?')) {
                 const newRole = prompt('Nhập quyền mới (admin/editor/viewer):', '');
                 if (newRole && ['admin', 'editor', 'viewer'].includes(newRole)) {
@@ -627,6 +751,10 @@
         }
 
         function deleteUser(email) {
+            if (currentUserRole !== 'admin') {
+                alert('Chỉ Admin có thể xóa người dùng.');
+                return;
+            }
             if (confirm('Bạn có chắc muốn xóa người dùng này? Hành động này không thể hoàn tác!')) {
                 usersRef.child(email).remove()
                     .then(() => {

@@ -1,48 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin WEB</title>
+    <title>Quản trị web TLD-66</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; background: #f8f9fa; }
+        .sidebar { width: 250px; position: fixed; top: 0; bottom: 0; left: 0; background: #34495e; padding-top: 20px; color: #fff; }
+        .sidebar a { color: #fff; text-decoration: none; display: block; padding: 10px 15px; }
+        .sidebar a:hover { background: #2c3e50; }
+        .content { margin-left: 260px; padding: 20px; }
+        .card { margin-bottom: 20px; }
+        .history-table { max-height: 300px; overflow-y: auto; }
+        .btn-custom { background: #2c3e50; color: #fff; border: none; transition: background 0.3s; }
+        .btn-custom:hover { background: #1a252f; }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1>Quản trị web</h1>
-        <p>Chào mừng bạn đến với trang quản trị.</p>
+    <div class="sidebar">
+        <h4 class="text-center">Menu</h4>
+        <a href="#notification">Quản lý thông báo</a>
+        <a href="#mapSettings">Cài đặt bản đồ</a>
+        <a href="#commandControl">Kiểm soát chức năng</a>
+        <a href="#dataAccess">Truy cập dữ liệu</a>
+        <a href="#activityLog">Lịch sử hoạt động</a>
+        <a href="#" onclick="logout()">Đăng xuất</a>
+    </div>
 
-        <!-- Chức năng thay đổi thông báo -->
-        <div class="mb-3">
-            <label for="newNotification" class="form-label">Cập nhật thông báo mới:</label>
-            <input type="text" class="form-control" id="newNotification" placeholder="Nhập thông báo mới">
-            <button class="btn btn-primary mt-2" onclick="updateNotification()">Cập nhật thông báo</button>
-        </div>
-        <div class="mb-3">
-            <label for="newNotification" class="form-label">Thông số thời gian thực </label>
-            <button class="btn btn-success" onclick="unlockCommand()">Mở khóa chức năng</button>
-            <button class="btn btn-danger" onclick="lockCommand()">Đóng chức năng</button>
-        </div>
-        <div class="mb-3">
-            <label for="newNotification" class="form-label">Dữ liệu & thống kê </label>
-            <button class="btn btn-success" onclick="unlockDataStatistics()">Mở khóa truy cập</button>
-            <button class="btn btn-danger" onclick="lockDataStatistics()">Đóng khóa truy cập</button>
-        </div>
-        <!-- Chức năng thay đổi lat, long, title -->
-        <div class="mb-3">
-            <label for="latitude" class="form-label">Latitude:</label>
-            <input type="number" step="0.00001" class="form-control" id="latitude" placeholder="Nhập latitude">
-        </div>
-        <div class="mb-3">
-            <label for="longitude" class="form-label">Longitude:</label>
-            <input type="number" step="0.00001" class="form-control" id="longitude" placeholder="Nhập longitude">
-        </div>
-        <div class="mb-3">
-            <label for="markerTitle" class="form-label">Title:</label>
-            <input type="text" class="form-control" id="markerTitle" placeholder="Nhập title cho marker">
-        </div>
-        <button class="btn btn-primary mt-2" onclick="updateMapSettings()">Cập nhật bản đồ</button>
+    <div class="content">
+        <div class="container mt-4">
+            <h1>Quản trị web TLD-66</h1>
+            <p>Chào mừng bạn đến với trang quản trị.</p>
 
-        <button class="btn btn-danger mt-2" onclick="logout()">Đăng xuất</button>
+            <!-- Quản lý thông báo -->
+            <div class="card" id="notification">
+                <div class="card-body">
+                    <h5 class="card-title">Quản lý thông báo</h5>
+                    <div class="mb-3">
+                        <label for="newNotification" class="form-label">Cập nhật thông báo mới:</label>
+                        <input type="text" class="form-control" id="newNotification" placeholder="Nhập thông báo mới">
+                        <button class="btn btn-custom mt-2" onclick="updateNotification()">Cập nhật</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cài đặt bản đồ -->
+            <div class="card" id="mapSettings">
+                <div class="card-body">
+                    <h5 class="card-title">Cài đặt bản đồ</h5>
+                    <div class="mb-3">
+                        <label for="latitude" class="form-label">Latitude:</label>
+                        <input type="number" step="0.00001" class="form-control" id="latitude" placeholder="Nhập latitude">
+                    </div>
+                    <div class="mb-3">
+                        <label for="longitude" class="form-label">Longitude:</label>
+                        <input type="number" step="0.00001" class="form-control" id="longitude" placeholder="Nhập longitude">
+                    </div>
+                    <div class="mb-3">
+                        <label for="markerTitle" class="form-label">Tiêu đề:</label>
+                        <input type="text" class="form-control" id="markerTitle" placeholder="Nhập tiêu đề cho marker">
+                    </div>
+                    <button class="btn btn-custom mt-2" onclick="updateMapSettings()">Cập nhật bản đồ</button>
+                </div>
+            </div>
+
+            <!-- Kiểm soát chức năng -->
+            <div class="card" id="commandControl">
+                <div class="card-body">
+                    <h5 class="card-title">Kiểm soát chức năng</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Thông số thời gian thực</label>
+                        <button class="btn btn-success me-2" onclick="unlockCommand()">Mở khóa</button>
+                        <button class="btn btn-danger" onclick="lockCommand()">Đóng khóa</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Truy cập dữ liệu -->
+            <div class="card" id="dataAccess">
+                <div class="card-body">
+                    <h5 class="card-title">Truy cập dữ liệu</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Dữ liệu & thống kê</label>
+                        <button class="btn btn-success me-2" onclick="unlockDataStatistics()">Mở khóa</button>
+                        <button class="btn btn-danger" onclick="lockDataStatistics()">Đóng khóa</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lịch sử hoạt động -->
+            <div class="card" id="activityLog">
+                <div class="card-body">
+                    <h5 class="card-title">Lịch sử hoạt động</h5>
+                    <div class="history-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Hành động</th>
+                                    <th>Chi tiết</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityLogTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Thêm Firebase SDK từ CDN (Firebase v8) -->
@@ -65,10 +130,12 @@
         // Khởi tạo Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const activityLogRef = firebase.database().ref('activityLog');
 
         // Tải dữ liệu hiện tại từ Firebase khi trang quản trị được tải
         document.addEventListener('DOMContentLoaded', () => {
             loadMapSettings();
+            loadActivityLog();
         });
 
         function loadMapSettings() {
@@ -87,19 +154,43 @@
                 });
         }
 
-        // Cập nhật thông báo lên Firebase
+        function loadActivityLog() {
+            activityLogRef.on('value', snapshot => {
+                const logs = snapshot.val() || {};
+                const tbody = document.getElementById('activityLogTable');
+                tbody.innerHTML = '';
+                Object.entries(logs).forEach(([key, log]) => {
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr>
+                            <td>${new Date(log.timestamp).toLocaleString('vi-VN')}</td>
+                            <td>${log.action}</td>
+                            <td>${log.details}</td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        // Cập nhật thông báo lên Firebase và ghi lịch sử
         function updateNotification() {
             const newNotification = document.getElementById('newNotification').value.trim();
             if (newNotification) {
-                firebase.database().ref('notification/content').set(newNotification)
-                    .then(() => {
-                        alert('Thông báo đã được cập nhật.');
-                        document.getElementById('newNotification').value = ''; // Clear input after update
-                    })
-                    .catch(error => {
-                        console.error('Lỗi cập nhật thông báo:', error);
-                        alert('Có lỗi xảy ra khi cập nhật thông báo.');
-                    });
+                if (confirm('Bạn có chắc muốn cập nhật thông báo?')) {
+                    firebase.database().ref('notification/content').set(newNotification)
+                        .then(() => {
+                            activityLogRef.push({
+                                timestamp: Date.now(),
+                                action: 'Cập nhật thông báo',
+                                details: `Nội dung: ${newNotification}`
+                            });
+                            alert('Thông báo đã được cập nhật.');
+                            document.getElementById('newNotification').value = ''; // Clear input after update
+                        })
+                        .catch(error => {
+                            console.error('Lỗi cập nhật thông báo:', error);
+                            alert('Có lỗi xảy ra khi cập nhật thông báo.');
+                        });
+                }
             } else {
                 alert('Vui lòng nhập thông báo.');
             }
@@ -112,32 +203,36 @@
             const markerTitle = document.getElementById('markerTitle').value.trim();
 
             if (latitude && longitude && markerTitle) {
-                const lat = parseFloat(latitude);
-                const lng = parseFloat(longitude);
+                if (confirm('Bạn có chắc muốn cập nhật cài đặt bản đồ?')) {
+                    const lat = parseFloat(latitude);
+                    const lng = parseFloat(longitude);
 
-                // Cập nhật dữ liệu lên Firebase
-                firebase.database().ref('mapSettings').set({
-                    lat: lat,
-                    lng: lng,
-                    title: markerTitle
-                })
-                .then(() => {
-                    // Lưu vào localStorage để cập nhật trên trang index.html
-                    localStorage.setItem('mapLat', lat);
-                    localStorage.setItem('mapLng', lng);
-                    localStorage.setItem('mapTitle', markerTitle);
+                    firebase.database().ref('mapSettings').set({
+                        lat: lat,
+                        lng: lng,
+                        title: markerTitle
+                    })
+                    .then(() => {
+                        activityLogRef.push({
+                            timestamp: Date.now(),
+                            action: 'Cập nhật bản đồ',
+                            details: `Lat: ${lat}, Lng: ${lng}, Title: ${markerTitle}`
+                        });
+                        localStorage.setItem('mapLat', lat);
+                        localStorage.setItem('mapLng', lng);
+                        localStorage.setItem('mapTitle', markerTitle);
 
-                    // Cập nhật ngay lập tức marker trên trang chính nếu trang chính đang mở
-                    if (window.opener && !window.opener.closed && typeof window.opener.updateMarkerPosition === 'function') {
-                        window.opener.updateMarkerPosition(lat, lng, markerTitle);
-                    }
+                        if (window.opener && !window.opener.closed && typeof window.opener.updateMarkerPosition === 'function') {
+                            window.opener.updateMarkerPosition(lat, lng, markerTitle);
+                        }
 
-                    alert('Cài đặt bản đồ đã được cập nhật.');
-                })
-                .catch(error => {
-                    console.error('Lỗi cập nhật bản đồ:', error);
-                    alert('Có lỗi xảy ra khi cập nhật bản đồ.');
-                });
+                        alert('Cài đặt bản đồ đã được cập nhật.');
+                    })
+                    .catch(error => {
+                        console.error('Lỗi cập nhật bản đồ:', error);
+                        alert('Có lỗi xảy ra khi cập nhật bản đồ.');
+                    });
+                }
             } else {
                 alert('Vui lòng nhập đầy đủ thông tin vị trí.');
             }
@@ -145,64 +240,95 @@
 
         // Hàm đăng xuất
         function logout() {
-            window.location.href = "index.html"; // Chuyển hướng đến trang chính sau khi đăng xuất
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                window.location.href = "index.html"; // Chuyển hướng đến trang chính sau khi đăng xuất
+            }
         }
-                function unlockCommand() {
-            firebase.database().ref('commandSettings').set({
-                isUnlocked: true
-            })
-            .then(() => {
-                alert('Chức năng đã được mở khóa.');
-                
-                if (window.opener && !window.opener.closed && typeof window.opener.updateCommandStatus === 'function') {
-                    window.opener.updateCommandStatus(true);
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi khi mở khóa:', error);
-                alert('Có lỗi xảy ra khi mở khóa.');
-            });
+
+        function unlockCommand() {
+            if (confirm('Bạn có chắc muốn mở khóa chức năng?')) {
+                firebase.database().ref('commandSettings').set({
+                    isUnlocked: true
+                })
+                .then(() => {
+                    activityLogRef.push({
+                        timestamp: Date.now(),
+                        action: 'Mở khóa chức năng',
+                        details: 'Thông số thời gian thực'
+                    });
+                    alert('Chức năng đã được mở khóa.');
+                    if (window.opener && !window.opener.closed && typeof window.opener.updateCommandStatus === 'function') {
+                        window.opener.updateCommandStatus(true);
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi khi mở khóa:', error);
+                    alert('Có lỗi xảy ra khi mở khóa.');
+                });
+            }
         }
+
         function lockCommand() {
-            firebase.database().ref('commandSettings').set({
-                isUnlocked: false
-            })
-            .then(() => {
-                alert('Chức năng đã bị đóng.');
-                
-                // Cập nhật trạng thái ngay lập tức cho trang index nếu trang đó đang mở
-                if (window.opener && !window.opener.closed && typeof window.opener.updateCommandStatus === 'function') {
-                    window.opener.updateCommandStatus(false);
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi khi đóng chức năng:', error);
-                alert('Có lỗi xảy ra khi đóng chức năng.');
-            });
+            if (confirm('Bạn có chắc muốn đóng khóa chức năng?')) {
+                firebase.database().ref('commandSettings').set({
+                    isUnlocked: false
+                })
+                .then(() => {
+                    activityLogRef.push({
+                        timestamp: Date.now(),
+                        action: 'Đóng khóa chức năng',
+                        details: 'Thông số thời gian thực'
+                    });
+                    alert('Chức năng đã bị đóng.');
+                    if (window.opener && !window.opener.closed && typeof window.opener.updateCommandStatus === 'function') {
+                        window.opener.updateCommandStatus(false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi khi đóng chức năng:', error);
+                    alert('Có lỗi xảy ra khi đóng chức năng.');
+                });
+            }
         }
-                function unlockDataStatistics() {
-            firebase.database().ref('accessControl/dataStatistics').set({
-                isUnlocked: true
-            })
-            .then(() => {
-                alert('Đã mở khóa truy cập vào Dữ liệu & Thống kê.');
-            })
-            .catch(error => {
-                console.error('Lỗi khi mở khóa truy cập:', error);
-                alert('Có lỗi xảy ra khi mở khóa truy cập.');
-            });
+
+        function unlockDataStatistics() {
+            if (confirm('Bạn có chắc muốn mở khóa truy cập?')) {
+                firebase.database().ref('accessControl/dataStatistics').set({
+                    isUnlocked: true
+                })
+                .then(() => {
+                    activityLogRef.push({
+                        timestamp: Date.now(),
+                        action: 'Mở khóa truy cập',
+                        details: 'Dữ liệu & thống kê'
+                    });
+                    alert('Đã mở khóa truy cập vào Dữ liệu & Thống kê.');
+                })
+                .catch(error => {
+                    console.error('Lỗi khi mở khóa truy cập:', error);
+                    alert('Có lỗi xảy ra khi mở khóa truy cập.');
+                });
+            }
         }
+
         function lockDataStatistics() {
-            firebase.database().ref('accessControl/dataStatistics').set({
-                isUnlocked: false
-            })
-            .then(() => {
-                alert('Đã đóng khóa truy cập vào Dữ liệu & Thống kê.');
-            })
-            .catch(error => {
-                console.error('Lỗi khi đóng khóa truy cập:', error);
-                alert('Có lỗi xảy ra khi đóng khóa truy cập.');
-            });
+            if (confirm('Bạn có chắc muốn đóng khóa truy cập?')) {
+                firebase.database().ref('accessControl/dataStatistics').set({
+                    isUnlocked: false
+                })
+                .then(() => {
+                    activityLogRef.push({
+                        timestamp: Date.now(),
+                        action: 'Đóng khóa truy cập',
+                        details: 'Dữ liệu & thống kê'
+                    });
+                    alert('Đã đóng khóa truy cập vào Dữ liệu & Thống kê.');
+                })
+                .catch(error => {
+                    console.error('Lỗi khi đóng khóa truy cập:', error);
+                    alert('Có lỗi xảy ra khi đóng khóa truy cập.');
+                });
+            }
         }
     </script>
 </body>

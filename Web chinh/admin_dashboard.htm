@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản trị web TLD-66</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> <!-- Thư viện Excel -->
     <style>
         body { font-family: 'Roboto', sans-serif; background: #f8f9fa; }
         .sidebar { width: 250px; position: fixed; top: 0; bottom: 0; left: 0; background: #34495e; padding-top: 20px; color: #fff; }
@@ -12,9 +13,10 @@
         .sidebar a:hover { background: #2c3e50; }
         .content { margin-left: 260px; padding: 20px; }
         .card { margin-bottom: 20px; }
-        .history-table { max-height: 300px; overflow-y: auto; }
+        .history-table, .device-table, .user-table { max-height: 300px; overflow-y: auto; }
         .btn-custom { background: #2c3e50; color: #fff; border: none; transition: background 0.3s; }
         .btn-custom:hover { background: #1a252f; }
+        .maintenance-card { background: #fff3cd; }
     </style>
 </head>
 <body>
@@ -24,6 +26,10 @@
         <a href="#mapSettings">Cài đặt bản đồ</a>
         <a href="#commandControl">Kiểm soát chức năng</a>
         <a href="#dataAccess">Truy cập dữ liệu</a>
+        <a href="#deviceManagement">Quản lý thiết bị</a>
+        <a href="#maintenance">Bảo trì hệ thống</a>
+        <a href="#userManagement">Phân quyền người dùng</a>
+        <a href="#userList">Danh sách người dùng</a>
         <a href="#activityLog">Lịch sử hoạt động</a>
         <a href="#" onclick="logout()">Đăng xuất</a>
     </div>
@@ -31,7 +37,7 @@
     <div class="content">
         <div class="container mt-4">
             <h1>Quản trị web TLD-66</h1>
-            <p>Chào mừng bạn đến với trang quản trị.</p>
+            <p>Chào mừng bạn đến với trang quản trị. Thời gian hiện tại: 04:09 AM, 23/06/2025</p>
 
             <!-- Quản lý thông báo -->
             <div class="card" id="notification">
@@ -86,6 +92,100 @@
                         <button class="btn btn-success me-2" onclick="unlockDataStatistics()">Mở khóa</button>
                         <button class="btn btn-danger" onclick="lockDataStatistics()">Đóng khóa</button>
                     </div>
+                    <button class="btn btn-custom mt-2" onclick="exportExcel()">Xuất báo cáo Excel</button>
+                </div>
+            </div>
+
+            <!-- Quản lý thiết bị -->
+            <div class="card" id="deviceManagement">
+                <div class="card-body">
+                    <h5 class="card-title">Quản lý thiết bị</h5>
+                    <div class="mb-3">
+                        <label for="deviceId" class="form-label">ID thiết bị:</label>
+                        <input type="text" class="form-control" id="deviceId" placeholder="Nhập ID thiết bị">
+                    </div>
+                    <div class="mb-3">
+                        <label for="deviceStatus" class="form-label">Trạng thái:</label>
+                        <select class="form-control" id="deviceStatus">
+                            <option value="active">Hoạt động</option>
+                            <option value="inactive">Ngưng hoạt động</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-custom mt-2" onclick="updateDevice()">Cập nhật thiết bị</button>
+                    <div class="device-table mt-3">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deviceTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bảo trì hệ thống -->
+            <div class="card maintenance-card" id="maintenance">
+                <div class="card-body">
+                    <h5 class="card-title">Bảo trì hệ thống</h5>
+                    <div class="mb-3">
+                        <label for="maintenanceDate" class="form-label">Ngày bảo trì:</label>
+                        <input type="date" class="form-control" id="maintenanceDate">
+                    </div>
+                    <button class="btn btn-custom mt-2" onclick="scheduleMaintenance()">Lên lịch bảo trì</button>
+                    <p id="maintenanceStatus" class="mt-2">Trạng thái: Chưa kiểm tra</p>
+                </div>
+            </div>
+
+            <!-- Phân quyền người dùng -->
+            <div class="card" id="userManagement">
+                <div class="card-body">
+                    <h5 class="card-title">Phân quyền người dùng</h5>
+                    <div class="mb-3">
+                        <label for="userEmail" class="form-label">Email người dùng:</label>
+                        <input type="email" class="form-control" id="userEmail" placeholder="Nhập email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="userRole" class="form-label">Quyền:</label>
+                        <select class="form-control" id="userRole">
+                            <option value="admin">Admin</option>
+                            <option value="editor">Editor</option>
+                            <option value="viewer">Viewer</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-custom mt-2" onclick="updateUserRole()">Cập nhật quyền</button>
+                    <div class="mt-3">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Quyền</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách người dùng -->
+            <div class="card" id="userList">
+                <div class="card-body">
+                    <h5 class="card-title">Danh sách người dùng</h5>
+                    <div class="user-table mt-3">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Quyền</th>
+                                    <th>Thời gian đăng ký</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userListTable"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -131,11 +231,18 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const activityLogRef = firebase.database().ref('activityLog');
+        const usersRef = firebase.database().ref('users');
+        const devicesRef = firebase.database().ref('devices');
+        const maintenanceRef = firebase.database().ref('maintenance');
 
-        // Tải dữ liệu hiện tại từ Firebase khi trang quản trị được tải
+        // Tải dữ liệu khi trang quản trị được tải
         document.addEventListener('DOMContentLoaded', () => {
             loadMapSettings();
             loadActivityLog();
+            loadDevices();
+            loadUserRoles();
+            loadUserList();
+            checkMaintenanceStatus();
         });
 
         function loadMapSettings() {
@@ -171,11 +278,71 @@
             });
         }
 
-        // Cập nhật thông báo lên Firebase và ghi lịch sử
+        function loadDevices() {
+            devicesRef.on('value', snapshot => {
+                const devices = snapshot.val() || {};
+                const tbody = document.getElementById('deviceTable');
+                tbody.innerHTML = '';
+                Object.entries(devices).forEach(([id, status]) => {
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr>
+                            <td>${id}</td>
+                            <td>${status}</td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        function loadUserRoles() {
+            usersRef.on('value', snapshot => {
+                const users = snapshot.val() || {};
+                const tbody = document.getElementById('userTable');
+                tbody.innerHTML = '';
+                Object.entries(users).forEach(([email, role]) => {
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr>
+                            <td>${email}</td>
+                            <td>${role}</td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        function loadUserList() {
+            usersRef.on('value', snapshot => {
+                const users = snapshot.val() || {};
+                const tbody = document.getElementById('userListTable');
+                tbody.innerHTML = '';
+                Object.entries(users).forEach(([email, data]) => {
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr>
+                            <td>${email}</td>
+                            <td>${data.role}</td>
+                            <td>${new Date(data.timestamp || Date.now()).toLocaleString('vi-VN')}</td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+
+        function checkMaintenanceStatus() {
+            maintenanceRef.once('value').then(snapshot => {
+                const maintenance = snapshot.val();
+                if (maintenance && maintenance.date) {
+                    const maintDate = new Date(maintenance.date);
+                    const today = new Date();
+                    document.getElementById('maintenanceStatus').textContent = maintDate > today ? `Trạng thái: Đã lên lịch (${maintDate.toLocaleDateString('vi-VN')})` : 'Trạng thái: Đã kiểm tra';
+                }
+            });
+        }
+
+        // Cập nhật thông báo
         function updateNotification() {
-            const newNotification = document.getElementById('newNotification').value.trim();
-            if (newNotification) {
-                if (confirm('Bạn có chắc muốn cập nhật thông báo?')) {
+            if (confirm('Bạn có chắc muốn cập nhật thông báo?')) {
+                const newNotification = document.getElementById('newNotification').value.trim();
+                if (newNotification) {
                     firebase.database().ref('notification/content').set(newNotification)
                         .then(() => {
                             activityLogRef.push({
@@ -184,26 +351,26 @@
                                 details: `Nội dung: ${newNotification}`
                             });
                             alert('Thông báo đã được cập nhật.');
-                            document.getElementById('newNotification').value = ''; // Clear input after update
+                            document.getElementById('newNotification').value = '';
                         })
                         .catch(error => {
                             console.error('Lỗi cập nhật thông báo:', error);
                             alert('Có lỗi xảy ra khi cập nhật thông báo.');
                         });
+                } else {
+                    alert('Vui lòng nhập thông báo.');
                 }
-            } else {
-                alert('Vui lòng nhập thông báo.');
             }
         }
 
-        // Cập nhật cài đặt bản đồ lên Firebase và lưu vào localStorage
+        // Cập nhật cài đặt bản đồ
         function updateMapSettings() {
-            const latitude = document.getElementById('latitude').value.trim();
-            const longitude = document.getElementById('longitude').value.trim();
-            const markerTitle = document.getElementById('markerTitle').value.trim();
+            if (confirm('Bạn có chắc muốn cập nhật cài đặt bản đồ?')) {
+                const latitude = document.getElementById('latitude').value.trim();
+                const longitude = document.getElementById('longitude').value.trim();
+                const markerTitle = document.getElementById('markerTitle').value.trim();
 
-            if (latitude && longitude && markerTitle) {
-                if (confirm('Bạn có chắc muốn cập nhật cài đặt bản đồ?')) {
+                if (latitude && longitude && markerTitle) {
                     const lat = parseFloat(latitude);
                     const lng = parseFloat(longitude);
 
@@ -232,16 +399,16 @@
                         console.error('Lỗi cập nhật bản đồ:', error);
                         alert('Có lỗi xảy ra khi cập nhật bản đồ.');
                     });
+                } else {
+                    alert('Vui lòng nhập đầy đủ thông tin vị trí.');
                 }
-            } else {
-                alert('Vui lòng nhập đầy đủ thông tin vị trí.');
             }
         }
 
         // Hàm đăng xuất
         function logout() {
             if (confirm('Bạn có chắc muốn đăng xuất?')) {
-                window.location.href = "index.html"; // Chuyển hướng đến trang chính sau khi đăng xuất
+                window.location.href = "index.html";
             }
         }
 
@@ -329,6 +496,103 @@
                     alert('Có lỗi xảy ra khi đóng khóa truy cập.');
                 });
             }
+        }
+
+        function updateDevice() {
+            if (confirm('Bạn có chắc muốn cập nhật trạng thái thiết bị?')) {
+                const deviceId = document.getElementById('deviceId').value.trim();
+                const deviceStatus = document.getElementById('deviceStatus').value;
+                if (deviceId) {
+                    devicesRef.child(deviceId).set(deviceStatus)
+                        .then(() => {
+                            activityLogRef.push({
+                                timestamp: Date.now(),
+                                action: 'Cập nhật thiết bị',
+                                details: `ID: ${deviceId}, Trạng thái: ${deviceStatus}`
+                            });
+                            alert('Thiết bị đã được cập nhật.');
+                            document.getElementById('deviceId').value = '';
+                        })
+                        .catch(error => {
+                            console.error('Lỗi cập nhật thiết bị:', error);
+                            alert('Có lỗi xảy ra khi cập nhật thiết bị.');
+                        });
+                } else {
+                    alert('Vui lòng nhập ID thiết bị.');
+                }
+            }
+        }
+
+        function scheduleMaintenance() {
+            if (confirm('Bạn có chắc muốn lên lịch bảo trì?')) {
+                const maintenanceDate = document.getElementById('maintenanceDate').value;
+                if (maintenanceDate) {
+                    maintenanceRef.set({
+                        date: maintenanceDate,
+                        status: 'scheduled'
+                    })
+                    .then(() => {
+                        activityLogRef.push({
+                            timestamp: Date.now(),
+                            action: 'Lên lịch bảo trì',
+                            details: `Ngày: ${maintenanceDate}`
+                        });
+                        checkMaintenanceStatus();
+                        alert('Lịch bảo trì đã được lên.');
+                        document.getElementById('maintenanceDate').value = '';
+                    })
+                    .catch(error => {
+                        console.error('Lỗi lên lịch bảo trì:', error);
+                        alert('Có lỗi xảy ra khi lên lịch bảo trì.');
+                    });
+                } else {
+                    alert('Vui lòng chọn ngày bảo trì.');
+                }
+            }
+        }
+
+        function updateUserRole() {
+            if (confirm('Bạn có chắc muốn cập nhật quyền người dùng?')) {
+                const userEmail = document.getElementById('userEmail').value.trim();
+                const userRole = document.getElementById('userRole').value;
+                if (userEmail) {
+                    usersRef.child(userEmail).update({
+                        role: userRole,
+                        timestamp: Date.now()
+                    })
+                    .then(() => {
+                        activityLogRef.push({
+                            timestamp: Date.now(),
+                            action: 'Cập nhật quyền người dùng',
+                            details: `Email: ${userEmail}, Quyền: ${userRole}`
+                        });
+                        alert('Quyền người dùng đã được cập nhật.');
+                        document.getElementById('userEmail').value = '';
+                    })
+                    .catch(error => {
+                        console.error('Lỗi cập nhật quyền:', error);
+                        alert('Có lỗi xảy ra khi cập nhật quyền.');
+                    });
+                } else {
+                    alert('Vui lòng nhập email.');
+                }
+            }
+        }
+
+        function exportExcel() {
+            const data = originalData.map(r => ({
+                Timestamp: r[0],
+                Nhiet_do: r[1],
+                Do_am: r[2],
+                CO: r[3],
+                PM25: r[4],
+                PM10: r[5],
+                CO2: r[6]
+            }));
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Dữ liệu");
+            XLSX.writeFile(wb, 'bao_cao_du_lieu.xlsx');
         }
     </script>
 </body>

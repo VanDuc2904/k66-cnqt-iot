@@ -37,7 +37,7 @@
     <div class="content">
         <div class="container mt-4">
             <h1>Quản trị web TLD-66</h1>
-            <p>Chào mừng bạn đến với trang quản trị. Thời gian hiện tại: 04:09 AM, 23/06/2025</p>
+            <p>Chào mừng bạn đến với trang quản trị. Thời gian hiện tại: 04:13 AM, 23/06/2025</p>
 
             <!-- Quản lý thông báo -->
             <div class="card" id="notification">
@@ -181,6 +181,7 @@
                                     <th>Email</th>
                                     <th>Quyền</th>
                                     <th>Thời gian đăng ký</th>
+                                    <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody id="userListTable"></tbody>
@@ -319,8 +320,12 @@
                     tbody.insertAdjacentHTML('beforeend', `
                         <tr>
                             <td>${email}</td>
-                            <td>${data.role}</td>
+                            <td>${data.role || 'Chưa phân quyền'}</td>
                             <td>${new Date(data.timestamp || Date.now()).toLocaleString('vi-VN')}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editUser('${email}')">Sửa</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteUser('${email}')">Xóa</button>
+                            </td>
                         </tr>
                     `);
                 });
@@ -593,6 +598,50 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Dữ liệu");
             XLSX.writeFile(wb, 'bao_cao_du_lieu.xlsx');
+        }
+
+        function editUser(email) {
+            if (confirm('Bạn có chắc muốn chỉnh sửa quyền cho người dùng này?')) {
+                const newRole = prompt('Nhập quyền mới (admin/editor/viewer):', '');
+                if (newRole && ['admin', 'editor', 'viewer'].includes(newRole)) {
+                    usersRef.child(email).update({
+                        role: newRole,
+                        timestamp: Date.now()
+                    })
+                    .then(() => {
+                        activityLogRef.push({
+                            timestamp: Date.now(),
+                            action: 'Chỉnh sửa quyền người dùng',
+                            details: `Email: ${email}, Quyền mới: ${newRole}`
+                        });
+                        alert('Quyền đã được cập nhật.');
+                    })
+                    .catch(error => {
+                        console.error('Lỗi chỉnh sửa quyền:', error);
+                        alert('Có lỗi xảy ra khi chỉnh sửa quyền.');
+                    });
+                } else {
+                    alert('Quyền không hợp lệ.');
+                }
+            }
+        }
+
+        function deleteUser(email) {
+            if (confirm('Bạn có chắc muốn xóa người dùng này? Hành động này không thể hoàn tác!')) {
+                usersRef.child(email).remove()
+                    .then(() => {
+                        activityLogRef.push({
+                            timestamp: Date.now(),
+                            action: 'Xóa người dùng',
+                            details: `Email: ${email}`
+                        });
+                        alert('Người dùng đã được xóa.');
+                    })
+                    .catch(error => {
+                        console.error('Lỗi xóa người dùng:', error);
+                        alert('Có lỗi xảy ra khi xóa người dùng.');
+                    });
+            }
         }
     </script>
 </body>

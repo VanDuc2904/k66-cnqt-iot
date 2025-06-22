@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -73,6 +73,7 @@
             transition: background 0.3s, color 0.3s, border-color 0.3s;
         }
         
+        /* Button Hover Effect */
         .btn-custom:hover {
             background: rgba(255, 255, 255, 0.2);
             border-color: #aaa;
@@ -101,14 +102,42 @@
             color: #ddd;
         }
         @media (max-width: 576px) {
-            .main-container { padding: 10px; }
-            .section { padding: 10px; }
-            .section h2 { font-size: 1.2rem; margin-bottom: 10px; }
-            .form-control { padding: 7px; font-size: 13px; }
-            .btn-custom { padding: 7px 10px; font-size: 13px; }
-            .modal-content { padding: 15px; }
-            .modal-header, .modal-body, .modal-footer { padding: 10px; }
-            .logo { top: 5px; left: 5px; width: 120px; }
+            .main-container {
+                padding: 10px;
+            }
+        
+            .section {
+                padding: 10px;
+            }
+        
+            .section h2 {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+        
+            .form-control {
+                padding: 7px;
+                font-size: 13px;
+            }
+        
+            .btn-custom {
+                padding: 7px 10px;
+                font-size: 13px;
+            }
+        
+            .modal-content {
+                padding: 15px;
+            }
+        
+            .modal-header, .modal-body, .modal-footer {
+                padding: 10px;
+            }
+        
+            .logo {
+                top: 5px;
+                left: 5px;
+                width: 120px;
+            }
         }
     </style>
 </head>
@@ -117,6 +146,7 @@
         <img src="img/Logo1.png" alt="Logo" class="logo">
     </a>    
     <div class="main-container">
+        <!-- Login Section -->
         <div class="section">
             <h2>Đăng nhập</h2>
             <form id="loginForm">
@@ -237,129 +267,6 @@
                 firebase.initializeApp(firebaseConfig);
             }
             const auth = firebase.auth();
-            const database = firebase.database();
-            const usersRef = firebase.database().ref('users');
-
-            // Đăng ký người dùng và lưu vào Firebase
-            document.getElementById('registerForm').addEventListener('submit', function(event) {
-                event.preventDefault();
-                const email = document.getElementById('registerEmail').value;
-                const password = document.getElementById('registerPassword').value;
-
-                if (auth) {
-                    auth.createUserWithEmailAndPassword(email, password)
-                        .then((userCredential) => {
-                            const user = userCredential.user;
-                            return usersRef.child(user.email).set({
-                                role: 'viewer', // Mặc định là viewer
-                                timestamp: Date.now()
-                            }).then(() => {
-                                auth.currentUser.sendEmailVerification()
-                                    .then(() => {
-                                        alert('Đã gửi email xác thực. Vui lòng kiểm tra email của bạn.');
-                                        document.getElementById('registerForm').reset();
-                                        const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
-                                        registerModal.hide();
-                                    });
-                            });
-                        })
-                        .catch((error) => {
-                            alert("Đăng ký thất bại: " + error.message);
-                        });
-                } else {
-                    alert("Firebase chưa khởi tạo thành công.");
-                }
-            });
-
-            // Đăng nhập người dùng
-            document.getElementById('loginForm').addEventListener('submit', function(event) {
-                event.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-
-                if (auth) {
-                    auth.signInWithEmailAndPassword(email, password)
-                        .then((userCredential) => {
-                            // Kiểm tra vai trò trước khi redirect
-                            usersRef.child(email).once('value').then((snapshot) => {
-                                const userData = snapshot.val() || {};
-                                const role = userData.role || 'viewer';
-                                if (role === 'admin') {
-                                    alert("Đăng nhập thành công! Chuyển hướng đến trang quản trị...");
-                                    window.location.href = 'admin_dashboard.htm';
-                                } else {
-                                    alert("Đăng nhập thành công! Chuyển hướng đến trang người dùng...");
-                                    window.location.href = 'results.htm';
-                                }
-                            }).catch((error) => {
-                                alert("Lỗi kiểm tra vai trò: " + error.message);
-                            });
-                        })
-                        .catch((error) => {
-                            alert("Đăng nhập thất bại: " + error.message);
-                        });
-                } else {
-                    alert("Firebase chưa khởi tạo thành công.");
-                }
-            });
-
-            // Quên mật khẩu
-            document.getElementById('forgotPasswordForm').addEventListener('submit', function(event) {
-                event.preventDefault();
-                const forgotEmail = document.getElementById('forgotEmail').value;
-
-                if (auth) {
-                    auth.sendPasswordResetEmail(forgotEmail)
-                        .then(() => {
-                            alert("Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email của bạn.");
-                        })
-                        .catch((error) => {
-                            alert("Đặt lại mật khẩu thất bại: " + error.message);
-                        });
-                } else {
-                    alert("Firebase chưa khởi tạo thành công.");
-                }
-            });
-
-            // Đăng nhập quản trị viên
-            document.getElementById('adminLoginForm').addEventListener('submit', function(event) {
-                event.preventDefault();
-                const email = document.getElementById('adminEmail').value;
-                const password = document.getElementById('adminPassword').value;
-                const adminLoginMessage = document.getElementById('adminLoginMessage');
-
-                if (auth) {
-                    auth.signInWithEmailAndPassword(email, password)
-                        .then((userCredential) => {
-                            // Kiểm tra vai trò từ Firebase
-                            usersRef.child(email).once('value').then((snapshot) => {
-                                const userData = snapshot.val() || {};
-                                const role = userData.role || 'viewer';
-                                if (role === 'admin' || ['thaivanduc_t66@hus.edu.vn', 'giangngocthao_t66@hus.edu.vn', 'nguyenkhanhlinh2_t66@hus.edu.vn'].includes(email)) {
-                                    if (!userData.role) {
-                                        usersRef.child(email).update({ role: 'admin', timestamp: Date.now() });
-                                    }
-                                    alert('Redirecting to admin dashboard...');
-                                    window.location.href = 'admin_dashboard.htm';
-                                } else {
-                                    adminLoginMessage.textContent = 'Bạn không có quyền truy cập trang quản trị.';
-                                    adminLoginMessage.classList.add('text-danger');
-                                }
-                            }).catch((error) => {
-                                adminLoginMessage.textContent = 'Lỗi kiểm tra vai trò: ' + error.message;
-                                adminLoginMessage.classList.add('text-danger');
-                            });
-                        })
-                        .catch((error) => {
-                            adminLoginMessage.textContent = 'Đăng nhập thất bại: ' + error.message;
-                            adminLoginMessage.classList.add('text-danger');
-                        });
-                } else {
-                    alert("Firebase chưa khởi tạo thành công.");
-                }
-            });
-
-            // Đăng ký email để nhận cập nhật
             document.getElementById('emailForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const email = document.getElementById('email').value;
@@ -388,6 +295,87 @@
                     responseMessage.textContent = "Đã xảy ra lỗi khi đăng ký: " + error.message;
                     responseMessage.classList.add('text-danger');
                 });
+            });
+            document.getElementById('registerForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+
+                if (auth) {
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .then((userCredential) => {
+                            if (userCredential.user) {
+                                auth.currentUser.sendEmailVerification()
+                                    .then(() => {
+                                        alert('Đã gửi email xác thực. Vui lòng kiểm tra email của bạn.');
+                                        document.getElementById('registerForm').reset();
+                                        const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                                        registerModal.hide();
+                                    });
+                            }
+                        })
+                        .catch((error) => {
+                            alert("Đăng ký thất bại: " + error.message);
+                        });
+                } else {
+                    alert("Firebase chưa khởi tạo thành công.");
+                }
+            });
+            document.getElementById('loginForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                if (auth) {
+                    auth.signInWithEmailAndPassword(email, password)
+                        .then((userCredential) => {
+                            alert("Đăng nhập thành công!");
+                            window.location.href = "results.htm"; // Redirect after successful login
+                        })
+                        .catch((error) => {
+                            alert("Đăng nhập thất bại: " + error.message);
+                        });
+                } else {
+                    alert("Firebase chưa khởi tạo thành công.");
+                }
+            });
+            document.getElementById('forgotPasswordForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const forgotEmail = document.getElementById('forgotEmail').value;
+
+                if (auth) {
+                    auth.sendPasswordResetEmail(forgotEmail)
+                        .then(() => {
+                            alert("Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email của bạn.");
+                        })
+                        .catch((error) => {
+                            alert("Đặt lại mật khẩu thất bại: " + error.message);
+                        });
+                } else {
+                    alert("Firebase chưa khởi tạo thành công.");
+                }
+            });
+            document.getElementById('adminLoginForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                const email = document.getElementById('adminEmail').value;
+                const password = document.getElementById('adminPassword').value;
+                const adminLoginMessage = document.getElementById('adminLoginMessage');
+
+                const adminUsers = [
+                    { email: 'thaivanduc_t66@hus.edu.vn', password: 'DucQT' },
+                    { email: 'giangngocthao_t66@hus.edu.vn', password: 'ThaoQT' },
+                    { email: 'nguyenkhanhlinh2_t66@hus.edu.vn', password: 'LinhQT' }
+                ];
+
+                const adminUser = adminUsers.find(user => user.email === email && user.password === password);
+
+                if (adminUser) {
+                    alert('Redirecting to admin dashboard...');
+                    window.location.href = 'admin_dashboard.htm'; 
+                } else {
+                    adminLoginMessage.textContent = 'Thông tin đăng nhập không đúng. Vui lòng kiểm tra lại.';
+                    adminLoginMessage.classList.add('text-danger');
+                }
             });
         });
     </script>
